@@ -50,4 +50,32 @@ public class DataManager {
 		
 		return null;		
 	}
+	
+	
+	
+	
+	
+	
+	public void createAccount(String username, String password) {
+		//User user = new User();
+		System.out.println("In craete acocunt");
+		try {
+			Statement st = connection.createStatement();
+			
+			
+			String sqlQuery = "INSERT INTO Users VALUES('" + username 
+								+ "', SHA1('" + password + "'));";
+			
+			System.out.println(sqlQuery);
+			
+			st.executeUpdate(sqlQuery);
+			
+			
+		} catch (SQLException e) {
+			System.err.println("SQL error in DataManager.getAccount(). " + e.getMessage());
+		}
+		
+		
+		//return user;
+	}
 }

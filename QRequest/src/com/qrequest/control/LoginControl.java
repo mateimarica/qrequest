@@ -10,4 +10,10 @@ public class LoginControl {
 		
 		return (user != null);
 	}
+	
+	public void processCreateAccount(String username, String password) {
+		new DataManager().createAccount(username, password);
+		
+		//return (user != null);
+	}
 }
