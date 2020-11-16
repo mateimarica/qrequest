@@ -8,10 +8,12 @@ import java.sql.Statement;
 
 import com.qrequest.object.User;
 
-public class DataManager {
-	Connection connection = null;
+//class is abstract so no instances can be made - all references are to be STATIC
+//default access modifiers so ONLY control classes can access the DataManager
+abstract class DataManager {
+	static Connection connection = initializeConnection();
 	
-	public DataManager() {
+	private static Connection initializeConnection() {
 		 try {
 	         Class.forName("com.mysql.jdbc.Driver").newInstance();
 	     } catch (Exception e) {
@@ -19,13 +21,15 @@ public class DataManager {
 	     }
 		String url = "***REMOVED***";
 		try {
-			connection = DriverManager.getConnection(url, "***REMOVED***", "***REMOVED***");
+			return DriverManager.getConnection(url, "***REMOVED***", "***REMOVED***");
 		} catch (SQLException e) {
 			System.err.println("Database connection error: " + e.getMessage());
 		}
+		
+		return null;
 	}
 	
-	public User getAccount(String username, String password) {
+	public static User getAccount(String username, String password) {
 		User user = new User();
 		try {
 			Statement st = connection.createStatement();
@@ -51,31 +55,17 @@ public class DataManager {
 		return null;		
 	}
 	
-	
-	
-	
-	
-	
-	public void createAccount(String username, String password) {
-		//User user = new User();
-		System.out.println("In craete acocunt");
+	public static void createAccount(String username, String password) {
 		try {
 			Statement st = connection.createStatement();
-			
 			
 			String sqlQuery = "INSERT INTO Users VALUES('" + username 
 								+ "', SHA1('" + password + "'));";
 			
-			System.out.println(sqlQuery);
-			
 			st.executeUpdate(sqlQuery);
-			
 			
 		} catch (SQLException e) {
 			System.err.println("SQL error in DataManager.getAccount(). " + e.getMessage());
 		}
-		
-		
-		//return user;
 	}
 }

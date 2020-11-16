@@ -22,9 +22,22 @@ public class MainUI extends Application {
 	@Override
 	public void start(Stage stage) throws Exception {
 		window = stage;
+		stage.setOnCloseRequest(e -> {
+			e.consume(); //lets Java know that we are handing the user's close request
+			closeProgram();			
+		});
+		
+		
 		stage.setTitle("QRequest");
 		stage.setResizable(false);
 		
 		new LoginUI().startScene(stage);
+	}
+	
+	
+	private void closeProgram() {
+		//This method is called when the user tries to close the program.
+		//This could have some kind of saving functionality if needed.
+		window.close();
 	}
 }
