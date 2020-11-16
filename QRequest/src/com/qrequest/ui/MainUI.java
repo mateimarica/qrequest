@@ -14,8 +14,8 @@ public class MainUI extends Application {
 	
 	private Stage window;
 	static Scene loginScene, forumScene;
-	
-	void begin(String[] args) {
+
+	public static void main(String[] args) {
 		launch(args);
 	}
 
