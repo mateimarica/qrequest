@@ -140,6 +140,8 @@ public class LoginUI {
 			createAccountButton.setText("Create Account");
 		}
 		
+		usernameField.clear();
+		passwordField.clear();		
 	}
 	
 	//Triggered when enter key is pressed in the password field
