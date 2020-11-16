@@ -111,27 +111,35 @@ public class LoginUI {
 	}
 	
 	void loginButtonPress(ActionEvent event) {
-		boolean loginSuccessful = new LoginControl().processLogin(usernameField.getText(), passwordField.getText());
-		
-		if(loginSuccessful) {
-			System.out.println("Login successful");
-			new ForumUI().startScene(window);
+		if(currentMode == Mode.LOGIN) {
+			boolean loginSuccessful = new LoginControl().processLogin(usernameField.getText(), passwordField.getText());
+			
+			if(loginSuccessful) {
+				System.out.println("Login successful");
+				new ForumUI().startScene(window);
+			} else {
+				System.out.println("Login fail");
+			}
 		} else {
-			System.out.println("Login fail");
+			new CreateAccountControl().processCreateAccount(usernameField.getText(), passwordField.getText());
+			currentMode = Mode.LOGIN;
+			loginButtonPress(event);
 		}
 	}
 	
 	void createAccountButtonPress(ActionEvent event) {
 		if(currentMode == Mode.LOGIN) {
 			currentMode = Mode.CREATE_ACCOUNT;
+			loginButton.setText("Create Account");
 			newAccountLabel.setText("Already have an account?");
 			createAccountButton.setText("Log in instead");
 		} else {
 			currentMode = Mode.LOGIN;
-			startScene(window);
+			loginButton.setText("Login");
+			newAccountLabel.setText("Don't have an account?");
+			createAccountButton.setText("Create Account");
 		}
 		
-		//new CreateAccountControl().processCreateAccount(usernameField.getText(), passwordField.getText());
 	}
 	
 	//Triggered when enter key is pressed in the password field
@@ -151,8 +159,6 @@ public class LoginUI {
 				loginButton.setDisable(false);
 			}
 		}
-		
-			
 	}
 	
 	//Disables login button if either fields are empty. 
