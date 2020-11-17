@@ -14,10 +14,11 @@ public class MainUI extends Application {
 	
 	private Stage window;
 	static Scene loginScene, forumScene;
-
-	public static void main(String[] args) {
+	
+	void begin(String[] args) {
 		launch(args);
 	}
+	
 
 	@Override
 	public void start(Stage stage) throws Exception {
