@@ -7,7 +7,13 @@
 	</classpathentry>
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="lib" path="libs/mysql-connector-java-5.0.8-bin.jar"/>
-	<classpathentry kind="lib" path="libs/ext/jfxrt.jar"/>
-	<classpathentry kind="lib" path="libs/jfxswt.jar"/>
+	<classpathentry kind="lib" path="libs/javafx-swt.jar"/>
+	<classpathentry kind="lib" path="libs/javafx.base.jar"/>
+	<classpathentry kind="lib" path="libs/javafx.controls.jar"/>
+	<classpathentry kind="lib" path="libs/javafx.fxml.jar"/>
+	<classpathentry kind="lib" path="libs/javafx.graphics.jar"/>
+	<classpathentry kind="lib" path="libs/javafx.media.jar"/>
+	<classpathentry kind="lib" path="libs/javafx.swing.jar"/>
+	<classpathentry kind="lib" path="libs/javafx.web.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
