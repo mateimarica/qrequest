@@ -102,6 +102,7 @@ public class LoginUI {
 		usernameField = new TextField();
 		usernameField.setMaxWidth(150);
 		usernameField.setPromptText("Username");
+		usernameField.setOnAction(e -> loginButtonPress());
 		usernameField.setOnKeyPressed(e -> fieldTyping(e, usernameField, passwordField));
 		GridPane.setConstraints(usernameField, 1, 1);
 		GridPane.setHalignment(usernameField, HPos.CENTER);

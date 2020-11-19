@@ -136,7 +136,7 @@ abstract class DataManager {
 	/**Returns all the questions in the database.
 	 * @return All the questions in the database as an {@code ArrayList<Question>}
 	 */
-	public static ArrayList<Question> getQuestions() {
+	public static ArrayList<Question> getAllQuestions() {
 		
 		ArrayList<Question> questionList = new ArrayList<>();
 		try {
@@ -165,10 +165,34 @@ abstract class DataManager {
 			
 			return questionList;
 		} catch (SQLException e) {
-			System.err.println("SQL error in DataManager.getQuestions(). " + e.getMessage());
+			System.err.println("SQL error in DataManager.getAllQuestions(). " + e.getMessage());
 		}
 		
 		return null;
+	}
+	
+	/**Syncs a question object with its instance in the database.
+	 * @param question The question being updated/refresh
+	 */
+	public static void refreshQuestion(Question question) {
+		
+		try {
+			Statement st = connection.createStatement();
+			
+			// Order by TimePosted DESCENDING so that newer posts are at the top
+			String sqlQuery = "SELECT * FROM Questions WHERE Id = '" + question.getID() + "';";
+			
+			System.out.println(sqlQuery);
+			
+			ResultSet rs = st.executeQuery(sqlQuery);
+			
+			//updates Question object
+			while(rs.next()) {
+				question.updateDescription(rs.getString("Description"));
+			}
+		} catch (SQLException e) {
+			System.err.println("SQL error in DataManager.refreshQuestion(). " + e.getMessage());
+		}
 	}
 	
 	/**Checks if a given username exists as a User in the database.
@@ -201,7 +225,7 @@ abstract class DataManager {
 			}
 			
 		} catch (SQLException e) {
-			System.err.println("SQL error in DataManager.getQuestions(). " + e.getMessage());
+			System.err.println("SQL error in DataManager.checkIfAccountExists(). " + e.getMessage());
 		}
 		
 		return true;
@@ -215,5 +239,6 @@ abstract class DataManager {
 			throw new DatabaseConnectionException("Could not connect to database.");
 		}
 	}
-	
+
+
 }

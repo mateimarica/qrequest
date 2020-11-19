@@ -167,7 +167,7 @@ public class PopupUI {
 				Question newQuestion = new Question(title, desc, LoginControl.getUser(), UUID.randomUUID());
 				LoginControl.getUser().addQuestion(newQuestion);
 				PostQuestionControl.processPostQuestion(newQuestion);
-				forumUI.refreshTable();
+				forumUI.refresh();
 			}
 		});
 

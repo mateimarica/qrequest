@@ -1,7 +1,7 @@
 package com.qrequest.ui;
 import java.util.ArrayList;
 
-import com.qrequest.control.GetQuestionsControl;
+import com.qrequest.control.GetQuestionControl;
 import com.qrequest.control.LoginControl;
 import com.qrequest.object.Question;
 
@@ -34,12 +34,30 @@ public class ForumUI {
 	private final int WINDOW_HEIGHT = 700;
 	private final int WINDOW_WIDTH = 552;
 	
+	/**Enunumator defining which "mode" the forum is in.
+	 */
+	private enum Mode {FRONT_PAGE, QUESTION_VIEWER};
+	
+	/**The current mode that the forum is in. Front page is default.
+	 */
+	private Mode currentMode = Mode.FRONT_PAGE;
+	
+	private Question currentQuestion;
+	
+	private ToolBar bottomBar;
+	
+	private Button askQuestionBtn;
+	
+	private Button refreshBtn;
+	
+	private ListView<GridPane> questionView;
+	
 	@SuppressWarnings("deprecation")
 	public void startScene(Stage stage) {
 		window = stage;
 		forumLayout = new BorderPane();
 		menuBar = new MenuBar();
-		
+		questionView = new ListView<GridPane>();
 		
 		MenuItem logoutItem = new MenuItem("Log out");
 		logoutItem.setOnAction(e -> logout());
@@ -58,25 +76,14 @@ public class ForumUI {
 		menuBar.getMenus().addAll(optionsMenu);
 		forumLayout.setTop(menuBar);
 		
-		//createQuestionsTable();		
+		if(currentMode == Mode.FRONT_PAGE) {
+			createQuestionsTable();	
+		} else {
+			blowupQuestion(currentQuestion);
+		}
 		
+		populateToolbar();
 		
-		
-		ListView<GridPane> questionView = new ListView<GridPane>();
-		questionView.getItems().addAll(buildQuestionPane(null));
-		forumLayout.setCenter(questionView);
-		
-		
-		ToolBar bottomBar = new ToolBar();
-		forumLayout.setBottom(bottomBar);
-		
-		Button askQuestionBtn = new Button("\u2795 Ask a question");
-		askQuestionBtn.setOnAction(e -> askQuestionBtnPressed());
-		bottomBar.getItems().add(askQuestionBtn);
-		
-		Button refreshBtn = new Button("\uD83D\uDDD8 Refresh");
-		refreshBtn.setOnAction(e -> refreshTable());
-		bottomBar.getItems().add(refreshBtn);
 		
 		
 		//forumLayout.getChildren().addAll(questionsTable);
@@ -92,6 +99,34 @@ public class ForumUI {
 		
 	}
 	
+	private void populateToolbar() {
+		bottomBar = new ToolBar();
+		
+		
+		if(currentMode == Mode.FRONT_PAGE) {
+			askQuestionBtn = new Button("\u2795 Ask a question");
+			askQuestionBtn.setOnAction(e -> askQuestionBtnPressed());
+			bottomBar.getItems().add(askQuestionBtn);
+			
+			
+		} else {
+			Button backBtn = new Button("\u25C0 Go back");
+			backBtn.setOnAction(e -> backBtnPress());
+			bottomBar.getItems().add(backBtn);
+			
+			Button postAnswerBtn = new Button("\u2795 Answer question");
+			postAnswerBtn.setOnAction(e -> answerQuestionBtnPress());
+			
+			bottomBar.getItems().addAll(postAnswerBtn);
+		}
+		
+		refreshBtn = new Button("\uD83D\uDDD8 Refresh");
+		refreshBtn.setOnAction(e -> refresh());
+		bottomBar.getItems().add(refreshBtn);
+		
+		forumLayout.setBottom(bottomBar);
+	}
+	
 	private void logout() {
 		LoginControl.resetUser();
 		new LoginUI().startScene(window);
@@ -102,16 +137,21 @@ public class ForumUI {
 	}
 	
 	private void populateTable() {
-		ArrayList<Question> questions = GetQuestionsControl.getQuestions();
+		ArrayList<Question> questions = GetQuestionControl.getAllQuestions();
 		for(int i = 0; i < questions.size(); i++) {
 			questionsTable.getItems().add(questions.get(i));
 		}
+		forumLayout.setCenter(questionsTable);
 	}
 	
-	void refreshTable() {
-		questionsTable.getItems().clear();
-		populateTable();
-		//questionsTable.refresh();
+	void refresh() {
+		if(currentMode == Mode.FRONT_PAGE) {
+			questionsTable.getItems().clear();
+			System.out.println("yes");
+			populateTable();
+		} else {
+			blowupQuestion(currentQuestion);
+		}
 	}
 	
 	private void themeChanged(CheckMenuItem darkModeItem) {
@@ -123,13 +163,15 @@ public class ForumUI {
 	private void createQuestionsTable() {
 		questionsTable = new TableView();
 		questionsTable.setRowFactory(tv -> {
-
+				
 		    // Define our new TableRow
 		    TableRow<Question> row = new TableRow<>();
 		    
 		    row.setOnMouseClicked(event -> {
 		    	if(event.getClickCount() == 2){
-		    		System.out.println(row.getItem().getTitle());
+		    		currentMode = Mode.QUESTION_VIEWER;
+		    		currentQuestion = row.getItem();
+		    		blowupQuestion(currentQuestion);
 		    	}
 		    });
 		    return row;
@@ -138,6 +180,7 @@ public class ForumUI {
 		
 		
 		TableColumn titleCol = new TableColumn("Title");
+		titleCol.setSortable(false);
 		titleCol.impl_setReorderable(false);
 		titleCol.setResizable(false);
 		titleCol.setMinWidth(150);
@@ -145,17 +188,16 @@ public class ForumUI {
                 new PropertyValueFactory<>("title"));
 		
         TableColumn descCol = new TableColumn("Description");
+        descCol.setSortable(false);
         descCol.impl_setReorderable(false);
         descCol.setResizable(false);
         descCol.setMinWidth(175);
         descCol.setCellValueFactory(
                 new PropertyValueFactory<>("description"));
         
-        
-        
-        
-        @SuppressWarnings("rawtypes")
+
 		TableColumn authorCol = new TableColumn("Author");
+        authorCol.setSortable(false);
         authorCol.impl_setReorderable(false);
         authorCol.setResizable(false);
         authorCol.setMinWidth(100);
@@ -163,6 +205,7 @@ public class ForumUI {
                 new PropertyValueFactory<>("author"));
         
         TableColumn timePostedCol = new TableColumn("Time Posted");
+        timePostedCol.setSortable(false);
         timePostedCol.impl_setReorderable(false);
         timePostedCol.setResizable(false);
         timePostedCol.setMinWidth(125);
@@ -170,10 +213,38 @@ public class ForumUI {
                 new PropertyValueFactory<>("timePosted"));
         
         questionsTable.getColumns().addAll(titleCol, descCol, authorCol, timePostedCol);
-		forumLayout.setCenter(questionsTable);
+		
 		
 		
 		populateTable();
+	}
+	
+	private void blowupQuestion(Question question) {
+		
+		
+		populateToolbar();
+		
+		questionsTable.setVisible(false);
+		questionView.setVisible(true);
+		
+		GetQuestionControl.refreshQuestion(currentQuestion);
+		
+		questionView.getItems().clear();
+		questionView.getItems().addAll(buildQuestionPane(question));
+		forumLayout.setCenter(questionView);
+	}
+	
+	private void answerQuestionBtnPress() {
+		
+	}
+	
+	private void backBtnPress() {
+		questionView.getItems().clear();
+		questionView.setVisible(false);
+		questionsTable.setVisible(true);
+		currentMode = Mode.FRONT_PAGE;
+		populateToolbar();
+		refresh();
 	}
 	
 	private GridPane buildQuestionPane(Question question) {
@@ -189,7 +260,7 @@ public class ForumUI {
 		ToggleButton downvoteBtn = new ToggleButton("\u25BC");
 		downvoteBtn.setId("downvote-button");
 		GridPane.setConstraints(downvoteBtn, 0, 1);
-		Label title = new Label("Help! I have a big question! m dolor sit amet, consectetur adipiscing elit. Donec dui ur");
+		Label title = new Label(question.getTitle());
 		title.setStyle("-fx-font-size: 15px;\r\n" + 
 				"-fx-font-family: Verdana;"
 				+ "-fx-font-weight: bold;");
@@ -198,14 +269,14 @@ public class ForumUI {
 		title.setWrapText(true);
 		GridPane.setConstraints(title, 1, 0);
 		
-		Label author = new Label("Posted by aaaa");
+		Label author = new Label("Posted by " + question.getAuthor().getUsername());
 		author.setAlignment(Pos.CENTER_RIGHT);
 		author.setMinWidth(WINDOW_WIDTH * 0.18);
 		author.setMaxWidth(WINDOW_WIDTH * 0.18);
 		author.setWrapText(true);
 		GridPane.setConstraints(author, 2, 0);
 		
-		Label desc = new Label("Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec dui urna, porta id fermentum vel, dapibus tristique nisl.");
+		Label desc = new Label(question.getDescription());
 		desc.setMaxWidth(WINDOW_WIDTH * 0.7);
 		desc.setMinWidth(WINDOW_WIDTH * 0.7);
 		desc.setWrapText(true);

@@ -78,6 +78,10 @@ public class Question {
 		return description;
 	}
 	
+	public void updateDescription(String newDesc) {
+		description = newDesc;
+	}
+	
 	/**Returns the question's asker.
 	 * @return The question's asker.
 	 */
