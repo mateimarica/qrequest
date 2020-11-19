@@ -5,46 +5,75 @@ import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.Properties;
 
+import com.qrequest.exceptions.DatabaseConnectionException;
+import com.qrequest.object.Question;
 import com.qrequest.object.User;
 
 //class is abstract so no instances can be made - all references are to be STATIC
 //default access modifiers so ONLY control classes can access the DataManager
+/**Database manager. Only this class should connect to and access the database.
+ * All access modifiers are default or private so that <b>ONLY</b> control classes can access the DataManager.
+ */
 abstract class DataManager {
-	static Connection connection = initializeConnection();
 	
+	/**The connection to the databae.
+	 */
+	private static Connection connection = initializeConnection();
+	
+	/**For the initial attempt to create a connection to the database.<br>
+	 * @return The connection object. Will be <code>null</code> if connection failed.
+	 */
 	private static Connection initializeConnection() {
+		
 		 try {
 	         Class.forName("com.mysql.jdbc.Driver").newInstance();
 	     } catch (Exception e) {
 	      System.err.println(e.toString());
 	     }
-		String url = "***REMOVED***";
-		try {
-			return DriverManager.getConnection(url, "***REMOVED***", "***REMOVED***");
-		} catch (SQLException e) {
-			System.err.println("Database connection error: " + e.getMessage());
-		}
 		
-		return null;
-	}
+		String url = "***REMOVED***";
 	
-	public static User getAccount(String username, String password) {
-		User user = new User();
+		try {
+			Properties properties = new Properties();
+			properties.setProperty("user", "***REMOVED***");
+			properties.setProperty("password", "***REMOVED***");
+			return DriverManager.getConnection(url, properties);
+		} catch (SQLException e) {
+			return null;
+		} 
+	}	
+	
+	/**Returns a user's account if there is an account associated with the given username & password.
+	 * @param username
+	 * @param password
+	 * @return The associated user. <code>null</code> if no user found.
+	 * @throws DatabaseConnectionException If there is no connection to the database.
+	 */
+	public static User getAccount(String username, String password) throws DatabaseConnectionException {
+		checkConnection();
+		
+		User user;
 		try {
 			Statement st = connection.createStatement();
 			
 			//create query string
 			String sqlQuery = "SELECT * FROM Users WHERE "
 							+ "Username = '" + username +  "' AND "
-							+ "Password = sha1('" + password + "');";
+							+ "Password = SHA1('" + password + "');";
 		
+			System.out.println(sqlQuery);
+			
 			//execute SQL query
 			ResultSet rs = st.executeQuery(sqlQuery);
 
 			//build user object
 			if(rs.next()) {
-				user.username = rs.getString("Username");
+				user = new User(rs.getString("Username"));
 				return user;
 			}
 			
@@ -52,9 +81,13 @@ abstract class DataManager {
 			System.err.println("SQL error in DataManager.getAccount(). " + e.getMessage());
 		}
 		
-		return null;		
+		return null;
 	}
 	
+	/**Creates an account with a username & password.
+	 * @param username
+	 * @param password
+	 */
 	public static void createAccount(String username, String password) {
 		try {
 			Statement st = connection.createStatement();
@@ -62,10 +95,125 @@ abstract class DataManager {
 			String sqlQuery = "INSERT INTO Users VALUES('" + username 
 								+ "', SHA1('" + password + "'));";
 			
+			System.out.println(sqlQuery);
+			
 			st.executeUpdate(sqlQuery);
 			
 		} catch (SQLException e) {
-			System.err.println("SQL error in DataManager.getAccount(). " + e.getMessage());
+			System.err.println("SQL error in DataManager.createAccount(). " + e.getMessage());
 		}
 	}
+	
+	/**Saves a question into the database from a question object.
+	 * @param question The question being saved.
+	 */
+	public static void createQuestion(Question question) {
+		try {
+			Statement st = connection.createStatement();
+			
+			//Must escape all apostrophes with another apostrophe so MySQL recognizes that they aren't quotes
+			String title = question.getTitle().replaceAll("'", "''");
+			String desc = question.getDescription().replaceAll("'", "''");
+			
+			String sqlQuery = "INSERT INTO Questions VALUES("
+					+ "'" + title + "', "
+					+ "'" + desc + "', "
+					+ "'" + question.getAuthor().getUsername() + "', "
+					+ "'" + question.getID() + "', "
+					+ "CURRENT_TIMESTAMP);";
+			
+			System.out.println(sqlQuery);
+									
+							
+			
+			st.executeUpdate(sqlQuery);
+			
+		} catch (SQLException e) {
+			System.err.println("SQL error in DataManager.createQuestion(). " + e.getMessage());
+		}
+	}
+	
+	/**Returns all the questions in the database.
+	 * @return All the questions in the database as an {@code ArrayList<Question>}
+	 */
+	public static ArrayList<Question> getQuestions() {
+		
+		ArrayList<Question> questionList = new ArrayList<>();
+		try {
+			Statement st = connection.createStatement();
+			
+			// Order by TimePosted DESCENDING so that newer posts are at the top
+			String sqlQuery = "SELECT * FROM Questions ORDER BY TimePosted DESC;";
+			
+			System.out.println(sqlQuery);
+			
+			ResultSet rs = st.executeQuery(sqlQuery);
+			
+			
+			//build Question object and put into ArrayList
+			while(rs.next()) {
+				String title = rs.getString("Title");
+				String desc = rs.getString("Description");
+				User author = new User(rs.getString("Author"));
+				String ID = rs.getString("Id");
+				Date date = (Date) rs.getTimestamp("TimePosted", Calendar.getInstance());
+				
+				Question question = new Question(title, desc, author, ID, date);
+				
+				questionList.add(question);	
+			}
+			
+			return questionList;
+		} catch (SQLException e) {
+			System.err.println("SQL error in DataManager.getQuestions(). " + e.getMessage());
+		}
+		
+		return null;
+	}
+	
+	/**Checks if a given username exists as a User in the database.
+	 * @param username The username.
+	 * @return <code>True</code> if the account exists, <code>false</code> if not.
+	 * @throws DatabaseConnectionException If there is no connection to the database.
+	 */
+	public static boolean checkIfAccountExists(String username) throws DatabaseConnectionException {
+		checkConnection();
+		
+		try {
+			Statement st = connection.createStatement();
+			
+			// Order by TimePosted DESCENDING so that newer posts are at the top
+			String sqlQuery = "SELECT COUNT(1) AS UserExists FROM Users WHERE Username = '" + username + "';";
+			
+			System.out.println(sqlQuery);
+			
+			ResultSet rs = st.executeQuery(sqlQuery);
+			
+			
+			//build Question object and put into ArrayList
+			while(rs.next()) {
+				int title = rs.getInt("UserExists");
+				if(title == 0) {
+					return false;
+				} else {
+					return true;
+				}
+			}
+			
+		} catch (SQLException e) {
+			System.err.println("SQL error in DataManager.getQuestions(). " + e.getMessage());
+		}
+		
+		return true;
+	}
+	
+	/**Checks the connection to the database. If connection is not <code>null</code>, no further action is taken.
+	 * @throws DatabaseConnectionException If there is no connection to the database.
+	 */
+	private static void checkConnection() throws DatabaseConnectionException {
+		if(connection == null) {
+			throw new DatabaseConnectionException("Could not connect to database.");
+		}
+	}
+	
 }

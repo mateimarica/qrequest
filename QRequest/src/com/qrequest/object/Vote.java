@@ -1,7 +1,18 @@
 package com.qrequest.object;
 
+/**Represents a vote on a question or answer (not both).
+ */
 public class Vote {
+	
+	/**The question that was voted on.
+	 */
 	Question question;
-	User voter;
-	int vote; //1 or -1
+	
+	/**The answer that was voted on.
+	 */
+	Answer answer;
+	
+	/**The upvote (1) or downvote (-1).
+	 */
+	int vote;
 }
