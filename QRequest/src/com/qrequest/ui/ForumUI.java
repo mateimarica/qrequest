@@ -1,8 +1,10 @@
 package com.qrequest.ui;
 import java.util.ArrayList;
 
+import com.qrequest.control.GetAnswerControl;
 import com.qrequest.control.GetQuestionControl;
 import com.qrequest.control.LoginControl;
+import com.qrequest.object.Answer;
 import com.qrequest.object.Question;
 
 import javafx.geometry.Insets;
@@ -51,6 +53,7 @@ public class ForumUI {
 	private Button refreshBtn;
 	
 	private ListView<GridPane> questionView;
+	
 	
 	@SuppressWarnings("deprecation")
 	public void startScene(Stage stage) {
@@ -147,7 +150,6 @@ public class ForumUI {
 	void refresh() {
 		if(currentMode == Mode.FRONT_PAGE) {
 			questionsTable.getItems().clear();
-			System.out.println("yes");
 			populateTable();
 		} else {
 			blowupQuestion(currentQuestion);
@@ -215,7 +217,6 @@ public class ForumUI {
         questionsTable.getColumns().addAll(titleCol, descCol, authorCol, timePostedCol);
 		
 		
-		
 		populateTable();
 	}
 	
@@ -230,12 +231,19 @@ public class ForumUI {
 		GetQuestionControl.refreshQuestion(currentQuestion);
 		
 		questionView.getItems().clear();
-		questionView.getItems().addAll(buildQuestionPane(question));
+		questionView.getItems().add(buildQuestionPane(question));
+		
+		ArrayList<Answer> answerList = GetAnswerControl.getAllAnswers(currentQuestion);
+		
+		for(int i = 0; i < answerList.size(); i++) {
+			questionView.getItems().add(buildAnswerPane(answerList.get(i)));
+		}
+		
 		forumLayout.setCenter(questionView);
 	}
 	
 	private void answerQuestionBtnPress() {
-		
+		PopupUI.displayPostAnswerDialog(this, currentQuestion);
 	}
 	
 	private void backBtnPress() {
@@ -255,34 +263,68 @@ public class ForumUI {
 		questionPane.setHgap(8);
 		//questionPane.setGridLinesVisible(true);
 		
+		ToggleButton questionUpvoteBtn = new ToggleButton("\u25B2");
+		GridPane.setConstraints(questionUpvoteBtn, 0, 0);
+		ToggleButton questionDownvoteBtn = new ToggleButton("\u25BC");
+		GridPane.setConstraints(questionDownvoteBtn, 0, 1);
+		
+		Label qusetionTitle = new Label(question.getTitle());
+		qusetionTitle.setStyle("-fx-font-size: 15px;\r\n" + 
+				"-fx-font-family: Verdana;"
+				+ "-fx-font-weight: bold;");
+		qusetionTitle.setMaxWidth(WINDOW_WIDTH * 0.7);
+		qusetionTitle.setMinWidth(WINDOW_WIDTH * 0.7);
+		qusetionTitle.setWrapText(true);
+		GridPane.setConstraints(qusetionTitle, 1, 0);
+		
+		Label questionAuthor = new Label("Posted by " + question.getAuthor().getUsername());
+		questionAuthor.setAlignment(Pos.CENTER_RIGHT);
+		questionAuthor.setMinWidth(WINDOW_WIDTH * 0.18);
+		questionAuthor.setMaxWidth(WINDOW_WIDTH * 0.18);
+		questionAuthor.setWrapText(true);
+		GridPane.setConstraints(questionAuthor, 2, 0);
+		
+		Label questionDesc = new Label(question.getDescription());
+		questionDesc.setMaxWidth(WINDOW_WIDTH * 0.7);
+		questionDesc.setMinWidth(WINDOW_WIDTH * 0.7);
+		questionDesc.setWrapText(true);
+		GridPane.setConstraints(questionDesc, 1, 1);
+		questionPane.getChildren().addAll(questionUpvoteBtn, questionDownvoteBtn, qusetionTitle, questionAuthor, questionDesc);
+		
+		
+		
+		return questionPane;
+	}
+	
+	private GridPane buildAnswerPane(Answer answer) {
+		GridPane answerPane = new GridPane();
+		// top, right, bottom, left padding
+		answerPane.setPadding(new Insets(2, 2, 2, 30));
+		answerPane.setVgap(8);
+		answerPane.setHgap(8);
+		//questionPane.setGridLinesVisible(true);
+		
 		ToggleButton upvoteBtn = new ToggleButton("\u25B2");
 		GridPane.setConstraints(upvoteBtn, 0, 0);
 		ToggleButton downvoteBtn = new ToggleButton("\u25BC");
 		downvoteBtn.setId("downvote-button");
 		GridPane.setConstraints(downvoteBtn, 0, 1);
-		Label title = new Label(question.getTitle());
-		title.setStyle("-fx-font-size: 15px;\r\n" + 
-				"-fx-font-family: Verdana;"
-				+ "-fx-font-weight: bold;");
-		title.setMaxWidth(WINDOW_WIDTH * 0.7);
-		title.setMinWidth(WINDOW_WIDTH * 0.7);
-		title.setWrapText(true);
-		GridPane.setConstraints(title, 1, 0);
 		
-		Label author = new Label("Posted by " + question.getAuthor().getUsername());
+		Label answerText = new Label(answer.getAnswer());
+		answerText.setMaxWidth(WINDOW_WIDTH * 0.62);
+		answerText.setMinWidth(WINDOW_WIDTH * 0.62);
+		answerText.setWrapText(true);
+		GridPane.setConstraints(answerText, 1, 0);
+		
+		Label author = new Label("Posted by " + answer.getAnswerer().getUsername());
 		author.setAlignment(Pos.CENTER_RIGHT);
-		author.setMinWidth(WINDOW_WIDTH * 0.18);
-		author.setMaxWidth(WINDOW_WIDTH * 0.18);
+		author.setMinWidth(WINDOW_WIDTH * 0.21);
+		author.setMaxWidth(WINDOW_WIDTH * 0.21);
 		author.setWrapText(true);
 		GridPane.setConstraints(author, 2, 0);
 		
-		Label desc = new Label(question.getDescription());
-		desc.setMaxWidth(WINDOW_WIDTH * 0.7);
-		desc.setMinWidth(WINDOW_WIDTH * 0.7);
-		desc.setWrapText(true);
-		GridPane.setConstraints(desc, 1, 1);
-		questionPane.getChildren().addAll(upvoteBtn, downvoteBtn, title,author, desc);
+		answerPane.getChildren().addAll(upvoteBtn, downvoteBtn, answerText, author);
 		
-		return questionPane;
+		return answerPane;
 	}
 }

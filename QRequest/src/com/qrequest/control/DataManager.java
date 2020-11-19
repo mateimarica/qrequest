@@ -9,8 +9,10 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Properties;
+import java.util.UUID;
 
 import com.qrequest.exceptions.DatabaseConnectionException;
+import com.qrequest.object.Answer;
 import com.qrequest.object.Question;
 import com.qrequest.object.User;
 
@@ -54,7 +56,7 @@ abstract class DataManager {
 	 * @return The associated user. <code>null</code> if no user found.
 	 * @throws DatabaseConnectionException If there is no connection to the database.
 	 */
-	public static User getAccount(String username, String password) throws DatabaseConnectionException {
+	static User getAccount(String username, String password) throws DatabaseConnectionException {
 		checkConnection();
 		
 		User user;
@@ -88,7 +90,7 @@ abstract class DataManager {
 	 * @param username
 	 * @param password
 	 */
-	public static void createAccount(String username, String password) {
+	static void createAccount(String username, String password) {
 		try {
 			Statement st = connection.createStatement();
 			
@@ -107,7 +109,7 @@ abstract class DataManager {
 	/**Saves a question into the database from a question object.
 	 * @param question The question being saved.
 	 */
-	public static void createQuestion(Question question) {
+	static void createQuestion(Question question) {
 		try {
 			Statement st = connection.createStatement();
 			
@@ -136,7 +138,7 @@ abstract class DataManager {
 	/**Returns all the questions in the database.
 	 * @return All the questions in the database as an {@code ArrayList<Question>}
 	 */
-	public static ArrayList<Question> getAllQuestions() {
+	static ArrayList<Question> getAllQuestions() {
 		
 		ArrayList<Question> questionList = new ArrayList<>();
 		try {
@@ -174,7 +176,7 @@ abstract class DataManager {
 	/**Syncs a question object with its instance in the database.
 	 * @param question The question being updated/refresh
 	 */
-	public static void refreshQuestion(Question question) {
+	static void refreshQuestion(Question question) {
 		
 		try {
 			Statement st = connection.createStatement();
@@ -200,7 +202,7 @@ abstract class DataManager {
 	 * @return <code>True</code> if the account exists, <code>false</code> if not.
 	 * @throws DatabaseConnectionException If there is no connection to the database.
 	 */
-	public static boolean checkIfAccountExists(String username) throws DatabaseConnectionException {
+	static boolean checkIfAccountExists(String username) throws DatabaseConnectionException {
 		checkConnection();
 		
 		try {
@@ -229,6 +231,69 @@ abstract class DataManager {
 		}
 		
 		return true;
+	}
+	
+	//Post an answer
+	static void postAnswer(Answer answer) {
+		
+		try {
+			Statement st = connection.createStatement();
+			
+			//Must escape all apostrophes with another apostrophe so MySQL recognizes that they aren't quotes
+			String answerText = answer.getAnswer().replaceAll("'", "''");
+			
+			String sqlQuery = "INSERT INTO Answers VALUES("
+					+ "'" + answerText + "', "
+					+ "'" + answer.getAnswerer().getUsername() + "', "
+					+ "'" + answer.getID() + "', "
+					+ "'" + answer.getQuestion().getID() + "', "
+					+ "CURRENT_TIMESTAMP);";
+			
+			System.out.println(sqlQuery);
+							
+			st.executeUpdate(sqlQuery);
+			
+		} catch (SQLException e) {
+			System.err.println("SQL error in DataManager.postAnswer(). " + e.getMessage());
+		}
+	}
+	
+	static ArrayList<Answer> getAllAnswers(Question question) {
+		
+		ArrayList<Answer> answerList = new ArrayList<>();
+		
+		try {
+			Statement st = connection.createStatement();
+			
+			// Order by TimePosted DESCENDING so that newer answers are at the top
+			String sqlQuery = "SELECT * FROM Answers "
+					+ "WHERE QuestionId = '" + question.getID() + "'"
+					+ " ORDER BY TimePosted DESC;";
+			
+			System.out.println(sqlQuery);
+			
+			ResultSet rs = st.executeQuery(sqlQuery);
+			
+			
+			//build Question object and put into ArrayList
+			while(rs.next()) {
+				String answerText = rs.getString("Answer");
+				User answerer = new User(rs.getString("Answerer"));
+				UUID answerID = UUID.fromString(rs.getString("Id"));
+
+				Date date = (Date) rs.getTimestamp("TimePosted", Calendar.getInstance());
+				
+				Answer answer = new Answer(answerText, answerer, question, answerID);
+				
+				answerList.add(answer);	
+			}
+			
+			return answerList;
+		} catch (SQLException e) {
+			System.err.println("SQL error in DataManager.getAllAnswers(). " + e.getMessage());
+		}
+		
+		return null;
 	}
 	
 	/**Checks the connection to the database. If connection is not <code>null</code>, no further action is taken.

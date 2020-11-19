@@ -3,7 +3,9 @@ package com.qrequest.ui;
 import java.util.UUID;
 
 import com.qrequest.control.LoginControl;
+import com.qrequest.control.PostAnswerControl;
 import com.qrequest.control.PostQuestionControl;
+import com.qrequest.object.Answer;
 import com.qrequest.object.Question;
 
 import javafx.event.ActionEvent;
@@ -130,11 +132,11 @@ public class PopupUI {
 			int titleFieldLength = titleField.getText().length();
 			
 			if (titleFieldLength < 10 || titleFieldLength > 50) {
-			   displayErrorDialog("Error Posting Question", "Questions must be 10 to 50 characters in length.");
+			   displayWarningDialog("Error Posting Question", "Questions must be 10 to 50 characters in length.");
 			   event.consume(); //make it so the dialog does not close
 			   return;
 			} else if (descField.getText().length() > 255) {
-			   displayErrorDialog("Error Posting Question", "Questions must be 50 characters or fewer.");
+			   displayWarningDialog("Error Posting Question", "Questions must be 50 characters or fewer.");
 			   event.consume(); //make it so the dialog does not close
 			   return;
 		   }
@@ -171,6 +173,77 @@ public class PopupUI {
 			}
 		});
 
+	}
+	
+	public static void displayPostAnswerDialog(ForumUI forumUI, Question question) {
+		// Create the custom dialog.
+			Dialog<Pair<String, String>> dialog = new Dialog<>();
+			dialog.setTitle("Post a Question");
+			
+			//Set the icon for the popup
+			Stage stage = (Stage) dialog.getDialogPane().getScene().getWindow();
+			stage.getIcons().add(
+			    new Image(new PopupUI().getClass().getResource(MainUI.ICON_URL).toString()));
+			
+
+			GridPane gridPane = new GridPane();
+			gridPane.setHgap(10);
+			gridPane.setVgap(10);
+			// top, right, bottom, left padding
+			gridPane.setPadding(new Insets(20, 10, 10, 10));
+			
+			
+			TextField answerField = new TextField();
+			answerField.setPromptText("Answer");
+			answerField.setMinWidth(300);
+			answerField.setMaxWidth(300);
+			gridPane.add(answerField, 0, 0);
+			
+			// Set the button types.
+			ButtonType postAnswerBtnType = new ButtonType("Post Question", ButtonData.RIGHT);
+			dialog.getDialogPane().getButtonTypes().addAll(postAnswerBtnType, ButtonType.CANCEL);
+			
+			final Button postAnswerBtn = (Button)dialog.getDialogPane().lookupButton(postAnswerBtnType);
+			postAnswerBtn.addEventFilter(ActionEvent.ACTION, event -> {
+				
+				int answerFieldLength = answerField.getText().length();
+				
+				if (answerFieldLength < 1 || answerFieldLength > 50) {
+				   displayWarningDialog("Did not post answer", "Answer must be 1 to 50 characters in length.");
+				   event.consume(); //make it so the dialog does not close
+				   return;
+				}
+			});
+			
+			DialogPane dialogPane = dialog.getDialogPane();
+			
+			if(ThemeHelper.darkModeEnabled)
+				dialogPane.getStylesheets().add(ThemeHelper.darkThemeFileURL);
+			
+			
+			dialogPane.setContent(gridPane);
+
+			// Convert the result to a title-description pair when the postQuestion button is clicked.
+			dialog.setResultConverter(button -> {
+				
+				if(button == postAnswerBtnType) {
+					return new Pair<>(answerField.getText(), "");
+				}
+				return null;
+				
+
+			});
+			
+			dialog.showAndWait().ifPresent(result -> {
+				if(result != null) {
+					String answer = result.getKey();
+					
+					Answer newAnswer = new Answer(answer, LoginControl.getUser(), question, UUID.randomUUID());
+					
+					PostAnswerControl.processPostAnswer(newAnswer);
+					forumUI.refresh();
+				}
+			});
 	}
 
 }

@@ -35,7 +35,7 @@ public class Question {
 	 */
 	private TeiTime timePosted = new TeiTime();
 	
-	/**Builds a Question object without a date for putting into the database, which assigns the time posted.
+	/**Builds an Answer object without a date for putting into the database, which assigns the time posted.
 	 * @param title The question or the question's title.
 	 * @param description The question or the question's title.
 	 * @param author The user who asked the question.
@@ -48,7 +48,7 @@ public class Question {
 		this.id = uniqueID;
 	}
 	
-	/**Builds a Question object with a date for when retrieving the questionff from the database.
+	/**Builds an Answer object with a date for when retrieving the questionff from the database.
 	 * @param title The question or the question's title.
 	 * @param description The question or the question's title.
 	 * @param author The user who asked the question.
@@ -61,6 +61,10 @@ public class Question {
 		this.author = author;
 		this.id = UUID.fromString(uniqueID);
 		this.timePosted.setTimeInMillis(timePosted.getTime());
+	}
+	
+	public Question(String uniqueID) {
+		this.id = UUID.fromString(uniqueID);
 	}
 	
 	
