@@ -180,7 +180,6 @@ public class ForumUI {
 		});
 		
 		
-		
 		TableColumn titleCol = new TableColumn("Title");
 		titleCol.setSortable(false);
 		titleCol.impl_setReorderable(false);
@@ -196,7 +195,6 @@ public class ForumUI {
         descCol.setMinWidth(175);
         descCol.setCellValueFactory(
                 new PropertyValueFactory<>("description"));
-        
 
 		TableColumn authorCol = new TableColumn("Author");
         authorCol.setSortable(false);
@@ -290,8 +288,6 @@ public class ForumUI {
 		questionDesc.setWrapText(true);
 		GridPane.setConstraints(questionDesc, 1, 1);
 		questionPane.getChildren().addAll(questionUpvoteBtn, questionDownvoteBtn, qusetionTitle, questionAuthor, questionDesc);
-		
-		
 		
 		return questionPane;
 	}
