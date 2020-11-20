@@ -226,6 +226,7 @@ public class PopupUI {
 		
 		
 	}
+	
 	private static void searchButtonPress(ListView<String> usersView, TextField searchField) {
 		usersView.getItems().clear();
 		ArrayList<User> list = SearchUsersControl.getUsers(searchField.getText());
@@ -233,6 +234,7 @@ public class PopupUI {
 			usersView.getItems().add(list.get(i).getUsername());
 		}
 	}
+	
 	public static void displayPostAnswerDialog(ForumUI forumUI, Question question) {
 		// Create the custom dialog.
 			Dialog<Pair<String, String>> dialog = new Dialog<>();
