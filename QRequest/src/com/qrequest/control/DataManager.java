@@ -23,7 +23,7 @@ import com.qrequest.object.User;
  */
 abstract class DataManager {
 	
-	/**The connection to the databae.
+	/**The connection to the database.
 	 */
 	private static Connection connection = initializeConnection();
 	
@@ -209,7 +209,7 @@ abstract class DataManager {
 			Statement st = connection.createStatement();
 			
 			// Order by TimePosted DESCENDING so that newer posts are at the top
-			String sqlQuery = "SELECT COUNT(1) AS UserExists FROM Users WHERE Username = '" + username + "';";
+			String sqlQuery = "SELECT COUNT(1) AS UserExists FROM Users WHERE UPPER(Username) = UPPER('" + username + "');";
 			
 			System.out.println(sqlQuery);
 			
@@ -296,6 +296,32 @@ abstract class DataManager {
 		return null;
 	}
 	
+	static ArrayList<User> getUsers(String username) {
+			
+			ArrayList<User> userList = new ArrayList<>();
+			try {
+				Statement st = connection.createStatement();
+				
+				// Order by TimePosted DESCENDING so that newer posts are at the top
+				String sqlQuery = "SELECT * FROM Users WHERE Username Like '%" + username +"%';";
+				
+				System.out.println(sqlQuery);
+				
+				ResultSet rs = st.executeQuery(sqlQuery);
+				
+				while(rs.next()) {
+					User user = new User(rs.getString("Username"));					
+					userList.add(user);	
+				}
+				
+				return userList;
+			} catch (SQLException e) {
+				System.err.println("SQL error in DataManager.getUsers(). " + e.getMessage());
+			}
+			
+			return null;
+		}
+
 	/**Checks the connection to the database. If connection is not <code>null</code>, no further action is taken.
 	 * @throws DatabaseConnectionException If there is no connection to the database.
 	 */

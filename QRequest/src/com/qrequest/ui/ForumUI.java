@@ -1,11 +1,14 @@
 package com.qrequest.ui;
 import java.util.ArrayList;
+import java.util.Scanner;
 
 import com.qrequest.control.GetAnswerControl;
 import com.qrequest.control.GetQuestionControl;
 import com.qrequest.control.LoginControl;
+import com.qrequest.control.SearchUsersControl;
 import com.qrequest.object.Answer;
 import com.qrequest.object.Question;
+import com.qrequest.object.User;
 
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -50,6 +53,8 @@ public class ForumUI {
 	
 	private Button askQuestionBtn;
 	
+	private Button searchUsersBtn;
+	
 	private Button refreshBtn;
 	
 	private ListView<GridPane> questionView;
@@ -57,6 +62,7 @@ public class ForumUI {
 	
 	@SuppressWarnings("deprecation")
 	public void startScene(Stage stage) {
+		
 		window = stage;
 		forumLayout = new BorderPane();
 		menuBar = new MenuBar();
@@ -102,6 +108,9 @@ public class ForumUI {
 		
 	}
 	
+	private void searchUsersBtnPress() {
+		PopupUI.displaySearchUsersDialog();
+	}
 	private void populateToolbar() {
 		bottomBar = new ToolBar();
 		
@@ -109,7 +118,9 @@ public class ForumUI {
 		if(currentMode == Mode.FRONT_PAGE) {
 			askQuestionBtn = new Button("\u2795 Ask a question");
 			askQuestionBtn.setOnAction(e -> askQuestionBtnPressed());
-			bottomBar.getItems().add(askQuestionBtn);
+			searchUsersBtn = new Button("\uD83D\uDC64 Search Users");
+			searchUsersBtn.setOnAction(e -> searchUsersBtnPress());
+			bottomBar.getItems().addAll(askQuestionBtn, searchUsersBtn);
 			
 			
 		} else {
@@ -182,7 +193,6 @@ public class ForumUI {
 		
 		TableColumn titleCol = new TableColumn("Title");
 		titleCol.setSortable(false);
-		titleCol.impl_setReorderable(false);
 		titleCol.setResizable(false);
 		titleCol.setMinWidth(150);
 		titleCol.setCellValueFactory(
@@ -190,7 +200,6 @@ public class ForumUI {
 		
         TableColumn descCol = new TableColumn("Description");
         descCol.setSortable(false);
-        descCol.impl_setReorderable(false);
         descCol.setResizable(false);
         descCol.setMinWidth(175);
         descCol.setCellValueFactory(
@@ -198,7 +207,6 @@ public class ForumUI {
 
 		TableColumn authorCol = new TableColumn("Author");
         authorCol.setSortable(false);
-        authorCol.impl_setReorderable(false);
         authorCol.setResizable(false);
         authorCol.setMinWidth(100);
         authorCol.setCellValueFactory(
@@ -206,7 +214,6 @@ public class ForumUI {
         
         TableColumn timePostedCol = new TableColumn("Time Posted");
         timePostedCol.setSortable(false);
-        timePostedCol.impl_setReorderable(false);
         timePostedCol.setResizable(false);
         timePostedCol.setMinWidth(125);
         timePostedCol.setCellValueFactory(
