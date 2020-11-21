@@ -3,6 +3,7 @@ package com.qrequest.ui;
 import com.qrequest.control.CreateAccountControl;
 import com.qrequest.control.LoginControl;
 import com.qrequest.exceptions.DatabaseConnectionException;
+import com.qrequest.object.Credentials;
 
 import javafx.geometry.HPos;
 import javafx.geometry.Insets;
@@ -76,6 +77,8 @@ public class LoginUI {
 	/**The current mode that the login is in. Login is default, can switch to Create Account.
 	 */
 	private Mode currentMode = Mode.LOGIN;
+	
+	CheckBox saveCredentialsCheckBox;
 
 	/**The login menu is created and shown by this method. Called by the MainUI class.
 	 * @param stage Where all the controls are created, put into the grid layout pane, put in the scene, then the stage, then shown.
@@ -127,7 +130,12 @@ public class LoginUI {
 		showPasswordCheckBox = new CheckBox("Show password");
 		showPasswordCheckBox.setOnAction(e -> showPasswordCheckBoxTicked());
 		GridPane.setConstraints(showPasswordCheckBox, 2, 2);
-
+		
+		
+		saveCredentialsCheckBox = new CheckBox("Save credentials");
+		GridPane.setConstraints(saveCredentialsCheckBox, 1, 4);
+		GridPane.setHalignment(saveCredentialsCheckBox, HPos.CENTER);
+		
 		loginButton = new Button();
 		loginButton.setText("Login");
 		loginButton.setOnAction(e -> loginButtonPress());
@@ -148,7 +156,7 @@ public class LoginUI {
 		
 		//Adds all the controls to the grid layout
 		loginGridLayout.getChildren().addAll(titleLabel, usernameField, passwordField, unmaskedPasswordField, showPasswordCheckBox,
-				loginButton, changeModeButton, newAccountLabel);
+				loginButton,saveCredentialsCheckBox, changeModeButton, newAccountLabel);
 
 		
 		Scene loginScene = new Scene(loginGridLayout, WINDOW_WIDTH, WINDOW_HEIGHT);
@@ -183,6 +191,12 @@ public class LoginUI {
 				loginSuccessful = LoginControl.processLogin(username, password);
 				
 				if (loginSuccessful) {
+					if(saveCredentialsCheckBox.isSelected()) {
+						Credentials creds = new Credentials(username, password);
+						CredentialsHelper.saveCredentials(creds);
+					}
+					
+					
 					new ForumUI().startScene(window);
 				} else {
 					PopupUI.displayErrorDialog("Login Failed", "Username or password is incorrect.");
@@ -306,6 +320,10 @@ public class LoginUI {
 
 		}
 	}
+	
+	
+	
+	
 	
 	/**Runs when the "Show password" checkbox is ticked/unticked.<br>
 	 * When ticked, overlays a regular textfield over the passwordField to act as the unmasked passwordField.<br>

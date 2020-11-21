@@ -1,4 +1,7 @@
 package com.qrequest.ui;
+import com.qrequest.control.LoginControl;
+import com.qrequest.object.Credentials;
+
 import javafx.application.Application;
 import javafx.scene.image.Image;
 import javafx.stage.Stage;
@@ -37,7 +40,16 @@ public class MainUI extends Application {
 		stage.setResizable(false);
 		
 		//Starts the Login menu.
-		new LoginUI().startScene(stage);
+		
+		Credentials creds = CredentialsHelper.retrieveCredentials();
+		
+		if(creds != null) {
+			LoginControl.processLogin(creds.getUsername(), creds.getPassword());
+			new ForumUI().startScene(window);
+		} else {
+			new LoginUI().startScene(stage);
+		}
+		
 	}
 	
 	/**Called when the close is closed.
