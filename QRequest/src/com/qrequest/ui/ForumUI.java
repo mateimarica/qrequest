@@ -132,6 +132,7 @@ public class ForumUI {
 			postAnswerBtn.setOnAction(e -> answerQuestionBtnPress());
 			
 			bottomBar.getItems().addAll(postAnswerBtn);
+			
 		}
 		
 		refreshBtn = new Button("\uD83D\uDDD8 Refresh");
