@@ -207,6 +207,12 @@ public class PopupUI {
 		searchField.setMaxWidth(190);
 		Button searchUsersBtn = new Button("Search");
 		searchUsersBtn.setOnAction(e->searchButtonPress(usersView, searchField));
+		usersView.setOnMouseClicked(event -> {
+		    	if(event.getClickCount() == 2){
+		    		System.out.println("lmao");
+		    		System.out.println(usersView.getSelectionModel());
+		    	}
+		    });
 		GridPane.setHalignment(searchUsersBtn, HPos.RIGHT);
 		gridPane.add(searchUsersBtn, 0, 0);
 		gridPane.add(searchField, 0, 0);
@@ -238,7 +244,7 @@ public class PopupUI {
 	public static void displayPostAnswerDialog(ForumUI forumUI, Question question) {
 		// Create the custom dialog.
 			Dialog<Pair<String, String>> dialog = new Dialog<>();
-			dialog.setTitle("Post a Question");
+			dialog.setTitle("Post an Answer");
 			
 			//Set the icon for the popup
 			Stage stage = (Stage) dialog.getDialogPane().getScene().getWindow();
@@ -260,7 +266,7 @@ public class PopupUI {
 			gridPane.add(answerField, 0, 0);
 			
 			// Set the button types.
-			ButtonType postAnswerBtnType = new ButtonType("Post Question", ButtonData.RIGHT);
+			ButtonType postAnswerBtnType = new ButtonType("Post Answer", ButtonData.RIGHT);
 			dialog.getDialogPane().getButtonTypes().addAll(postAnswerBtnType, ButtonType.CANCEL);
 			
 			final Button postAnswerBtn = (Button)dialog.getDialogPane().lookupButton(postAnswerBtnType);
