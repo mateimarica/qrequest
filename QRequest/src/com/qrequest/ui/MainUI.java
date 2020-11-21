@@ -1,5 +1,6 @@
 package com.qrequest.ui;
 import com.qrequest.control.LoginControl;
+import com.qrequest.exceptions.DatabaseConnectionException;
 import com.qrequest.object.Credentials;
 
 import javafx.application.Application;
@@ -39,14 +40,23 @@ public class MainUI extends Application {
 		stage.setTitle("QRequest");
 		stage.setResizable(false);
 		
-		//Starts the Login menu.
 		
+		//Checks the saved credentials (if there are any)
 		Credentials creds = CredentialsHelper.retrieveCredentials();
 		
+		//if the credentials DO exist
 		if(creds != null) {
-			LoginControl.processLogin(creds.getUsername(), creds.getPassword());
-			new ForumUI().startScene(window);
+			
+			try {
+				LoginControl.processLogin(creds.getUsername(), creds.getPassword(), true);
+				new ForumUI().startScene(stage);
+			} catch (Exception e) {
+				PopupUI.displayErrorDialog("Connection Error", "Couldn't connect to the database. "
+						+ "Make sure you're connected to the UNB VPN.");
+			}			
+			
 		} else {
+			//Starts the Login menu if no saved credentials
 			new LoginUI().startScene(stage);
 		}
 		

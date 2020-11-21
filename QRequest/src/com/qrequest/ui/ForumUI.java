@@ -143,6 +143,7 @@ public class ForumUI {
 	}
 	
 	private void logout() {
+		CredentialsHelper.removeCredentials();
 		LoginControl.resetUser();
 		new LoginUI().startScene(window);
 	}

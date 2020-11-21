@@ -50,13 +50,17 @@ abstract class DataManager {
 		} 
 	}	
 	
+	static User getAccount(String username, String password) throws DatabaseConnectionException {
+		return getAccount(username, password, false);
+	}
+	
 	/**Returns a user's account if there is an account associated with the given username & password.
 	 * @param username
 	 * @param password
 	 * @return The associated user. <code>null</code> if no user found.
 	 * @throws DatabaseConnectionException If there is no connection to the database.
 	 */
-	static User getAccount(String username, String password) throws DatabaseConnectionException {
+	static User getAccount(String username, String password, boolean passwordAlreadyHashed) throws DatabaseConnectionException {
 		checkConnection();
 		
 		User user;
@@ -65,9 +69,14 @@ abstract class DataManager {
 			
 			//create query string
 			String sqlQuery = "SELECT * FROM Users WHERE "
-							+ "Username = '" + username +  "' AND "
-							+ "Password = SHA1('" + password + "');";
-		
+					+ "Username = '" + username +  "' AND Password = ";
+			
+			if(passwordAlreadyHashed) {
+				sqlQuery += "'" + password +"';";
+			} else {
+				sqlQuery += "SHA1('" + password +"');";
+			}
+			
 			System.out.println(sqlQuery);
 			
 			//execute SQL query
@@ -298,29 +307,53 @@ abstract class DataManager {
 	
 	static ArrayList<User> getUsers(String username) {
 			
-			ArrayList<User> userList = new ArrayList<>();
-			try {
-				Statement st = connection.createStatement();
-				
-				// Order by TimePosted DESCENDING so that newer posts are at the top
-				String sqlQuery = "SELECT * FROM Users WHERE Username Like '%" + username +"%';";
-				
-				System.out.println(sqlQuery);
-				
-				ResultSet rs = st.executeQuery(sqlQuery);
-				
-				while(rs.next()) {
-					User user = new User(rs.getString("Username"));					
-					userList.add(user);	
-				}
-				
-				return userList;
-			} catch (SQLException e) {
-				System.err.println("SQL error in DataManager.getUsers(). " + e.getMessage());
+		ArrayList<User> userList = new ArrayList<>();
+		try {
+			Statement st = connection.createStatement();
+			
+			// Order by TimePosted DESCENDING so that newer posts are at the top
+			String sqlQuery = "SELECT * FROM Users WHERE Username Like '%" + username +"%';";
+			
+			System.out.println(sqlQuery);
+			
+			ResultSet rs = st.executeQuery(sqlQuery);
+			
+			while(rs.next()) {
+				User user = new User(rs.getString("Username"));					
+				userList.add(user);	
 			}
 			
-			return null;
+			return userList;
+		} catch (SQLException e) {
+			System.err.println("SQL error in DataManager.getUsers(). " + e.getMessage());
 		}
+		
+		return null;
+	}
+	
+	static String hashPassword(String password) {
+		try {
+			Statement st = connection.createStatement();
+			
+			// Order by TimePosted DESCENDING so that newer posts are at the top
+			String sqlQuery = "SELECT SHA1('" + password +"');";
+			
+			System.out.println(sqlQuery);
+			
+			ResultSet rs = st.executeQuery(sqlQuery);
+			while(rs.next()) {
+				String hashedPassword = rs.getString("SHA1('" + password + "')");
+				return hashedPassword;		
+			}			
+	
+		} catch (SQLException e) {
+			System.err.println("SQL error in DataManager.hashPassword(): " + e.getMessage());
+		}
+		
+		return null;
+	}
+	
+	
 
 	/**Checks the connection to the database. If connection is not <code>null</code>, no further action is taken.
 	 * @throws DatabaseConnectionException If there is no connection to the database.

@@ -5,11 +5,13 @@ package com.qrequest.object;
 
 public class Tag {
 	
-	public String[] tagTypes = {"Philosophy", 
+	public static String[] tagTypes = {"Philosophy", 
 			"Science", 
 			"Woodworking",
 			"Programming",
 			"Puberty"
 	};
+	
+	
 
 }

@@ -192,8 +192,10 @@ public class LoginUI {
 				
 				if (loginSuccessful) {
 					if(saveCredentialsCheckBox.isSelected()) {
-						Credentials creds = new Credentials(username, password);
+						Credentials creds = new Credentials(username, LoginControl.hashPassword(password));
 						CredentialsHelper.saveCredentials(creds);
+					} else {
+						CredentialsHelper.removeCredentials();
 					}
 					
 					

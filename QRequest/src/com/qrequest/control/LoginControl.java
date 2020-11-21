@@ -19,8 +19,17 @@ public abstract class LoginControl {
 	 * @throws DatabaseConnectionException If the database cannot be connected to.
 	 */
 	public static boolean processLogin(String username, String password) throws DatabaseConnectionException {
-		user = DataManager.getAccount(username, password);
+		return processLogin(username, password, false);
+	}
+	
+	public static boolean processLogin(String username, String password, boolean passwordAlreadyHashed) throws DatabaseConnectionException {
+		user = DataManager.getAccount(username, password, passwordAlreadyHashed);
 		return (user != null);
+	}
+	
+	//Hashes only password for saving into preferences
+	public static String hashPassword(String password) throws DatabaseConnectionException {
+		return DataManager.hashPassword(password);
 	}
 	
 	/**Returns the logged-in user.
