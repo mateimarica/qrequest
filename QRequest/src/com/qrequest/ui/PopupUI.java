@@ -8,6 +8,7 @@ import com.qrequest.control.LoginControl;
 import com.qrequest.control.PostAnswerControl;
 import com.qrequest.control.PostQuestionControl;
 import com.qrequest.control.SearchUsersControl;
+import com.qrequest.control.ThemeHelper;
 import com.qrequest.object.Answer;
 import com.qrequest.object.User;
 import com.qrequest.object.Question;
@@ -78,7 +79,7 @@ public class PopupUI {
 		dialog.setContentText(text);
 		
 		//set dark theme for pop-up
-		if(ThemeHelper.darkModeEnabled) {
+		if(ThemeHelper.darkModeEnabled()) {
 			Scene scene = dialog.getDialogPane().getScene();
 			scene.getStylesheets().add(ThemeHelper.darkThemeFileURL);
 		}
@@ -137,12 +138,12 @@ public class PopupUI {
 			
 			int titleFieldLength = titleField.getText().length();
 			
-			if (titleFieldLength < 10 || titleFieldLength > 50) {
-			   displayWarningDialog("Error Posting Question", "Questions must be 10 to 50 characters in length.");
+			if (titleFieldLength < 8 || titleFieldLength > 250) {
+			   displayWarningDialog("Error Posting Question", "Questions must be 8 to 200 characters in length.");
 			   event.consume(); //make it so the dialog does not close
 			   return;
-			} else if (descField.getText().length() > 255) {
-			   displayWarningDialog("Error Posting Question", "Questions must be 50 characters or fewer.");
+			} else if (descField.getText().length() > 65535) {
+			   displayWarningDialog("Error Posting Question", "Questions must be 65535 characters or fewer.");
 			   event.consume(); //make it so the dialog does not close
 			   return;
 		   }
@@ -150,7 +151,7 @@ public class PopupUI {
 		
 		DialogPane dialogPane = dialog.getDialogPane();
 		
-		if(ThemeHelper.darkModeEnabled)
+		if(ThemeHelper.darkModeEnabled())
 			dialogPane.getStylesheets().add(ThemeHelper.darkThemeFileURL);
 		
 		
@@ -223,7 +224,7 @@ public class PopupUI {
 		
 		DialogPane dialogPane = dialog.getDialogPane();
 		
-		if(ThemeHelper.darkModeEnabled)
+		if(ThemeHelper.darkModeEnabled())
 			dialogPane.getStylesheets().add(ThemeHelper.darkThemeFileURL);
 		
 		
@@ -275,7 +276,7 @@ public class PopupUI {
 				int answerFieldLength = answerField.getText().length();
 				
 				if (answerFieldLength < 1 || answerFieldLength > 50) {
-				   displayWarningDialog("Did not post answer", "Answer must be 1 to 50 characters in length.");
+				   displayWarningDialog("Did not post answer", "Answer must be 1 to 65535 characters in length.");
 				   event.consume(); //make it so the dialog does not close
 				   return;
 				}
@@ -283,7 +284,7 @@ public class PopupUI {
 			
 			DialogPane dialogPane = dialog.getDialogPane();
 			
-			if(ThemeHelper.darkModeEnabled)
+			if(ThemeHelper.darkModeEnabled())
 				dialogPane.getStylesheets().add(ThemeHelper.darkThemeFileURL);
 			
 			

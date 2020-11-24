@@ -29,9 +29,14 @@ public class TeiTime extends GregorianCalendar {
 			return (minutesPassed / 60) + " hour" + ((minutesPassed / 60 == 1) ? "" : "s") + " ago";
 		}
 		
-		// If less than an month has passed, print days
-		if(minutesPassed < (60 * 24 * 30)) {
+		// If less than an week has passed, print days
+		if(minutesPassed < (60 * 24 * 7)) {
 			return (minutesPassed / 60 / 24) + " day" + ((minutesPassed / 60 / 24 == 1) ? "" : "s") + " ago";
+		}
+		
+		// If less than an month has passed, print weeks
+		if(minutesPassed < (60 * 24 * 30)) {
+			return (minutesPassed / 60 / 24 / 7) + " week" + ((minutesPassed / 60 / 24 / 7 == 1) ? "" : "s") + " ago";
 		}
 		
 		// If less than an year has passed, print months

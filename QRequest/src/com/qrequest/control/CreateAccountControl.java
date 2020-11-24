@@ -1,6 +1,7 @@
 package com.qrequest.control;
 
 import com.qrequest.exceptions.DatabaseConnectionException;
+import com.qrequest.object.Credentials;
 
 /**Control class for creating an account.
  */
@@ -10,8 +11,8 @@ public abstract class CreateAccountControl {
 	 * @param username
 	 * @param password
 	 */
-	public static void processCreateAccount(String username, String password) {
-		DataManager.createAccount(username, password);
+	public static void processCreateAccount(Credentials creds) {
+		DataManager.createAccount(creds);
 	}
 	
 	/**Sends a username to the DataManager to check if the given username exists as a User in the database.

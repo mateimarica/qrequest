@@ -2,6 +2,7 @@ package com.qrequest.ui;
 
 import com.qrequest.control.CreateAccountControl;
 import com.qrequest.control.LoginControl;
+import com.qrequest.control.ThemeHelper;
 import com.qrequest.exceptions.DatabaseConnectionException;
 import com.qrequest.object.Credentials;
 
@@ -160,7 +161,7 @@ public class LoginUI {
 
 		
 		Scene loginScene = new Scene(loginGridLayout, WINDOW_WIDTH, WINDOW_HEIGHT);
-		if(ThemeHelper.darkModeEnabled)
+		if(ThemeHelper.darkModeEnabled())
 			loginScene.getStylesheets().add(ThemeHelper.darkThemeFileURL);
 		
 		
@@ -188,14 +189,15 @@ public class LoginUI {
 		if (currentMode == Mode.LOGIN) {
 			boolean loginSuccessful = false; 
 			try {
-				loginSuccessful = LoginControl.processLogin(username, password);
+				Credentials creds = new Credentials(username, password, false);
+				loginSuccessful = LoginControl.processLogin(creds);
 				
 				if (loginSuccessful) {
 					if(saveCredentialsCheckBox.isSelected()) {
-						Credentials creds = new Credentials(username, LoginControl.hashPassword(password));
-						CredentialsHelper.saveCredentials(creds);
+						creds.hashPassword();
+						Credentials.saveCredentials(creds);
 					} else {
-						CredentialsHelper.removeCredentials();
+						Credentials.removeCredentials();
 					}
 					
 					
@@ -226,7 +228,7 @@ public class LoginUI {
 			}
 			
 			
-			CreateAccountControl.processCreateAccount(username, password);
+			CreateAccountControl.processCreateAccount(new Credentials(username, password));
 			currentMode = Mode.LOGIN;
 			loginButtonPress();
 		}

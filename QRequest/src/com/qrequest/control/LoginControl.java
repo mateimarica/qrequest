@@ -1,6 +1,7 @@
 package com.qrequest.control;
 
 import com.qrequest.exceptions.DatabaseConnectionException;
+import com.qrequest.object.Credentials;
 import com.qrequest.object.User;
 
 /**Class for processing the login
@@ -18,12 +19,8 @@ public abstract class LoginControl {
 	 * @return <code>True</code> if successfully logged in, <code>false</code> if failed.
 	 * @throws DatabaseConnectionException If the database cannot be connected to.
 	 */
-	public static boolean processLogin(String username, String password) throws DatabaseConnectionException {
-		return processLogin(username, password, false);
-	}
-	
-	public static boolean processLogin(String username, String password, boolean passwordAlreadyHashed) throws DatabaseConnectionException {
-		user = DataManager.getAccount(username, password, passwordAlreadyHashed);
+	public static boolean processLogin(Credentials creds) throws DatabaseConnectionException {
+		user = DataManager.getAccount(creds);
 		return (user != null);
 	}
 	

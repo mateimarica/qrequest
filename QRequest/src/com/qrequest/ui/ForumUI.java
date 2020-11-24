@@ -6,7 +6,10 @@ import com.qrequest.control.GetAnswerControl;
 import com.qrequest.control.GetQuestionControl;
 import com.qrequest.control.LoginControl;
 import com.qrequest.control.SearchUsersControl;
+import com.qrequest.control.ThemeHelper;
 import com.qrequest.object.Answer;
+import com.qrequest.object.Credentials;
+import com.qrequest.object.Post;
 import com.qrequest.object.Question;
 import com.qrequest.object.User;
 
@@ -26,6 +29,7 @@ import javafx.scene.control.TableView;
 import javafx.scene.control.ToggleButton;
 import javafx.scene.control.ToolBar;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.control.skin.TableHeaderRow;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.stage.Stage;
@@ -68,6 +72,8 @@ public class ForumUI {
 		menuBar = new MenuBar();
 		questionView = new ListView<GridPane>();
 		
+		
+		
 		MenuItem logoutItem = new MenuItem("Log out");
 		logoutItem.setOnAction(e -> logout());
 		
@@ -77,7 +83,7 @@ public class ForumUI {
 		
 		
 		CheckMenuItem darkModeItem = new CheckMenuItem("Dark mode");
-		darkModeItem.setSelected(ThemeHelper.darkModeEnabled);
+		darkModeItem.setSelected(ThemeHelper.darkModeEnabled());
 		darkModeItem.setOnAction(e -> themeChanged(darkModeItem));
 		
 		Menu optionsMenu = new Menu("Options");
@@ -97,7 +103,7 @@ public class ForumUI {
 		
 		//forumLayout.getChildren().addAll(questionsTable);
 		Scene scene = new Scene(forumLayout, WINDOW_WIDTH, WINDOW_HEIGHT);
-		if(ThemeHelper.darkModeEnabled)
+		if(ThemeHelper.darkModeEnabled())
 			scene.getStylesheets().add(ThemeHelper.darkThemeFileURL);
 		else
 			scene.getStylesheets().add(ThemeHelper.lightThemeFileURL);
@@ -143,7 +149,7 @@ public class ForumUI {
 	}
 	
 	private void logout() {
-		CredentialsHelper.removeCredentials();
+		Credentials.removeCredentials();
 		LoginControl.resetUser();
 		new LoginUI().startScene(window);
 	}
@@ -197,6 +203,7 @@ public class ForumUI {
 		titleCol.setSortable(false);
 		titleCol.setResizable(false);
 		titleCol.setMinWidth(150);
+		titleCol.setReorderable(false);
 		titleCol.setCellValueFactory(
                 new PropertyValueFactory<>("title"));
 		
@@ -204,6 +211,7 @@ public class ForumUI {
         descCol.setSortable(false);
         descCol.setResizable(false);
         descCol.setMinWidth(175);
+        descCol.setReorderable(false);
         descCol.setCellValueFactory(
                 new PropertyValueFactory<>("description"));
 
@@ -211,6 +219,7 @@ public class ForumUI {
         authorCol.setSortable(false);
         authorCol.setResizable(false);
         authorCol.setMinWidth(100);
+        authorCol.setReorderable(false);
         authorCol.setCellValueFactory(
                 new PropertyValueFactory<>("author"));
         
@@ -218,6 +227,7 @@ public class ForumUI {
         timePostedCol.setSortable(false);
         timePostedCol.setResizable(false);
         timePostedCol.setMinWidth(125);
+        timePostedCol.setReorderable(false);
         timePostedCol.setCellValueFactory(
                 new PropertyValueFactory<>("timePosted"));
         
@@ -272,8 +282,10 @@ public class ForumUI {
 		
 		ToggleButton questionUpvoteBtn = new ToggleButton("\u25B2");
 		GridPane.setConstraints(questionUpvoteBtn, 0, 0);
+		questionUpvoteBtn.setId("upvoteButton");
 		ToggleButton questionDownvoteBtn = new ToggleButton("\u25BC");
 		GridPane.setConstraints(questionDownvoteBtn, 0, 1);
+		questionDownvoteBtn.setId("downvoteButton");
 		
 		Label qusetionTitle = new Label(question.getTitle());
 		qusetionTitle.setStyle("-fx-font-size: 15px;\r\n" + 
@@ -311,17 +323,36 @@ public class ForumUI {
 		
 		ToggleButton upvoteBtn = new ToggleButton("\u25B2");
 		GridPane.setConstraints(upvoteBtn, 0, 0);
-		ToggleButton downvoteBtn = new ToggleButton("\u25BC");
-		downvoteBtn.setId("downvote-button");
-		GridPane.setConstraints(downvoteBtn, 0, 1);
+		upvoteBtn.setId("upvoteButton");
 		
-		Label answerText = new Label(answer.getAnswer());
+		ToggleButton downvoteBtn = new ToggleButton("\u25BC");
+		GridPane.setConstraints(downvoteBtn, 0, 1);
+		downvoteBtn.setId("downvoteButton");
+		
+		upvoteBtn.setOnAction(e -> {
+			if(upvoteBtn.isSelected()) {
+				if(downvoteBtn.isSelected()) {
+					downvoteBtn.setSelected(false);
+				}
+			}
+		});
+		
+		downvoteBtn.setOnAction(e -> {
+			if(downvoteBtn.isSelected()) {
+				if(downvoteBtn.isSelected()) {
+					upvoteBtn.setSelected(false);
+				}
+			}
+		});
+		
+		
+		Label answerText = new Label(answer.getDescription());
 		answerText.setMaxWidth(WINDOW_WIDTH * 0.62);
 		answerText.setMinWidth(WINDOW_WIDTH * 0.62);
 		answerText.setWrapText(true);
 		GridPane.setConstraints(answerText, 1, 0);
 		
-		Label author = new Label("Posted by " + answer.getAnswerer().getUsername());
+		Label author = new Label("Posted by " + answer.getAuthor().getUsername());
 		author.setAlignment(Pos.CENTER_RIGHT);
 		author.setMinWidth(WINDOW_WIDTH * 0.21);
 		author.setMaxWidth(WINDOW_WIDTH * 0.21);
@@ -332,4 +363,56 @@ public class ForumUI {
 		
 		return answerPane;
 	}
+	
+	private GridPane buildPostPane(Post post) {
+		GridPane postPane = new GridPane();
+		// top, right, bottom, left padding
+		postPane.setPadding(new Insets(2, 2, 2, 30));
+		postPane.setVgap(8);
+		postPane.setHgap(8);
+		//questionPane.setGridLinesVisible(true);
+		
+		ToggleButton upvoteBtn = new ToggleButton("\u25B2");
+		GridPane.setConstraints(upvoteBtn, 0, 0);
+		upvoteBtn.setId("upvoteButton");
+		
+		ToggleButton downvoteBtn = new ToggleButton("\u25BC");
+		GridPane.setConstraints(downvoteBtn, 0, 1);
+		downvoteBtn.setId("downvoteButton");
+		
+		upvoteBtn.setOnAction(e -> {
+			if(upvoteBtn.isSelected()) {
+				if(downvoteBtn.isSelected()) {
+					downvoteBtn.setSelected(false);
+				}
+			}
+		});
+		
+		downvoteBtn.setOnAction(e -> {
+			if(downvoteBtn.isSelected()) {
+				if(downvoteBtn.isSelected()) {
+					upvoteBtn.setSelected(false);
+				}
+			}
+		});
+		
+		
+		/*Label answerText = new Label(answer.getDescription());
+		answerText.setMaxWidth(WINDOW_WIDTH * 0.62);
+		answerText.setMinWidth(WINDOW_WIDTH * 0.62);
+		answerText.setWrapText(true);
+		GridPane.setConstraints(answerText, 1, 0);
+		
+		Label author = new Label("Posted by " + answer.getAuthor().getUsername());
+		author.setAlignment(Pos.CENTER_RIGHT);
+		author.setMinWidth(WINDOW_WIDTH * 0.21);
+		author.setMaxWidth(WINDOW_WIDTH * 0.21);
+		author.setWrapText(true);
+		GridPane.setConstraints(author, 2, 0);*/
+		
+		//postPane.getChildren().addAll(upvoteBtn, downvoteBtn, answerText, author);
+		
+		return postPane;
+	}
+	
 }

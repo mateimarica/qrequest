@@ -1,5 +1,6 @@
 package com.qrequest.ui;
 import com.qrequest.control.LoginControl;
+import com.qrequest.control.ThemeHelper;
 import com.qrequest.exceptions.DatabaseConnectionException;
 import com.qrequest.object.Credentials;
 
@@ -29,7 +30,6 @@ public class MainUI extends Application {
 		
 		stage.getIcons().add(new Image(ICON_URL));
 		
-		ThemeHelper.retrieveTheme();
 		
 		//Overriding the program's close request function.
 		stage.setOnCloseRequest(e -> {
@@ -42,15 +42,16 @@ public class MainUI extends Application {
 		
 		
 		//Checks the saved credentials (if there are any)
-		Credentials creds = CredentialsHelper.retrieveCredentials();
+		Credentials creds = Credentials.getSavedCredentials();
 		
 		//if the credentials DO exist
 		if(creds != null) {
 			
 			try {
-				LoginControl.processLogin(creds.getUsername(), creds.getPassword(), true);
+				LoginControl.processLogin(creds);
 				new ForumUI().startScene(stage);
-			} catch (Exception e) {
+			} catch (DatabaseConnectionException e) {
+				new LoginUI().startScene(stage);
 				PopupUI.displayErrorDialog("Connection Error", "Couldn't connect to the database. "
 						+ "Make sure you're connected to the UNB VPN.");
 			}			

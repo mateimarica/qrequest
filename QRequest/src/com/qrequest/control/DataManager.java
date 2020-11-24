@@ -13,6 +13,7 @@ import java.util.UUID;
 
 import com.qrequest.exceptions.DatabaseConnectionException;
 import com.qrequest.object.Answer;
+import com.qrequest.object.Credentials;
 import com.qrequest.object.Question;
 import com.qrequest.object.User;
 
@@ -50,9 +51,6 @@ abstract class DataManager {
 		} 
 	}	
 	
-	static User getAccount(String username, String password) throws DatabaseConnectionException {
-		return getAccount(username, password, false);
-	}
 	
 	/**Returns a user's account if there is an account associated with the given username & password.
 	 * @param username
@@ -60,7 +58,7 @@ abstract class DataManager {
 	 * @return The associated user. <code>null</code> if no user found.
 	 * @throws DatabaseConnectionException If there is no connection to the database.
 	 */
-	static User getAccount(String username, String password, boolean passwordAlreadyHashed) throws DatabaseConnectionException {
+	static User getAccount(Credentials creds) throws DatabaseConnectionException {
 		checkConnection();
 		
 		User user;
@@ -69,12 +67,12 @@ abstract class DataManager {
 			
 			//create query string
 			String sqlQuery = "SELECT * FROM Users WHERE "
-					+ "Username = '" + username +  "' AND Password = ";
+					+ "Username = '" + creds.getUsername() +  "' AND Password = ";
 			
-			if(passwordAlreadyHashed) {
-				sqlQuery += "'" + password +"';";
+			if(creds.isPasswordHashed()) {
+				sqlQuery += "'" + creds.getPassword() +"';";
 			} else {
-				sqlQuery += "SHA1('" + password +"');";
+				sqlQuery += "SHA1('" + creds.getPassword() +"');";
 			}
 			
 			System.out.println(sqlQuery);
@@ -99,12 +97,12 @@ abstract class DataManager {
 	 * @param username
 	 * @param password
 	 */
-	static void createAccount(String username, String password) {
+	static void createAccount(Credentials creds) {
 		try {
 			Statement st = connection.createStatement();
 			
-			String sqlQuery = "INSERT INTO Users VALUES('" + username 
-								+ "', SHA1('" + password + "'));";
+			String sqlQuery = "INSERT INTO Users VALUES('" + creds.getUsername() 
+								+ "', SHA1('" + creds.getPassword() + "'));";
 			
 			System.out.println(sqlQuery);
 			
@@ -131,7 +129,8 @@ abstract class DataManager {
 					+ "'" + desc + "', "
 					+ "'" + question.getAuthor().getUsername() + "', "
 					+ "'" + question.getID() + "', "
-					+ "CURRENT_TIMESTAMP);";
+					+ "CURRENT_TIMESTAMP, "
+					+ "NULL);"; //this NULL is where the Tag argument will go
 			
 			System.out.println(sqlQuery);
 									
@@ -166,10 +165,10 @@ abstract class DataManager {
 				String title = rs.getString("Title");
 				String desc = rs.getString("Description");
 				User author = new User(rs.getString("Author"));
-				String ID = rs.getString("Id");
+				UUID id = UUID.fromString(rs.getString("Id"));
 				Date date = (Date) rs.getTimestamp("TimePosted", Calendar.getInstance());
 				
-				Question question = new Question(title, desc, author, ID, date);
+				Question question = new Question(title, desc, author, id, date);
 				
 				questionList.add(question);	
 			}
@@ -249,11 +248,11 @@ abstract class DataManager {
 			Statement st = connection.createStatement();
 			
 			//Must escape all apostrophes with another apostrophe so MySQL recognizes that they aren't quotes
-			String answerText = answer.getAnswer().replaceAll("'", "''");
+			String answerText = answer.getDescription().replaceAll("'", "''");
 			
 			String sqlQuery = "INSERT INTO Answers VALUES("
 					+ "'" + answerText + "', "
-					+ "'" + answer.getAnswerer().getUsername() + "', "
+					+ "'" + answer.getAuthor().getUsername() + "', "
 					+ "'" + answer.getID() + "', "
 					+ "'" + answer.getQuestion().getID() + "', "
 					+ "CURRENT_TIMESTAMP);";
@@ -292,7 +291,7 @@ abstract class DataManager {
 
 				Date date = (Date) rs.getTimestamp("TimePosted", Calendar.getInstance());
 				
-				Answer answer = new Answer(answerText, answerer, question, answerID);
+				Answer answer = new Answer(answerText, answerer, question, answerID, date);
 				
 				answerList.add(answer);	
 			}
@@ -312,7 +311,7 @@ abstract class DataManager {
 			Statement st = connection.createStatement();
 			
 			// Order by TimePosted DESCENDING so that newer posts are at the top
-			String sqlQuery = "SELECT * FROM Users WHERE Username Like '%" + username +"%';";
+			String sqlQuery = "SELECT * FROM Users WHERE Username LIKE '%" + username +"%';";
 			
 			System.out.println(sqlQuery);
 			
