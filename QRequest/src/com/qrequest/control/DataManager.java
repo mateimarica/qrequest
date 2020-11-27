@@ -129,7 +129,7 @@ abstract class DataManager {
 		
 		//updates Question object
 		while(rs.next()) {
-			question.updateDescription(rs.getString("Description"));
+			question.setDescription(rs.getString("Description"));
 		}		
 	}
 	
@@ -341,7 +341,10 @@ abstract class DataManager {
 	 */
 	private static void checkConnection() throws DatabaseConnectionException {
 		if(connection == null) {
-			throw new DatabaseConnectionException("Could not connect to database.");
+			connection = initializeConnection();
+			if(connection == null) {
+				throw new DatabaseConnectionException("Could not connect to database.");
+			}
 		}
 	}
 

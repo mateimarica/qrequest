@@ -5,6 +5,8 @@
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.control.MenuItem?>
 <?import javafx.scene.control.CheckMenuItem?>
+<?import javafx.scene.control.ToolBar?>
+<?import javafx.scene.control.Button?>
 
 
 <BorderPane fx:controller="com.qrequest.ui.ForumUI" xmlns:fx="http://javafx.com/fxml" 
@@ -15,20 +17,18 @@
         	<menus>
 	        	<Menu fx:id="accountMenu">
 		        	<items>
-		        		<MenuItem fx:id="logoutItem" text="Log out">
+		        		<MenuItem fx:id="logoutItem" text="Log out" onAction="#logout">
 	        			</MenuItem>
 		        	</items>
 	        	</Menu>
 	        	<Menu fx:id="optionsMenu" text="Options">
 	        		<items>
-	        			<CheckMenuItem fx:id="darkModeItem" text="Dark mode">
+	        			<CheckMenuItem fx:id="darkModeItem" text="Dark mode" onAction="#themeChanged">
 	        			</CheckMenuItem>
 	        		</items>
 	        	</Menu>
         	</menus>
-        	
         </MenuBar>
     </top>
     
-
 </BorderPane>

@@ -65,15 +65,14 @@ public class LoginUI {
 			GridPane root = FXMLLoader.load(getClass().getResource("/com/qrequest/resources/fxml/LoginUI.fxml"));
 			
 			Scene loginScene = new Scene(root, WINDOW_WIDTH, WINDOW_HEIGHT);
-			
-			if(ThemeHelper.darkModeEnabled()) {
-				loginScene.getStylesheets().add(ThemeHelper.darkThemeFileURL);
-			}			
-			
-			stage.setScene(loginScene);
+				
+			loginScene.getStylesheets().add(ThemeHelper.getCurrentThemeURL());
+					
+						stage.setScene(loginScene);
 			stage.show();
 		} catch (IOException e) { e .printStackTrace(); }
 	}
+	
 
 	
 	/**Runs whens the "Login"/"Create Button" button is clicked. (Note: not the button at the button)
@@ -87,7 +86,7 @@ public class LoginUI {
 	 * 		<br><li>If no more errors, creates account and automatically jumps to the Login Case with the username & password.</dd>
 	 */
 	@FXML
-	private void loginButtonPress() {
+	private void processLoginButtonPress() {
 		syncPasswordFields();
 		
 		String username = usernameField.getText();
@@ -134,7 +133,7 @@ public class LoginUI {
 			}			
 			
 			currentMode = Mode.LOGIN;
-			loginButtonPress();
+			processLoginButtonPress();
 		}
 	}
 	

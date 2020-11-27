@@ -13,9 +13,14 @@ public class ThemeHelper {
 	*/
 	private final static String DARK_MODE_ENABLED_PREF = "darkModeEnabled";
 	
-	public static boolean darkModeEnabled() {
+	public static boolean isDarkModeEnabled() {
 		String value = PreferenceManager.getPreference((DARK_MODE_ENABLED_PREF));
 		return (value.equals("true") ? true : false);
+	}
+	
+	public static String getCurrentThemeURL() {
+		String value = PreferenceManager.getPreference((DARK_MODE_ENABLED_PREF));
+		return (value.equals("true") ? darkThemeFileURL  : lightThemeFileURL);
 	}
 	
 	/**Save the saved theme to the settings and sets the <code>darkModeEnabled</code> static boolean.

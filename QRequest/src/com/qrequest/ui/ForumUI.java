@@ -2,9 +2,13 @@ package com.qrequest.ui;
 import java.io.IOException;
 import java.util.ArrayList;
 
+import com.qrequest.control.DeletePostControl;
+import com.qrequest.control.EditQuestionControl;
 import com.qrequest.control.GetAnswerControl;
 import com.qrequest.control.GetQuestionControl;
 import com.qrequest.control.LoginControl;
+import com.qrequest.control.PostAnswerControl;
+import com.qrequest.control.PostQuestionControl;
 import com.qrequest.control.ThemeHelper;
 import com.qrequest.control.VoteControl;
 import com.qrequest.objects.Answer;
@@ -68,40 +72,45 @@ public class ForumUI {
 	
 	@FXML private Menu optionsMenu;
 	@FXML private CheckMenuItem darkModeItem;
+	//private Button bottomBarButton;
+	
 	private BorderPane root;
+	
 	@SuppressWarnings("deprecation")
 	public void startScene(Stage stage) {
 		
 		try {
 			root = FXMLLoader.load(getClass().getResource("/com/qrequest/resources/fxml/ForumUI.fxml"));
-		} catch (IOException e1) { e1.printStackTrace(); }
-		
+		} catch (IOException e) { e.printStackTrace(); }
 		
 		questionView = new ListView<GridPane>();
-		
 		if(currentMode == Mode.FRONT_PAGE) {
-			createQuestionsTable();	
+			createQuestionsList();	
 		} else {
 			blowupQuestion(currentQuestion);
 		}
-
-		populateToolbar();
+		
+		bottomBar = new ToolBar();
+		populateToolbar();		
 		
 		Scene scene = new Scene(root, WINDOW_WIDTH, WINDOW_HEIGHT);
-		if(ThemeHelper.darkModeEnabled())
-			scene.getStylesheets().add(ThemeHelper.darkThemeFileURL);
-		else
-			scene.getStylesheets().add(ThemeHelper.lightThemeFileURL);
-			
+		scene.getStylesheets().add(ThemeHelper.getCurrentThemeURL());
+		
 		
 		stage.setScene(scene);
-		stage.show();
-		System.out.println(menuBar);
-		
+		stage.show();		
+	}
+	
+	private Object loadFXML(String URL) {
+		try {
+			return FXMLLoader.load(getClass().getResource(URL));
+		} catch (IOException e) { e.printStackTrace(); }
+		return null;
 	}
 	
 	@FXML
 	public void initialize(){
+		darkModeItem.setSelected(ThemeHelper.isDarkModeEnabled());
 		accountMenu.setText("Logged in as: " + LoginControl.getUser().getUsername());
 	}
 	
@@ -115,39 +124,32 @@ public class ForumUI {
 	}
 	
 	private void populateToolbar() {
-		bottomBar = new ToolBar();
+		bottomBar.getItems().clear();
 		
 		
-		if(currentMode == Mode.FRONT_PAGE) {
+		if(currentMode == Mode.FRONT_PAGE) { //If the app is on the front page, display these buttons on the bottomBar:
 			askQuestionBtn = new Button("\u2795 Ask a question");
-			askQuestionBtn.setOnAction(e -> PopupUI.displayPostQuestionDialog(this));
+			askQuestionBtn.setOnAction(e -> processAskQuestionButtonPress());
+			
 			searchUsersBtn = new Button("\uD83D\uDC64 Search Users");
 			searchUsersBtn.setOnAction(e -> searchUsersBtnPress());
 			bottomBar.getItems().addAll(askQuestionBtn, searchUsersBtn);
 			
 			
-		} else {
+		} else {//If the app is in the question viewer, display these buttons on the bottomBar:
 			Button backBtn = new Button("\u25C0 Go back");
-			backBtn.setOnAction(e -> {
-				currentQuestion = null;
-				backBtnPress();
-			});
+			backBtn.setOnAction(e -> processBackButtonPress());
 			bottomBar.getItems().add(backBtn);
 			
 			Button postAnswerBtn = new Button("\u2795 Answer question");
-			postAnswerBtn.setOnAction(e -> PopupUI.displayPostAnswerDialog(this, currentQuestion));
+			postAnswerBtn.setOnAction(e -> processPostAnswerButtonPress());
 			
 			if(currentQuestion.getAuthor().getUsername().equals(LoginControl.getUser().getUsername())) {
 				Button deleteBtn = new Button("\uD83D\uDDD1 Delete question");
-				deleteBtn.setOnAction(e -> {
-					PopupUI.displayConfirmDeletionDialog(this, currentQuestion);
-				});
-
+				deleteBtn.setOnAction(e -> processDeleteQuestionButtonPress());
+					
 				Button editBtn = new Button("\uD83D\uDD89 Edit Question");
-				editBtn.setOnAction(e -> {
-					PopupUI.displayEditQuestionDialog(this, currentQuestion);
-					refresh();
-				});
+				editBtn.setOnAction(e -> processEditQuestionButtonPress());
 				bottomBar.getItems().addAll(deleteBtn, editBtn);
 			}
 			
@@ -155,14 +157,56 @@ public class ForumUI {
 			bottomBar.getItems().addAll(postAnswerBtn);
 			
 		}
-		
+		//Always display this button on the bottomBar:
 		refreshBtn = new Button("\uD83D\uDDD8 Refresh");
 		refreshBtn.setOnAction(e -> refresh());
 		bottomBar.getItems().add(refreshBtn);
 		
-		root.setBottom(bottomBar);
+		root.setBottom(bottomBar); //Put the bottomBar on the bottom of the root pane
 	}
 	
+	
+	
+	private void processBackButtonPress() {
+		currentQuestion = null;
+		backBtnPress();
+	}
+	
+	private void processAskQuestionButtonPress() {
+		Question newQuestion = PopupUI.displayAskQuestionDialog();
+		if(newQuestion != null) {
+			PostQuestionControl.processPostQuestion(newQuestion);
+			refresh();
+		}
+	}
+	
+	private void processPostAnswerButtonPress() {
+		Answer newAnswer = PopupUI.displayPostAnswerDialog(currentQuestion);
+		if(newAnswer != null) {
+			PostAnswerControl.processPostAnswer(newAnswer);
+			refresh();
+		}
+	}
+	
+	private void processEditQuestionButtonPress() {
+		if(PopupUI.displayEditQuestionDialog(currentQuestion)) {
+			EditQuestionControl.processEditQuestion(currentQuestion);
+			refresh();
+		}
+	}
+	
+	private void processDeleteQuestionButtonPress() {
+		if(PopupUI.displayConfirmationDialog("Confirm Deletion", "Are you sure you want to delete this question? This cannot be undone!")) {
+			DeletePostControl.processDeletePost(currentQuestion);
+			processQuestionDeleted();
+		}
+	}
+	
+	
+	
+
+	
+	@FXML
 	private void logout() {
 		Credentials.removeCredentials();
 		LoginControl.resetUser();
@@ -174,19 +218,20 @@ public class ForumUI {
 	void refresh() {
 		if(currentMode == Mode.FRONT_PAGE) {
 			root.getChildren().remove(questionsTable);
-			createQuestionsTable();
+			createQuestionsList();
 		} else {
 			blowupQuestion(currentQuestion);
 		}
 	}
 	
-	private void themeChanged(CheckMenuItem darkModeItem) {
+	@FXML
+	private void themeChanged() {
 		ThemeHelper.saveTheme(darkModeItem.isSelected());
 		startScene(MainUI.stage);
 	}
 	
-	@SuppressWarnings({ "unchecked", "deprecation", "rawtypes" })
-	private void createQuestionsTable() {
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	private void createQuestionsList() {
 		questionsTable = new ListView();
 		
 		

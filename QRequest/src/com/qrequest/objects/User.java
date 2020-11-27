@@ -32,17 +32,6 @@ public class User {
 		return username;
 	}
 	
-	/**Adds a questions to the user. Called when a user asks a new question.
-	 * @param question The question object.
-	 */
-	public void addQuestion(Question question) {
-		if(questions == null) {
-			questions = new ArrayList<>();
-		}
-		
-		questions.add(question);
-	}
-	
 	@Override
 	public String toString() {
 	    return username;

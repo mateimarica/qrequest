@@ -70,7 +70,7 @@ public abstract class Post {
 		return description;
 	}
 	
-	public void updateDescription(String description) {
+	public void setDescription(String description) {
 		this.description = description;
 	}
 	

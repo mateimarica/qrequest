@@ -27,7 +27,7 @@ public class MainUI extends Application {
 	
 	@Override
 	public void start(Stage stage) throws Exception {
-		this.stage = stage;
+		MainUI.stage = stage;
 		
 		stage.getIcons().add(new Image(ICON_URL));
 		

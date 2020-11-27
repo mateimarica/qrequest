@@ -26,23 +26,23 @@ fx:controller="com.qrequest.ui.LoginUI" xmlns="http://javafx.com/javafx/8" xmlns
      
     <TextField fx:id="usernameField" promptText="Username" maxWidth="150" 
     GridPane.columnIndex="1" GridPane.rowIndex="1" GridPane.halignment="CENTER" 
-    onKeyPressed="#usernameFieldTyping" onAction="#loginButtonPress">
+    onKeyPressed="#usernameFieldTyping" onAction="#processLoginButtonPress">
     </TextField>
     
     <PasswordField fx:id="passwordField" promptText="Password" maxWidth="150"
     GridPane.columnIndex="1" GridPane.rowIndex="2" GridPane.halignment="CENTER" 
-    onKeyPressed="#passwordFieldTyping" onAction="#loginButtonPress">
+    onKeyPressed="#passwordFieldTyping" onAction="#processLoginButtonPress">
     </PasswordField>
     
     <TextField fx:id="unmaskedPasswordField" promptText="Password" maxWidth="150" visible="false"
     GridPane.columnIndex="1" GridPane.rowIndex="2" GridPane.halignment="CENTER"  
-    onKeyPressed="#unmaskedPasswordFieldTyping" onAction="#loginButtonPress"></TextField>
+    onKeyPressed="#unmaskedPasswordFieldTyping" onAction="#processLoginButtonPress"></TextField>
     
     <CheckBox fx:id="showPasswordCheckBox" text="Show password"
     GridPane.columnIndex="2" GridPane.rowIndex="2" onAction="#showPasswordCheckBoxTicked"></CheckBox>
     
     <Button fx:id="loginButton" text="Login" disable="true" 
-    GridPane.columnIndex="1" GridPane.rowIndex="3" GridPane.halignment="CENTER" onAction="#loginButtonPress"> 
+    GridPane.columnIndex="1" GridPane.rowIndex="3" GridPane.halignment="CENTER" onAction="#processLoginButtonPress"> 
     </Button>
     
     <CheckBox fx:id="saveCredentialsCheckBox" text="Save credentials"
