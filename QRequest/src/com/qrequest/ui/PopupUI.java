@@ -100,7 +100,7 @@ public class PopupUI {
 		
 	/**The dialog for asking a question. Allows user to enter the title and an optional description.<br>
 	 * Posts questions upon pressing "OK" and refreshes the question table.
-	 * @param forumUI A reference to the ForumUI class.
+	 * @return The created <code>Question</code> object, or <code>null</code> if the user canceled.
 	 */
 	public static Question displayAskQuestionDialog() {
 
@@ -231,8 +231,8 @@ public class PopupUI {
 	
 	
 	/**Displays a pop-up window that gives the option for the user to post an answer to a question.
-	 * @param forumUI A reference to ForumUI so that the pop-up can call <code>forumUI.refresh()</code>.
 	 * @param question The question being answered.
+	 * @return The created <code>Answer</code> object, or <code>null</code> if the user canceled.
 	 */
 	public static Answer displayPostAnswerDialog(Question question) {
 		// Create the custom dialog.
@@ -283,8 +283,8 @@ public class PopupUI {
 	}
 	
 	/**Displays a pop-up window that gives the user the option to edit their own question's <i>description</i>.
-	 * @param forumUI A reference to ForumUI so that the pop-up can call <code>forumUI.refresh()</code>.
 	 * @param question The question being edited.
+	 * @return <code>true</code> if the Question object's description was edited, </code>false</code> if the user canceled.
 	 */
 	public static boolean displayEditQuestionDialog(Question question) {
 

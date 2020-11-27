@@ -38,32 +38,32 @@ import javafx.stage.Stage;
 
 public class ForumUI {
 	
-	private ListView<GridPane> questionsTable;
+	/**The ListView that listed the front page questions or the individual question + answers.*/
+	private ListView<GridPane> postList;
 	
+	/**The dimensions of the window. Don't change this*/
+	private final int WINDOW_HEIGHT = 700, WINDOW_WIDTH = 552;
 	
-	
-	private final int WINDOW_HEIGHT = 700;
-	private final int WINDOW_WIDTH = 552;
-	
-	/**Enunumator defining which "mode" the forum is in.
-	 */
+	/**Enunumator defining which "mode" the forum is in.*/
 	private enum Mode {FRONT_PAGE, QUESTION_VIEWER};
 	
-	/**The current mode that the forum is in. Front page is default.
-	 */
+	/**The current mode that the forum is in. Front page is default.*/
 	private Mode currentMode = Mode.FRONT_PAGE;
 	
+	/**Reference to the current question that is being interacted with*/
 	private Question currentQuestion;
 	
+	/**The toolbar are at the bottom of the window containing buttons like "Ask Question" and "Refresh"*/
 	private ToolBar bottomBar;
 	
+	/**Button to ask a question*/
 	private Button askQuestionBtn;
 	
+	/**Button to search for users*/
 	private Button searchUsersBtn;
 	
+	/**Button to refresh the current post list*/
 	private Button refreshBtn;
-	
-	private ListView<GridPane> questionView;
 	
 	@FXML private MenuBar menuBar;
 	
@@ -72,7 +72,6 @@ public class ForumUI {
 	
 	@FXML private Menu optionsMenu;
 	@FXML private CheckMenuItem darkModeItem;
-	//private Button bottomBarButton;
 	
 	private BorderPane root;
 	
@@ -83,7 +82,11 @@ public class ForumUI {
 			root = FXMLLoader.load(getClass().getResource("/com/qrequest/resources/fxml/ForumUI.fxml"));
 		} catch (IOException e) { e.printStackTrace(); }
 		
-		questionView = new ListView<GridPane>();
+		postList = new ListView<GridPane>();
+		postList.setFocusTraversable(false);
+		
+		root.setCenter(postList);
+		
 		if(currentMode == Mode.FRONT_PAGE) {
 			createQuestionsList();	
 		} else {
@@ -204,8 +207,6 @@ public class ForumUI {
 	
 	
 	
-
-	
 	@FXML
 	private void logout() {
 		Credentials.removeCredentials();
@@ -217,7 +218,6 @@ public class ForumUI {
 	
 	void refresh() {
 		if(currentMode == Mode.FRONT_PAGE) {
-			root.getChildren().remove(questionsTable);
 			createQuestionsList();
 		} else {
 			blowupQuestion(currentQuestion);
@@ -232,59 +232,38 @@ public class ForumUI {
 	
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	private void createQuestionsList() {
-		questionsTable = new ListView();
-		
-		
-	
-		questionsTable.setFocusTraversable(false);
-		
         ArrayList<Question> questionList = GetQuestionControl.getAllQuestions();
         
         for(int i = 0; i < questionList.size(); i++) {
-        	questionsTable.getItems().add(buildQuestionPane(questionList.get(i)));
+        	postList.getItems().add(buildQuestionPane(questionList.get(i)));
         	
         }
-   
-       
-        root.setCenter(questionsTable);
-
+        
 	}
 	
 	private void blowupQuestion(Question question) {
-		 
-		
 		currentMode = Mode.QUESTION_VIEWER;
 		populateToolbar();
 		
-		
-		questionsTable.setVisible(false);
-		questionView.setVisible(true);
-		
-		GetQuestionControl.refreshQuestion(question);
-		
+		GetQuestionControl.refreshQuestion(question);		
 		
 		populateQuestion(question);
 	}
 	
 	private void populateQuestion(Question question) {
-		questionView.getItems().clear();
-		questionView.getItems().add(buildPostPane(currentQuestion));
+		postList.getItems().clear();
+		postList.getItems().add(buildPostPane(currentQuestion));
 		
 		ArrayList<Answer> answerList = GetAnswerControl.getAllAnswers(currentQuestion);
 		
 		for(int i = 0; i < answerList.size(); i++) {
-			questionView.getItems().add(buildPostPane(answerList.get(i)));
+			postList.getItems().add(buildPostPane(answerList.get(i)));
 		}
-		
-		
-		root.setCenter(questionView);
 	}
 	
 
 	private void backBtnPress() {
-		questionView.getItems().clear();
-		questionView.setVisible(false);
-		questionsTable.setVisible(true);
+		postList.getItems().clear();
 		currentMode = Mode.FRONT_PAGE;
 		populateToolbar();
 		refresh();
@@ -294,8 +273,6 @@ public class ForumUI {
 		
 		
 		GridPane postPane = new GridPane();
-		
-			
 		
 		postPane.setPadding(new Insets(2, 2, 2, 2));
 		
