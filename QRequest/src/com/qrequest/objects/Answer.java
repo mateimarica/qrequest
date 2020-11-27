@@ -1,4 +1,4 @@
-package com.qrequest.object;
+package com.qrequest.objects;
 
 import java.util.Date;
 import java.util.UUID;
@@ -13,8 +13,8 @@ public class Answer extends Post{
 	}
 	
 	
-	public Answer(String answer, User answerer, Question question, UUID id, Date timePosted) {
-		super(answer, answerer, id, timePosted);
+	public Answer(String answer, User answerer, Question question, UUID id, Date timePosted, int votes, int currentUserVotes) {
+		super(answer, answerer, id, timePosted, votes, currentUserVotes);
 		this.question = question;
 	}
 	

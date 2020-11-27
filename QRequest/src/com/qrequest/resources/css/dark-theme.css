@@ -50,16 +50,19 @@
 }
 
 .list-cell:even,
-.list-cell:odd,
+
 .table-row-cell:even {
-	-fx-control-inner-background: derive(-fx-base, 20%);
+	-fx-control-inner-background: derive(-fx-base, 30%);
 }
+
+.list-cell:odd,
 .table-row-cell:odd{    
     -fx-control-inner-background: derive(-fx-base, 15%);
 }
 
 .list-view {
 	-fx-selection-bar: green;
+	-fx-selection-bar-non-focused: derive(-fx-base, 50%);
 }
 
 .list-cell:empty,
@@ -90,3 +93,9 @@
     -fx-background-color: #8D1900;
 }
 
+#questionTitleLabel {
+	-fx-font-size: 15px;
+	-fx-font-family: Verdana;
+	-fx-font-weight: bold;
+	-fx-cursor: hand;
+}

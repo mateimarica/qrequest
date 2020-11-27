@@ -1,8 +1,8 @@
 package com.qrequest.control;
 
 import com.qrequest.exceptions.DatabaseConnectionException;
-import com.qrequest.object.Credentials;
-import com.qrequest.object.User;
+import com.qrequest.objects.Credentials;
+import com.qrequest.objects.User;
 
 /**Class for processing the login
  */

@@ -1,7 +1,9 @@
-package com.qrequest.object;
+package com.qrequest.objects;
 
 import java.util.Date;
 import java.util.UUID;
+
+import com.qrequest.objects.Vote.VoteType;
 
 public abstract class Post {
 	
@@ -18,15 +20,21 @@ public abstract class Post {
 	
 	private User author;
 	
+	private int votes;
+	
+	private int currentUserVote;
+	
 	protected Post(UUID id) {
 		this.id = id;
 	}
 	
-	protected Post(String description, User author, UUID id, Date timePosted) {
+	protected Post(String description, User author, UUID id, Date timePosted, int votes, int currentUserVote) {
 		this.description = description;
 		this.author = author;
 		this.id = id;
 		this.timePosted.setTimeInMillis(timePosted.getTime());
+		this.votes = votes;
+		this.currentUserVote = currentUserVote;
 	}
 	
 	protected Post(String description, User author, UUID id) {
@@ -65,4 +73,18 @@ public abstract class Post {
 	public void updateDescription(String description) {
 		this.description = description;
 	}
+	
+	public int getVotes() {
+		return votes;
+	}
+	
+	public int getCurrentUserVote() {
+		return currentUserVote;
+	}
+	
+	public void setCurrentUserVote(VoteType newCurrentUserVote) {
+		currentUserVote = newCurrentUserVote.value();
+	}
+	
+	
 }

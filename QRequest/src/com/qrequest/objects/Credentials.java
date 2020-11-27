@@ -1,4 +1,4 @@
-package com.qrequest.object;
+package com.qrequest.objects;
 
 import com.qrequest.control.LoginControl;
 import com.qrequest.control.PreferenceManager;
@@ -80,7 +80,6 @@ public class Credentials {
 	/**Deletes any saved credentials.
 	 */
 	public static void removeCredentials() {
-		PreferenceManager.savePreference(SAVED_USERNAME_PREF, "");
-		PreferenceManager.savePreference(SAVED_PASSWORD_PREF, "");
+		PreferenceManager.clearPreference(SAVED_USERNAME_PREF, SAVED_PASSWORD_PREF);
 	}
 }

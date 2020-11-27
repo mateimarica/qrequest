@@ -1,4 +1,4 @@
-package com.qrequest.object;
+package com.qrequest.objects;
 
 import java.sql.Date;
 

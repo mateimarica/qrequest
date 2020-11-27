@@ -2,7 +2,7 @@ package com.qrequest.control;
 
 import java.util.ArrayList;
 
-import com.qrequest.object.Question;
+import com.qrequest.objects.Question;
 
 /**Class for getting questions from the database.
  */

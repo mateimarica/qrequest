@@ -1,6 +1,6 @@
 package com.qrequest.control;
 
-import com.qrequest.object.Question;
+import com.qrequest.objects.Question;
 
 /**Class for posting questions to the database.
  */

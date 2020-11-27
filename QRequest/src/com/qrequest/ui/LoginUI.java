@@ -1,14 +1,15 @@
 package com.qrequest.ui;
 
+import java.io.IOException;
+
 import com.qrequest.control.CreateAccountControl;
 import com.qrequest.control.LoginControl;
 import com.qrequest.control.ThemeHelper;
 import com.qrequest.exceptions.DatabaseConnectionException;
-import com.qrequest.object.Credentials;
+import com.qrequest.objects.Credentials;
 
-import javafx.geometry.HPos;
-import javafx.geometry.Insets;
-import javafx.geometry.VPos;
+import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
@@ -16,157 +17,62 @@ import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
 import javafx.scene.input.KeyEvent;
-import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
 import javafx.stage.Stage;
 
-/**The login/account creation user interface.
- */
+/**The login/account creation user interface.*/
 public class LoginUI {
-	
-	/**The "Login"/"Create Account" button in the center of the screen.
-	 */
-	private Button loginButton;
-	
-	/**The "Create an account"/"Log in instead" button at bottom of the screen.
-	 */
-	private Button changeModeButton;
-	
-	/**The big "QREQUEST" title at the top of the screen.
-	 */
-	private Label titleLabel;
-	
-	/**The small label at the bottom of the screen asking "Don't have an account?"/"Already have an account?".
-	 */
-	private Label newAccountLabel;
-
-	/**The "Show password" checkbox for viewing your password.
-	 */
-	private CheckBox showPasswordCheckBox;
-
-	/**The stage upon which every control is placed.
-	 */
-	private Stage window;
-	
-	/**The layout of the Login menu. All controls are put into an index denoted by (x, y) coords, where (0, 0) is the top left corner.<br>
-	 * Use <code>loginGridLayout.setGridLinesVisible(true);</code> to view how the controls are laid out. 
-	 */
-	private GridPane loginGridLayout;
-	
-	/**The username field.
-	 */
-	private TextField usernameField;
-	
-	/**The masked password field.
-	 */
-	private PasswordField passwordField;
-	
-	/**The unmasked password field.
-	 */
-	private TextField unmaskedPasswordField;
-	
-	/**The dimensions of the Login screen. Don't change this.
-	 */
+		
+	/**The dimensions of the Login screen. Don't change this.*/
 	private final int WINDOW_HEIGHT = 300, WINDOW_WIDTH = 500;
 	
-	
-
-	/**Enunumator defining which "mode" the login menu is in.
-	 */
+	/**Enunumator defining which "mode" the login menu is in.*/
 	private enum Mode {LOGIN, CREATE_ACCOUNT};
 
-	/**The current mode that the login is in. Login is default, can switch to Create Account.
-	 */
+	/**The current mode that the login is in. Login is default, can switch to Create Account.*/
 	private Mode currentMode = Mode.LOGIN;
 	
-	CheckBox saveCredentialsCheckBox;
+	/**The username field.*/
+	@FXML private TextField usernameField;
+	
+	/**The masked password field.*/
+	@FXML private PasswordField passwordField;
+	
+	/**The unmasked password field.*/
+	@FXML private TextField unmaskedPasswordField;
+	
+	/**The "Login"/"Create Account" button in the center of the screen.*/
+	@FXML private Button loginButton;
+	
+	/**The "Create an account"/"Log in instead" button at bottom of the screen.*/
+	@FXML private Button changeModeButton;
+	
+	/**The small label at the bottom of the screen asking "Don't have an account?"/"Already have an account?".*/
+	@FXML private Label newAccountLabel;
 
+	/**The "Show password" checkbox for viewing your password.*/
+	@FXML private CheckBox showPasswordCheckBox;
+	
+	/**If this checkbox is ticked when the Login action is triggered, the user's credentials will be saved.*/
+	@FXML private CheckBox saveCredentialsCheckBox;	
+	
+	
 	/**The login menu is created and shown by this method. Called by the MainUI class.
 	 * @param stage Where all the controls are created, put into the grid layout pane, put in the scene, then the stage, then shown.
 	 */
-	public void startScene(Stage stage) {
-		window = stage; // Saves pointer to stage for reference in other methods.
-
-		loginGridLayout = new GridPane();
-		GridPane.setHalignment(loginGridLayout, HPos.CENTER);
-		GridPane.setValignment(loginGridLayout, VPos.CENTER);
-		// top, right, bottom, left padding
-		loginGridLayout.setPadding(new Insets(10, 10, 10, 55));
-		loginGridLayout.setVgap(8);
-		loginGridLayout.setHgap(10);
-		loginGridLayout.setGridLinesVisible(false); // Set this to true if you want to see how the login menu is laid out.
-
-		loginGridLayout.getColumnConstraints().add(new ColumnConstraints(100));
-
-		titleLabel = new Label();
-		titleLabel.setText("qRequest");
-		titleLabel.getStylesheets().add("/com/qrequest/ui/resources/title-styling.css");
-		GridPane.setConstraints(titleLabel, 1, 0); 
-
-		usernameField = new TextField();
-		usernameField.setMaxWidth(150);
-		usernameField.setPromptText("Username");
-		usernameField.setOnAction(e -> loginButtonPress());
-		usernameField.setOnKeyPressed(e -> fieldTyping(e, usernameField, passwordField));
-		GridPane.setConstraints(usernameField, 1, 1);
-		GridPane.setHalignment(usernameField, HPos.CENTER);
-
-		passwordField = new PasswordField();
-		passwordField.setMaxWidth(150);
-		passwordField.setPromptText("Password");
-		passwordField.setOnAction(e -> loginButtonPress());
-		passwordField.setOnKeyPressed(e -> fieldTyping(e, passwordField, usernameField));
-		GridPane.setConstraints(passwordField, 1, 2);
-		GridPane.setHalignment(passwordField, HPos.CENTER);
-
-		unmaskedPasswordField = new TextField();
-		unmaskedPasswordField.setMaxWidth(150);
-		unmaskedPasswordField.setPromptText("Password");
-		unmaskedPasswordField.setOnAction(e -> loginButtonPress());
-		unmaskedPasswordField.setOnKeyPressed(e -> fieldTyping(e, unmaskedPasswordField, usernameField));
-		unmaskedPasswordField.setVisible(false);
-		GridPane.setConstraints(unmaskedPasswordField, 1, 2);
-		GridPane.setHalignment(unmaskedPasswordField, HPos.CENTER);
-
-		showPasswordCheckBox = new CheckBox("Show password");
-		showPasswordCheckBox.setOnAction(e -> showPasswordCheckBoxTicked());
-		GridPane.setConstraints(showPasswordCheckBox, 2, 2);
-		
-		
-		saveCredentialsCheckBox = new CheckBox("Save credentials");
-		GridPane.setConstraints(saveCredentialsCheckBox, 1, 4);
-		GridPane.setHalignment(saveCredentialsCheckBox, HPos.CENTER);
-		
-		loginButton = new Button();
-		loginButton.setText("Login");
-		loginButton.setOnAction(e -> loginButtonPress());
-		loginButton.setDisable(true);
-		GridPane.setConstraints(loginButton, 1, 3);
-		GridPane.setHalignment(loginButton, HPos.CENTER);
-
-		newAccountLabel = new Label();
-		newAccountLabel.setText("Don't have an account?");
-		GridPane.setConstraints(newAccountLabel, 1, 11);
-		GridPane.setHalignment(newAccountLabel, HPos.CENTER);
-
-		changeModeButton = new Button();
-		changeModeButton.setText("Create an account");
-		changeModeButton.setOnAction(e -> changeModeButtonPress());
-		GridPane.setConstraints(changeModeButton, 1, 12);
-		GridPane.setHalignment(changeModeButton, HPos.CENTER);
-		
-		//Adds all the controls to the grid layout
-		loginGridLayout.getChildren().addAll(titleLabel, usernameField, passwordField, unmaskedPasswordField, showPasswordCheckBox,
-				loginButton,saveCredentialsCheckBox, changeModeButton, newAccountLabel);
-
-		
-		Scene loginScene = new Scene(loginGridLayout, WINDOW_WIDTH, WINDOW_HEIGHT);
-		if(ThemeHelper.darkModeEnabled())
-			loginScene.getStylesheets().add(ThemeHelper.darkThemeFileURL);
-		
-		
-		stage.setScene(loginScene);
-		stage.show();
+	public void startScene(Stage stage) {	
+		try {
+			GridPane root = FXMLLoader.load(getClass().getResource("/com/qrequest/resources/fxml/LoginUI.fxml"));
+			
+			Scene loginScene = new Scene(root, WINDOW_WIDTH, WINDOW_HEIGHT);
+			
+			if(ThemeHelper.darkModeEnabled()) {
+				loginScene.getStylesheets().add(ThemeHelper.darkThemeFileURL);
+			}			
+			
+			stage.setScene(loginScene);
+			stage.show();
+		} catch (IOException e) { e .printStackTrace(); }
 	}
 
 	
@@ -180,6 +86,7 @@ public class LoginUI {
 	 * 		<br><li>Then checks if the username is already in use. If it is, displays error pop-up.
 	 * 		<br><li>If no more errors, creates account and automatically jumps to the Login Case with the username & password.</dd>
 	 */
+	@FXML
 	private void loginButtonPress() {
 		syncPasswordFields();
 		
@@ -188,20 +95,19 @@ public class LoginUI {
 		
 		if (currentMode == Mode.LOGIN) {
 			boolean loginSuccessful = false; 
+			
 			try {
 				Credentials creds = new Credentials(username, password, false);
 				loginSuccessful = LoginControl.processLogin(creds);
-				
 				if (loginSuccessful) {
 					if(saveCredentialsCheckBox.isSelected()) {
-						creds.hashPassword();
+						creds.hashPassword(); //The password should only be saved locally if hashed.
 						Credentials.saveCredentials(creds);
 					} else {
 						Credentials.removeCredentials();
 					}
 					
-					
-					new ForumUI().startScene(window);
+					new ForumUI().startScene(MainUI.stage);
 				} else {
 					PopupUI.displayErrorDialog("Login Failed", "Username or password is incorrect.");
 				}
@@ -217,18 +123,16 @@ public class LoginUI {
 			}
 			
 			try {
-				if(CreateAccountControl.processDoesAccountExist(username)) {
-					PopupUI.displayErrorDialog("Error Creating Account", "An account with that username already exists.");
-					return;
-				}
+					if(!CreateAccountControl.processCreateAccount(new Credentials(username, password))) {
+						PopupUI.displayErrorDialog("Error Creating Account", "An account with that username already exists.");
+						return;
+					}				
 			} catch (DatabaseConnectionException e) {
 				PopupUI.displayErrorDialog("Connection Error", "Couldn't connect to the database. "
 						+ "Make sure you're connected to the UNB VPN.");
-				return;
-			}
+					return;
+			}			
 			
-			
-			CreateAccountControl.processCreateAccount(new Credentials(username, password));
 			currentMode = Mode.LOGIN;
 			loginButtonPress();
 		}
@@ -274,6 +178,7 @@ public class LoginUI {
 	/**Run every time the "Create an account"/"Login in instead" button is pressed.<br>
 	 * Does all the switching, clears the fields, and changes the currentMode.
 	 */
+	@FXML
 	private void changeModeButtonPress() {
 		if (currentMode == Mode.LOGIN) {
 			currentMode = Mode.CREATE_ACCOUNT;
@@ -295,9 +200,18 @@ public class LoginUI {
 		usernameField.clear();
 		passwordField.clear();
 	}
-
 	
-
+	/**Wrapper method for FXML. See {@link #fieldTyping(KeyEvent, TextField, TextField) fieldTyping()}*/
+	@FXML
+	private void usernameFieldTyping(KeyEvent event) { fieldTyping(event, usernameField, passwordField); }
+	
+	/**Wrapper method for FXML. See {@link #fieldTyping(KeyEvent, TextField, TextField) fieldTyping()}*/
+	@FXML
+	private void passwordFieldTyping(KeyEvent event) { fieldTyping(event, passwordField, usernameField); }
+	
+	/**Wrapper method for FXML. See {@link #fieldTyping(KeyEvent, TextField, TextField) fieldTyping()}*/
+	@FXML
+	private void unmaskedPasswordFieldTyping(KeyEvent event) { fieldTyping(event, unmaskedPasswordField, usernameField); }
 	
 	/**Runs every time a character is typed or deleted in the usernameField or passwordField.<br>
 	 * Disables "Login" button if there's no text in either field.<br>
@@ -309,16 +223,16 @@ public class LoginUI {
 	private void fieldTyping(KeyEvent event, TextField thisField, TextField otherField) {
 		String key = event.getCode().toString();
 		
-		
 		if (thisField.getSelectedText().length() == thisField.getLength()
 				&& (key.equals("BACK_SPACE") || key.equals("DELETE"))) {
 			loginButton.setDisable(true);
-
-		} else if (thisField.getLength() <= 1 && key.equals("BACK_SPACE")
+			
+		} else if (thisField.getLength() < 1 && key.equals("BACK_SPACE")
 				&& (thisField.getCaretPosition() != 0) 
 				|| (thisField.getLength() == 0 && thisField.getCaretPosition() == 0 && key.equals("DELETE"))) {
 			loginButton.setDisable(true);
 
+			
 		} else if (thisField.getText().isEmpty() && !otherField.getText().isEmpty()) {
 			loginButton.setDisable(false);
 
@@ -327,13 +241,12 @@ public class LoginUI {
 	
 	
 	
-	
-	
 	/**Runs when the "Show password" checkbox is ticked/unticked.<br>
 	 * When ticked, overlays a regular textfield over the passwordField to act as the unmasked passwordField.<br>
 	 * When unticked, hides the unmasked "passwordField".<br>
 	 * Transfers the password between the passwordField and the unmasked "passwordField".
 	 */
+	@FXML
 	private void showPasswordCheckBoxTicked() {
 		boolean bothFieldsEmpty = usernameField.getText().isEmpty() && passwordField.getText().isEmpty();
 		

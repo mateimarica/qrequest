@@ -2,8 +2,8 @@ package com.qrequest.control;
 
 import java.util.ArrayList;
 
-import com.qrequest.object.Answer;
-import com.qrequest.object.Question;
+import com.qrequest.objects.Answer;
+import com.qrequest.objects.Question;
 
 public class GetAnswerControl {
 	public static ArrayList<Answer> getAllAnswers(Question question) {

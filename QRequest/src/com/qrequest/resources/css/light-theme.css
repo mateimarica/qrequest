@@ -8,3 +8,34 @@
     /* TODO: -fx-text-fill should be derived */
     -fx-text-fill: -fx-light-text-color;
 }
+
+list-cell:even,
+
+.table-row-cell:even {
+	-fx-control-inner-background: derive(-fx-base, 90%);
+}
+
+.list-cell:odd,
+.table-row-cell:odd{    
+    -fx-control-inner-background: derive(-fx-base, 15%);
+}
+
+.list-view {
+	-fx-selection-bar: green;
+	-fx-selection-bar-non-focused: derive(-fx-base, 15%);
+}
+
+#upvoteButton:selected {
+    -fx-background-color: #538D00;
+}
+
+#downvoteButton:selected {
+    -fx-background-color: #8D1900;
+}
+
+#questionTitleLabel {
+	-fx-font-size: 15px;
+	-fx-font-family: Verdana;
+	-fx-font-weight: bold;
+	-fx-cursor: hand;
+}

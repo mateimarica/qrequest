@@ -1,6 +1,6 @@
 package com.qrequest.control;
 
-import com.qrequest.object.Answer;
+import com.qrequest.objects.Answer;
 
 
 public abstract class PostAnswerControl {

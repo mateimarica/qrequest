@@ -1,8 +1,9 @@
 package com.qrequest.ui;
 import com.qrequest.control.LoginControl;
+import com.qrequest.control.PreferenceManager;
 import com.qrequest.control.ThemeHelper;
 import com.qrequest.exceptions.DatabaseConnectionException;
-import com.qrequest.object.Credentials;
+import com.qrequest.objects.Credentials;
 
 import javafx.application.Application;
 import javafx.scene.image.Image;
@@ -14,9 +15,9 @@ public class MainUI extends Application {
 	
 	/**Instance of the window.
 	 */
-	private Stage window;
+	static Stage stage;
 	
-	final static String ICON_URL = "/com/qrequest/ui/resources/icon.png";
+	final static String ICON_URL = "/com/qrequest/resources/images/icon.png";
 	
 	/**Starts the JavaFX instance.
 	 */
@@ -26,10 +27,9 @@ public class MainUI extends Application {
 	
 	@Override
 	public void start(Stage stage) throws Exception {
-		window = stage;
+		this.stage = stage;
 		
 		stage.getIcons().add(new Image(ICON_URL));
-		
 		
 		//Overriding the program's close request function.
 		stage.setOnCloseRequest(e -> {
@@ -51,6 +51,7 @@ public class MainUI extends Application {
 				LoginControl.processLogin(creds);
 				new ForumUI().startScene(stage);
 			} catch (DatabaseConnectionException e) {
+				
 				new LoginUI().startScene(stage);
 				PopupUI.displayErrorDialog("Connection Error", "Couldn't connect to the database. "
 						+ "Make sure you're connected to the UNB VPN.");
@@ -68,6 +69,6 @@ public class MainUI extends Application {
 	private void closeProgram() {
 		//This method is called when the user tries to close the program.
 		//This could have some kind of saving functionality if needed.
-		window.close();
+		stage.close();
 	}	
 }

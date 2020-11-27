@@ -4,14 +4,17 @@ import java.util.ArrayList;
 
 import java.util.UUID;
 
+import com.qrequest.control.DeletePostControl;
+import com.qrequest.control.EditQuestionControl;
 import com.qrequest.control.LoginControl;
 import com.qrequest.control.PostAnswerControl;
 import com.qrequest.control.PostQuestionControl;
 import com.qrequest.control.SearchUsersControl;
 import com.qrequest.control.ThemeHelper;
-import com.qrequest.object.Answer;
-import com.qrequest.object.User;
-import com.qrequest.object.Question;
+import com.qrequest.objects.Answer;
+import com.qrequest.objects.Post;
+import com.qrequest.objects.Question;
+import com.qrequest.objects.User;
 
 import javafx.event.ActionEvent;
 import javafx.geometry.HPos;
@@ -84,6 +87,41 @@ public class PopupUI {
 			scene.getStylesheets().add(ThemeHelper.darkThemeFileURL);
 		}
 			
+		
+		//Set the icon for the popup
+		Stage stage = (Stage) dialog.getDialogPane().getScene().getWindow();
+		stage.getIcons().add(
+		    new Image(new PopupUI().getClass().getResource(MainUI.ICON_URL).toString()));
+		
+		dialog.show();
+	}
+	
+	
+	
+	static void displayConfirmDeletionDialog(ForumUI forumUI, Post post) {
+		Alert dialog = new Alert(AlertType.CONFIRMATION);
+		dialog.setHeaderText(null);
+		dialog.setTitle("Confirm Deletion");
+		dialog.setContentText("Are you sure you want to delete this " + post.getClass().getSimpleName() + "?"
+							+ " This cannot be undone.");
+		
+		((Button)dialog.getDialogPane().lookupButton(ButtonType.OK)).setOnAction(e -> {
+			DeletePostControl.processDeletePost(post);
+			
+			if(post.getClass().equals(Question.class)) {
+				forumUI.processQuestionDeleted();
+			} else {
+				forumUI.refresh();
+			}
+		});	
+		
+		//set dark theme for pop-up
+		if(ThemeHelper.darkModeEnabled()) {
+			Scene scene = dialog.getDialogPane().getScene();
+			scene.getStylesheets().add(ThemeHelper.darkThemeFileURL);
+		}
+		
+		
 		
 		//Set the icon for the popup
 		Stage stage = (Stage) dialog.getDialogPane().getScene().getWindow();
@@ -312,5 +350,92 @@ public class PopupUI {
 				}
 			});
 	}
+	
+	public static void displayEditQuestionDialog(ForumUI forumUI, Question question) {
+
+		// Create the custom dialog.
+		Dialog<Pair<String, String>> dialog = new Dialog<>();
+		dialog.setTitle("Edit Question");
+
+		//Set the icon for the popup
+		Stage stage = (Stage) dialog.getDialogPane().getScene().getWindow();
+		stage.getIcons().add(
+		    new Image(new PopupUI().getClass().getResource(MainUI.ICON_URL).toString()));
+
+
+		GridPane gridPane = new GridPane();
+		gridPane.setHgap(10);
+		gridPane.setVgap(10);
+		// top, right, bottom, left padding
+		gridPane.setPadding(new Insets(20, 10, 10, 10));
+
+
+		TextField titleField = new TextField();
+		titleField.setText(question.getTitle());
+		titleField.setMinWidth(300);
+		titleField.setMaxWidth(300);
+		titleField.setDisable(true);
+		gridPane.add(titleField, 0, 0);
+
+		TextArea descField = new TextArea();
+		descField.setText(question.getDescription());
+		descField.setMaxSize(300, 200);
+		gridPane.add(descField, 0, 1);
+
+
+		// Set the button types.
+		ButtonType confirmBtnType = new ButtonType("Confirm", ButtonData.RIGHT);
+		dialog.getDialogPane().getButtonTypes().addAll(confirmBtnType, ButtonType.CANCEL);
+
+		final Button confirmBtn = (Button)dialog.getDialogPane().lookupButton(confirmBtnType);
+		confirmBtn.addEventFilter(ActionEvent.ACTION, event -> {
+
+			int titleFieldLength = titleField.getText().length();
+
+			if (titleFieldLength < 10 || titleFieldLength > 50) {
+			   displayWarningDialog("Error Posting Question", "Questions must be 10 to 50 characters in length.");
+			   event.consume(); //make it so the dialog does not close
+			   return;
+			} else if (descField.getText().length() > 255) {
+			   displayWarningDialog("Error Posting Question", "Questions must be 50 characters or fewer.");
+			   event.consume(); //make it so the dialog does not close
+			   return;
+		   }
+		});
+
+		DialogPane dialogPane = dialog.getDialogPane();
+
+		if(ThemeHelper.darkModeEnabled())
+			dialogPane.getStylesheets().add(ThemeHelper.darkThemeFileURL);
+
+
+		dialogPane.setContent(gridPane);
+
+		// Convert the result to a title-description pair when the postQuestion button is clicked.
+		dialog.setResultConverter(button -> {
+
+			if(button == confirmBtnType) {
+				return new Pair<>(titleField.getText(), descField.getText());
+			}
+			return null;
+
+
+		});
+
+		dialog.showAndWait().ifPresent(result -> {
+			if(result != null) {
+				String title = result.getKey();
+				String desc = result.getValue();
+
+				question.updateDescription(title);
+				question.updateDescription(desc);
+				EditQuestionControl.processEditQuestion(question);
+				forumUI.refresh();
+			}
+		});
+
+	}
+	
+	
 
 }

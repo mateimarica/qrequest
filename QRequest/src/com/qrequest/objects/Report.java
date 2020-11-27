@@ -1,4 +1,4 @@
-package com.qrequest.object;
+package com.qrequest.objects;
 
 /**Represents a user's report of a qusetion or answer.
  */

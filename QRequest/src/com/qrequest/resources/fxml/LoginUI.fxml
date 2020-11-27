@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.CheckBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.PasswordField?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+
+<GridPane alignment="CENTER" hgap="10.0" vgap="8.0" gridLinesVisible="false" 
+fx:controller="com.qrequest.ui.LoginUI" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1">
+   <padding>
+      <Insets bottom="10.0" left="20.0" right="10.0" top="10.0" />
+   </padding>
+    <columnConstraints>
+        <ColumnConstraints prefWidth="100" />
+    </columnConstraints>
+    
+    <Label text="QREQUEST" 
+    stylesheets="/com/qrequest/resources/css/title-styling.css" 
+    GridPane.columnIndex="1" GridPane.rowIndex="0">
+    </Label>
+     
+    <TextField fx:id="usernameField" promptText="Username" maxWidth="150" 
+    GridPane.columnIndex="1" GridPane.rowIndex="1" GridPane.halignment="CENTER" 
+    onKeyPressed="#usernameFieldTyping" onAction="#loginButtonPress">
+    </TextField>
+    
+    <PasswordField fx:id="passwordField" promptText="Password" maxWidth="150"
+    GridPane.columnIndex="1" GridPane.rowIndex="2" GridPane.halignment="CENTER" 
+    onKeyPressed="#passwordFieldTyping" onAction="#loginButtonPress">
+    </PasswordField>
+    
+    <TextField fx:id="unmaskedPasswordField" promptText="Password" maxWidth="150" visible="false"
+    GridPane.columnIndex="1" GridPane.rowIndex="2" GridPane.halignment="CENTER"  
+    onKeyPressed="#unmaskedPasswordFieldTyping" onAction="#loginButtonPress"></TextField>
+    
+    <CheckBox fx:id="showPasswordCheckBox" text="Show password"
+    GridPane.columnIndex="2" GridPane.rowIndex="2" onAction="#showPasswordCheckBoxTicked"></CheckBox>
+    
+    <Button fx:id="loginButton" text="Login" disable="true" 
+    GridPane.columnIndex="1" GridPane.rowIndex="3" GridPane.halignment="CENTER" onAction="#loginButtonPress"> 
+    </Button>
+    
+    <CheckBox fx:id="saveCredentialsCheckBox" text="Save credentials"
+    GridPane.columnIndex="1" GridPane.rowIndex="4" GridPane.halignment="CENTER"></CheckBox>
+    
+    <Label fx:id="newAccountLabel" text="Don't have an account?"
+    GridPane.columnIndex="1" GridPane.rowIndex="11" GridPane.halignment="CENTER"></Label>
+    
+    
+    <Button fx:id="changeModeButton" text="Create an account" 
+    GridPane.columnIndex="1" GridPane.rowIndex="12" GridPane.halignment="CENTER" 
+    onAction="#changeModeButtonPress"></Button>
+    
+</GridPane>

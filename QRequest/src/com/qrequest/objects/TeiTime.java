@@ -1,4 +1,4 @@
-package com.qrequest.object;
+package com.qrequest.objects;
 
 import java.util.Calendar;
 import java.util.GregorianCalendar;

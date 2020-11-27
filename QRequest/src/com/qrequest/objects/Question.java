@@ -1,4 +1,4 @@
-package com.qrequest.object;
+package com.qrequest.objects;
 
 import java.util.Date;
 import java.util.UUID;
@@ -30,8 +30,8 @@ public class Question extends Post {
 	 * @param uniqueID Unique question identifier
 	 * @param timePosted The time when the question was posted.
 	 */
-	public Question(String title, String description, User author, UUID id, Date timePosted) {
-		super(description, author, id, timePosted);
+	public Question(String title, String description, User author, UUID id, Date timePosted, int votes, int currentUserVote) {
+		super(description, author, id, timePosted, votes, currentUserVote);
 		this.title = title;
 	}
 	

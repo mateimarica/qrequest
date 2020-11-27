@@ -5,8 +5,8 @@ package com.qrequest.control;
 public class ThemeHelper {
 	/**Relative URL for the theme within the project.
 	*/
-	public final static String lightThemeFileURL = "/com/qrequest/ui/resources/light-theme.css",
-							   darkThemeFileURL  =  "/com/qrequest/ui/resources/dark-theme.css";
+	public final static String lightThemeFileURL = "/com/qrequest/resources/css/light-theme.css",
+							   darkThemeFileURL  = "/com/qrequest/resources/css/dark-theme.css";
 	
 	
 	/**The preference key code for the dark mode setting. Used to retrieve the value.
