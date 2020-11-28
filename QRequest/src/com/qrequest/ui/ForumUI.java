@@ -1,9 +1,9 @@
 package com.qrequest.ui;
-import java.io.IOException;
+
 import java.util.ArrayList;
 
 import com.qrequest.control.DeletePostControl;
-import com.qrequest.control.EditQuestionControl;
+import com.qrequest.control.EditPostControl;
 import com.qrequest.control.GetAnswerControl;
 import com.qrequest.control.GetQuestionControl;
 import com.qrequest.control.LoginControl;
@@ -18,8 +18,6 @@ import com.qrequest.objects.Question;
 import com.qrequest.objects.Vote;
 import com.qrequest.objects.Vote.VoteType;
 
-import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
@@ -32,14 +30,16 @@ import javafx.scene.control.MenuBar;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.ToggleButton;
 import javafx.scene.control.ToolBar;
+import javafx.scene.control.Tooltip;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
 public class ForumUI {
 	
 	/**The ListView that listed the front page questions or the individual question + answers.*/
-	private ListView<GridPane> postList;
+	private ListView<BorderPane> postList;
 	
 	/**The dimensions of the window. Don't change this*/
 	private final int WINDOW_HEIGHT = 700, WINDOW_WIDTH = 552;
@@ -65,33 +65,30 @@ public class ForumUI {
 	/**Button to refresh the current post list*/
 	private Button refreshBtn;
 	
-	@FXML private MenuBar menuBar;
-	
-	@FXML private Menu accountMenu;
-	@FXML private MenuItem logoutItem;
-	
-	@FXML private Menu optionsMenu;
-	@FXML private CheckMenuItem darkModeItem;
-	
 	private BorderPane root;
 	
-	@SuppressWarnings("deprecation")
+	private Stage stage;
+	
 	public void startScene(Stage stage) {
+		startScene(stage, null);
+	}
+	public void startScene(Stage stage, Question currentQuestion) {
+		this.stage = stage;
 		
-		try {
-			root = FXMLLoader.load(getClass().getResource("/com/qrequest/resources/fxml/ForumUI.fxml"));
-		} catch (IOException e) { e.printStackTrace(); }
+		if(currentQuestion != null) {
+			this.currentQuestion = currentQuestion;
+		}	
 		
-		postList = new ListView<GridPane>();
+		root = new BorderPane();
+		
+		postList = new ListView<>();
 		postList.setFocusTraversable(false);
 		
-		root.setCenter(postList);
+		populateMenuBar();
 		
-		if(currentMode == Mode.FRONT_PAGE) {
-			createQuestionsList();	
-		} else {
-			blowupQuestion(currentQuestion);
-		}
+		root.setCenter(postList);
+
+		refresh();
 		
 		bottomBar = new ToolBar();
 		populateToolbar();		
@@ -99,31 +96,32 @@ public class ForumUI {
 		Scene scene = new Scene(root, WINDOW_WIDTH, WINDOW_HEIGHT);
 		scene.getStylesheets().add(ThemeHelper.getCurrentThemeURL());
 		
-		
 		stage.setScene(scene);
 		stage.show();		
 	}
-	
-	private Object loadFXML(String URL) {
-		try {
-			return FXMLLoader.load(getClass().getResource(URL));
-		} catch (IOException e) { e.printStackTrace(); }
-		return null;
-	}
-	
-	@FXML
-	public void initialize(){
+
+
+	private void populateMenuBar() {
+		MenuBar menuBar = new MenuBar();
+		
+		Menu accountMenu = new Menu("Logged in as: " + LoginControl.getUser().getUsername());
+		MenuItem logoutItem = new MenuItem("Log out");
+		logoutItem.setOnAction(e -> logout());
+		accountMenu.getItems().add(logoutItem);
+		
+		Menu optionsMenu = new Menu("Options");
+		CheckMenuItem darkModeItem = new CheckMenuItem("Dark mode");
+		darkModeItem.setOnAction(e -> themeChanged(darkModeItem.isSelected()));
 		darkModeItem.setSelected(ThemeHelper.isDarkModeEnabled());
-		accountMenu.setText("Logged in as: " + LoginControl.getUser().getUsername());
+		optionsMenu.getItems().add(darkModeItem);
+		
+		menuBar.getMenus().addAll(accountMenu, optionsMenu);
+		root.setTop(menuBar);
 	}
+
 	
 	private void searchUsersBtnPress() {
 		PopupUI.displaySearchUsersDialog();
-	}
-	
-	void processQuestionDeleted() {
-		currentQuestion = null;
-		backBtnPress();
 	}
 	
 	private void populateToolbar() {
@@ -147,14 +145,14 @@ public class ForumUI {
 			Button postAnswerBtn = new Button("\u2795 Answer question");
 			postAnswerBtn.setOnAction(e -> processPostAnswerButtonPress());
 			
-			if(currentQuestion.getAuthor().getUsername().equals(LoginControl.getUser().getUsername())) {
+			/*if(currentQuestion.getAuthor().getUsername().equals(LoginControl.getUser().getUsername())) {
 				Button deleteBtn = new Button("\uD83D\uDDD1 Delete question");
 				deleteBtn.setOnAction(e -> processDeleteQuestionButtonPress());
 					
 				Button editBtn = new Button("\uD83D\uDD89 Edit Question");
 				editBtn.setOnAction(e -> processEditQuestionButtonPress());
 				bottomBar.getItems().addAll(deleteBtn, editBtn);
-			}
+			}*/
 			
 			
 			bottomBar.getItems().addAll(postAnswerBtn);
@@ -191,32 +189,14 @@ public class ForumUI {
 		}
 	}
 	
-	private void processEditQuestionButtonPress() {
-		if(PopupUI.displayEditQuestionDialog(currentQuestion)) {
-			EditQuestionControl.processEditQuestion(currentQuestion);
-			refresh();
-		}
-	}
-	
-	private void processDeleteQuestionButtonPress() {
-		if(PopupUI.displayConfirmationDialog("Confirm Deletion", "Are you sure you want to delete this question? This cannot be undone!")) {
-			DeletePostControl.processDeletePost(currentQuestion);
-			processQuestionDeleted();
-		}
-	}
-	
-	
-	
-	@FXML
+
 	private void logout() {
 		Credentials.removeCredentials();
 		LoginControl.resetUser();
-		new LoginUI().startScene(MainUI.stage);
+		new LoginUI().startScene(stage);
 	}
 	
-
-	
-	void refresh() {
+	private void refresh() {
 		if(currentMode == Mode.FRONT_PAGE) {
 			createQuestionsList();
 		} else {
@@ -224,14 +204,14 @@ public class ForumUI {
 		}
 	}
 	
-	@FXML
-	private void themeChanged() {
-		ThemeHelper.saveTheme(darkModeItem.isSelected());
-		startScene(MainUI.stage);
+	private void themeChanged(boolean darkThemeEnabled) {
+		ThemeHelper.saveTheme(darkThemeEnabled);
+		startScene(stage, currentQuestion);
 	}
 	
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	private void createQuestionsList() {
+		postList.getItems().clear();
         ArrayList<Question> questionList = GetQuestionControl.getAllQuestions();
         
         for(int i = 0; i < questionList.size(); i++) {
@@ -252,42 +232,65 @@ public class ForumUI {
 	
 	private void populateQuestion(Question question) {
 		postList.getItems().clear();
-		postList.getItems().add(buildPostPane(currentQuestion));
+		postList.getItems().add(buildPostPane(question));
 		
-		ArrayList<Answer> answerList = GetAnswerControl.getAllAnswers(currentQuestion);
+		ArrayList<Answer> answerList = GetAnswerControl.getAllAnswers(question);
 		
 		for(int i = 0; i < answerList.size(); i++) {
 			postList.getItems().add(buildPostPane(answerList.get(i)));
 		}
 	}
 	
-
 	private void backBtnPress() {
+		
 		postList.getItems().clear();
 		currentMode = Mode.FRONT_PAGE;
 		populateToolbar();
 		refresh();
 	}
 	
-	private GridPane buildQuestionPane(Question question) {
+	private BorderPane buildQuestionPane(Question question) {
 		
-		
-		GridPane postPane = new GridPane();
+		BorderPane postPane = new BorderPane();
 		
 		postPane.setPadding(new Insets(2, 2, 2, 2));
+	
 		
+		Insets insets = new Insets(30);
 		
-		postPane.setVgap(8);
-		postPane.setHgap(8);
+		Label votesLabel = new Label(question.getVotes() + "");
+		formatVotesLabel(votesLabel, 0);
+		
+		if(question.getVotes() == 0) {
+			votesLabel.setId("votesTickerZero");
+		} else if (question.getVotes() > 0) {
+			votesLabel.setId("votesTickerPositive");
+		} else {
+			votesLabel.setId("votesTickerNegative");
+		}
+		
+		VBox votesPane = new VBox(votesLabel);
+		votesPane.setAlignment(Pos.CENTER);
+		//top, right, bottom, left
+		votesPane.setPadding(new Insets(25, 10, 25, 10));
+		postPane.setLeft(votesPane);
+
 		
 		ToggleButton upvoteBtn = new ToggleButton("\u25B2");
-		GridPane.setConstraints(upvoteBtn, 0, 0);
 		upvoteBtn.setId("upvoteButton");
 		
 		ToggleButton downvoteBtn = new ToggleButton("\u25BC");
-		GridPane.setConstraints(downvoteBtn, 0, 1);
 		downvoteBtn.setId("downvoteButton");
 	
+		VBox voteButtonsPane = new VBox(upvoteBtn, downvoteBtn);
+		voteButtonsPane.setSpacing(5);
+		voteButtonsPane.setAlignment(Pos.CENTER);
+		
+		BorderPane innerPostPane = new BorderPane();
+		innerPostPane.setLeft(voteButtonsPane);
+		postPane.setCenter(innerPostPane);
+		
+		
 		if(question.getCurrentUserVote() == 1) {
 			upvoteBtn.setSelected(true);
 		} else if (question.getCurrentUserVote() == -1) {
@@ -298,87 +301,152 @@ public class ForumUI {
 			if(upvoteBtn.isSelected()) {
 				if(downvoteBtn.isSelected()) {
 					downvoteBtn.setSelected(false);
+					formatVotesLabel(votesLabel, +2);
+				} else {
+					formatVotesLabel(votesLabel, +1);
 				}
-			
+				
+				
 				VoteControl.addVote(new Vote(question, LoginControl.getUser(), VoteType.UPVOTE));
 				question.setCurrentUserVote(VoteType.UPVOTE);
 			} else {
+				
+				formatVotesLabel(votesLabel, -1);
 				VoteControl.addVote(new Vote(question, LoginControl.getUser(), VoteType.RESET_VOTE));
 				question.setCurrentUserVote(VoteType.RESET_VOTE);
+			}
+			
+			int votes = getTrimmedVotesLabel(votesLabel);
+			if(votes == 0) {
+				votesLabel.setId("votesTickerZero");
+			} else if (votes > 0) {
+				votesLabel.setId("votesTickerPositive");
+			} else {
+				votesLabel.setId("votesTickerNegative");
 			}
 		});
 		
 		downvoteBtn.setOnAction(e -> {
 			if(downvoteBtn.isSelected()) {
-				if(downvoteBtn.isSelected()) {
+				if(upvoteBtn.isSelected()) {
 					upvoteBtn.setSelected(false);
+					formatVotesLabel(votesLabel, -2);
+				} else {
+					formatVotesLabel(votesLabel, -1);
 				}
+				
 				
 				VoteControl.addVote(new Vote(question, LoginControl.getUser(), VoteType.DOWNVOTE));
 				question.setCurrentUserVote(VoteType.DOWNVOTE);
 			} else {
+				
+				formatVotesLabel(votesLabel, +1);
 				VoteControl.addVote(new Vote(question, LoginControl.getUser(), VoteType.RESET_VOTE));
 				question.setCurrentUserVote(VoteType.RESET_VOTE);
+			}
+			
+			int votes = getTrimmedVotesLabel(votesLabel);
+			if(votes == 0) {
+				votesLabel.setId("votesTickerZero");
+			} else if (votes > 0) {
+				votesLabel.setId("votesTickerPositive");
+			} else {
+				votesLabel.setId("votesTickerNegative");
 			}
 		});
 		
 		Label questionTitleLabel = new Label(question.getTitle());
 		questionTitleLabel.setId("questionTitleLabel");
-		
+		questionTitleLabel.setPadding(new Insets(0, 0, 0, 10));
 		questionTitleLabel.setMaxWidth(WINDOW_WIDTH * 0.65);
 		questionTitleLabel.setMinWidth(WINDOW_WIDTH * 0.65);
 		questionTitleLabel.setWrapText(true);
-		GridPane.setConstraints(questionTitleLabel, 1, 0);
+		
 		
 		questionTitleLabel.setOnMouseClicked(e -> {
 			currentQuestion = question;
 			blowupQuestion(question);
 		});
-	
 		
-		Label authorLabel = new Label("Posted by " + question.getAuthor().getUsername());
-		authorLabel.setAlignment(Pos.CENTER_RIGHT);
-		authorLabel.setMinWidth(WINDOW_WIDTH * 0.18);
-		authorLabel.setMaxWidth(WINDOW_WIDTH * 0.18);
+		GridPane innerInnerPostPane = new GridPane();
+		innerInnerPostPane.setPadding(new Insets(5, 10, 10, 10)); //top, right, bottom, left
+		GridPane.setConstraints(questionTitleLabel, 0, 0);
+		innerPostPane.setCenter(innerInnerPostPane);
+		
+		Label authorLabel = new Label("Posted " + question.getTimePosted() + " by " + question.getAuthor().getUsername());
+		authorLabel.setPadding(new Insets(10, 0, 10, 20));
+		authorLabel.setMinWidth(WINDOW_WIDTH * 0.45);
+		authorLabel.setMaxWidth(WINDOW_WIDTH * 0.45);
 		authorLabel.setWrapText(true);
-		GridPane.setConstraints(authorLabel, 2, 0);
+		GridPane.setConstraints(authorLabel, 0, 1);
 		
-		Label questionDesc = new Label(question.getDescription());
-		questionDesc.setMaxWidth(WINDOW_WIDTH * 0.3);
-		questionDesc.setMinWidth(WINDOW_WIDTH * 0.3);
-		questionDesc.setWrapText(true);
-		GridPane.setConstraints(questionDesc, 1, 1);
+		Label answersCountLabel = new Label(question.getAnswerCount() + " responses");
+		answersCountLabel.setPadding(new Insets(0, 0, 0, 20));
+		answersCountLabel.setMinWidth(WINDOW_WIDTH * 0.18);
+		answersCountLabel.setMaxWidth(WINDOW_WIDTH * 0.18);
+		answersCountLabel.setWrapText(true);
+		GridPane.setConstraints(answersCountLabel, 0, 2);
 		
-		postPane.getChildren().addAll(upvoteBtn, downvoteBtn, questionTitleLabel, authorLabel, questionDesc);
+		innerInnerPostPane.getChildren().addAll(questionTitleLabel, authorLabel, answersCountLabel);
 		
-
+		
+		
 		return postPane;
 	}
 	
+	private void formatVotesLabel(Label label, int offset) {
+		int labelAsInt = getTrimmedVotesLabel(label);
+		label.setText(labelAsInt + offset + ((labelAsInt + offset) < 0 ? "" : " "));
+	}
 	
-	private GridPane buildPostPane(Post post) {
-		boolean isQuestion = post.getClass().equals(Question.class);
+	private int getTrimmedVotesLabel(Label label) {
+		return Integer.parseInt(label.getText().trim());
+	}
+	
+	private BorderPane buildPostPane(Post post) {
 		
-		GridPane postPane = new GridPane();
-			
-		// top, right, bottom, left padding
-		if(isQuestion) {
-			postPane.setPadding(new Insets(2, 2, 2, 2));
+		boolean isQuestion = post.isQuestion();
+		
+		BorderPane postPane = new BorderPane();
+		
+		postPane.setPadding(new Insets(2, 2, 2, 2));
+	
+		
+		Label votesLabel = new Label(post.getVotes() + "");
+		formatVotesLabel(votesLabel, 0);
+		
+		if(post.getVotes() == 0) {
+			votesLabel.setId("votesTickerZero");
+		} else if (post.getVotes() > 0) {
+			votesLabel.setId("votesTickerPositive");
 		} else {
-			postPane.setPadding(new Insets(2, 2, 2, 30));
+			votesLabel.setId("votesTickerNegative");
 		}
 		
-		postPane.setVgap(8);
-		postPane.setHgap(8);
+		VBox votesPane = new VBox(votesLabel);
+		votesPane.setAlignment(Pos.TOP_CENTER);
+		//top, right, bottom, left
+		
+		votesPane.setPadding(new Insets(30, 10, 25, isQuestion ? 10 : 40));
+		postPane.setLeft(votesPane);
+
 		
 		ToggleButton upvoteBtn = new ToggleButton("\u25B2");
-		GridPane.setConstraints(upvoteBtn, 0, 0);
 		upvoteBtn.setId("upvoteButton");
 		
 		ToggleButton downvoteBtn = new ToggleButton("\u25BC");
-		GridPane.setConstraints(downvoteBtn, 0, 1);
 		downvoteBtn.setId("downvoteButton");
 	
+		VBox voteButtonsPane = new VBox(upvoteBtn, downvoteBtn);
+		voteButtonsPane.setSpacing(5);
+		voteButtonsPane.setPadding(new Insets(10, 0, 0, 0));
+		voteButtonsPane.setAlignment(Pos.TOP_CENTER);
+		
+		BorderPane innerPostPane = new BorderPane();
+		innerPostPane.setLeft(voteButtonsPane);
+		postPane.setCenter(innerPostPane);
+		
+		
 		if(post.getCurrentUserVote() == 1) {
 			upvoteBtn.setSelected(true);
 		} else if (post.getCurrentUserVote() == -1) {
@@ -389,60 +457,149 @@ public class ForumUI {
 			if(upvoteBtn.isSelected()) {
 				if(downvoteBtn.isSelected()) {
 					downvoteBtn.setSelected(false);
+					formatVotesLabel(votesLabel, +2);
+				} else {
+					formatVotesLabel(votesLabel, +1);
 				}
-			
+				
+				
 				VoteControl.addVote(new Vote(post, LoginControl.getUser(), VoteType.UPVOTE));
 				post.setCurrentUserVote(VoteType.UPVOTE);
 			} else {
+				
+				formatVotesLabel(votesLabel, -1);
 				VoteControl.addVote(new Vote(post, LoginControl.getUser(), VoteType.RESET_VOTE));
 				post.setCurrentUserVote(VoteType.RESET_VOTE);
+			}
+			
+			int votes = getTrimmedVotesLabel(votesLabel);
+			if(votes == 0) {
+				votesLabel.setId("votesTickerZero");
+			} else if (votes > 0) {
+				votesLabel.setId("votesTickerPositive");
+			} else {
+				votesLabel.setId("votesTickerNegative");
 			}
 		});
 		
 		downvoteBtn.setOnAction(e -> {
 			if(downvoteBtn.isSelected()) {
-				if(downvoteBtn.isSelected()) {
+				if(upvoteBtn.isSelected()) {
 					upvoteBtn.setSelected(false);
+					formatVotesLabel(votesLabel, -2);
+				} else {
+					formatVotesLabel(votesLabel, -1);
 				}
+				
 				
 				VoteControl.addVote(new Vote(post, LoginControl.getUser(), VoteType.DOWNVOTE));
 				post.setCurrentUserVote(VoteType.DOWNVOTE);
 			} else {
+				
+				formatVotesLabel(votesLabel, +1);
 				VoteControl.addVote(new Vote(post, LoginControl.getUser(), VoteType.RESET_VOTE));
 				post.setCurrentUserVote(VoteType.RESET_VOTE);
 			}
+			
+			int votes = getTrimmedVotesLabel(votesLabel);
+			if(votes == 0) {
+				votesLabel.setId("votesTickerZero");
+			} else if (votes > 0) {
+				votesLabel.setId("votesTickerPositive");
+			} else {
+				votesLabel.setId("votesTickerNegative");
+			}
 		});
 		
-		Label questionTitleLabel = null;
+		
+		GridPane innerInnerPostPane = new GridPane();
+		innerInnerPostPane.setVgap(5);
+		innerInnerPostPane.setPadding(new Insets(5, 10, 10, 10)); //top, right, bottom, left
+		innerPostPane.setCenter(innerInnerPostPane);
+		
+		
 		if(isQuestion) {
-			questionTitleLabel = new Label(((Question) post).getTitle());
-			questionTitleLabel.setStyle("-fx-font-size: 15px;\r\n" + 
-					"-fx-font-family: Verdana;"
-					+ "-fx-font-weight: bold;");
-			questionTitleLabel.setMaxWidth(WINDOW_WIDTH * 0.7);
-			questionTitleLabel.setMinWidth(WINDOW_WIDTH * 0.7);
+			Label questionTitleLabel = new Label(((Question)post).getTitle());
+			questionTitleLabel.setId("questionTitleLabel");
+			questionTitleLabel.setPadding(new Insets(0, 0, 0, 10));
+			questionTitleLabel.setMaxWidth(WINDOW_WIDTH * 0.65);
+			questionTitleLabel.setMinWidth(WINDOW_WIDTH * 0.65);
 			questionTitleLabel.setWrapText(true);
-			GridPane.setConstraints(questionTitleLabel, 1, 0);
+			GridPane.setConstraints(questionTitleLabel, 0, 0);
+			innerInnerPostPane.getChildren().add(questionTitleLabel);
 		}
+	
 		
-		Label authorLabel = new Label("Posted by " + post.getAuthor().getUsername());
-		authorLabel.setAlignment(Pos.CENTER_RIGHT);
-		authorLabel.setMinWidth(WINDOW_WIDTH * 0.18);
-		authorLabel.setMaxWidth(WINDOW_WIDTH * 0.18);
+		Label authorLabel = new Label("Posted " + post.getTimePosted() + " by " + post.getAuthor().getUsername());
+		authorLabel.setPadding(new Insets(0, 0, 0, 20));
+		authorLabel.setMinWidth(WINDOW_WIDTH * 0.45);
+		authorLabel.setMaxWidth(WINDOW_WIDTH * 0.45);
 		authorLabel.setWrapText(true);
-		GridPane.setConstraints(authorLabel, 2, 0);
+		GridPane.setConstraints(authorLabel, 0, 1);
+
 		
-		Label questionDesc = new Label(post.getDescription());
-		questionDesc.setMaxWidth(WINDOW_WIDTH * 0.7);
-		questionDesc.setMinWidth(WINDOW_WIDTH * 0.7);
-		questionDesc.setWrapText(true);
-		GridPane.setConstraints(questionDesc, 1, 1);
+		Label descriptionLabel = new Label(post.getDescription());
+		descriptionLabel.setPadding(new Insets(0, 0, 0, 20));
+		descriptionLabel.setId("descriptionLabel");
+		descriptionLabel.setMaxWidth(WINDOW_WIDTH * 0.65);
+		descriptionLabel.setMinWidth(WINDOW_WIDTH * 0.65);
+		descriptionLabel.setWrapText(true);
+		GridPane.setConstraints(descriptionLabel, 0, 4);
 		
-		postPane.getChildren().addAll(upvoteBtn, downvoteBtn, authorLabel, questionDesc);
+		innerInnerPostPane.getChildren().addAll(authorLabel, descriptionLabel);
+		/*
+		 * 
+			if(currentQuestion.getAuthor().getUsername().equals(LoginControl.getUser().getUsername())) {
+				Button deleteBtn = new Button("\uD83D\uDDD1 Delete question");
+				deleteBtn.setOnAction(e -> processDeleteQuestionButtonPress());
+					
+				Button editBtn = new Button("\uD83D\uDD89 Edit Question");
+				editBtn.setOnAction(e -> processEditQuestionButtonPress());
+				bottomBar.getItems().addAll(deleteBtn, editBtn);
+			}
+		 */
 		
-		if(isQuestion) {
-			postPane.getChildren().add(questionTitleLabel);
+		VBox buttonPane = new VBox(10);
+		buttonPane.setPadding(new Insets(5, 5, 5, 5));
+		if(LoginControl.getUser().getUsername().equals(post.getAuthor().getUsername())) {
+			Button editButton = new Button();
+			editButton.setPrefSize(30, 30);
+			editButton.setId("editButton");
+			editButton.setTooltip(new Tooltip("Edit post"));
+			editButton.setOnAction(e -> {
+				if(PopupUI.displayEditQuestionDialog(post)) {
+					EditPostControl.processEditPost(post);
+					refresh();
+				}
+			});
+			
+			Button deleteButton = new Button();
+			deleteButton.setPrefSize(30, 30);
+			deleteButton.setId("deleteButton");
+			deleteButton.setTooltip(new Tooltip("Delete post"));	
+			deleteButton.setOnAction(e -> {
+				if(PopupUI.displayConfirmationDialog("Confirm Deletion", "Are you sure you want to delete this post? This cannot be undone!")) {
+					DeletePostControl.processDeletePost(post);
+					if(isQuestion) {
+						currentQuestion = null;
+						backBtnPress();
+					} else {
+						refresh();
+					}
+				}
+			});
+			
+			buttonPane.getChildren().addAll(editButton, deleteButton);
+			
+			
+		} else {
+			Button reportButton = new Button("\uD83D\uDDE3");
+			reportButton.setPrefSize(30, 30);
+			reportButton.setId("reportButton");
+			reportButton.setTooltip(new Tooltip("Report post"));
+			buttonPane.getChildren().addAll(reportButton);
 		}
+		postPane.setRight(buttonPane);
 		
 		return postPane;
 	}

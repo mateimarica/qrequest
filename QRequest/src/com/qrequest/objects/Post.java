@@ -86,5 +86,13 @@ public abstract class Post {
 		currentUserVote = newCurrentUserVote.value();
 	}
 	
+	public boolean isQuestion() {
+		return getClass().equals(Question.class);
+	}
+	
+	public boolean isAnswer() {
+		return getClass().equals(Answer.class);
+	}
+	
 	
 }

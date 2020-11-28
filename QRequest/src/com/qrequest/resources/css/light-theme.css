@@ -1,3 +1,11 @@
+.root { 
+ 	-fx-accent: #868686;
+ 	-fx-focus-color: -fx-accent;
+    -fx-base: #B5B5B5;
+    -fx-control-inner-background: derive(-fx-base, 35%);
+    -fx-control-inner-background-alt: -fx-control-inner-background ;
+}
+
 .toggle-button:selected {
     -fx-background-color:
         -fx-shadow-highlight-color,
@@ -10,20 +18,22 @@
 }
 
 list-cell:even,
-
-.table-row-cell:even {
-	-fx-control-inner-background: derive(-fx-base, 90%);
+.table-row-cell:even,
+.list-cell:even:selected{
+	-fx-control-inner-background: derive(-fx-base, 30%);
 }
 
 .list-cell:odd,
-.table-row-cell:odd{    
-    -fx-control-inner-background: derive(-fx-base, 15%);
+.table-row-cell:odd,
+.list-cell:odd:selected{    
+    -fx-control-inner-background: derive(-fx-base, 60%);
 }
 
+
 .list-view {
-	-fx-selection-bar: green;
-	-fx-selection-bar-non-focused: derive(-fx-base, 15%);
+	-fx-selection-bar-non-focused: derive(-fx-base, 10%);
 }
+
 
 #upvoteButton:selected {
     -fx-background-color: #538D00;
@@ -38,4 +48,33 @@ list-cell:even,
 	-fx-font-family: Verdana;
 	-fx-font-weight: bold;
 	-fx-cursor: hand;
+}
+
+#descriptionLabel {
+	-fx-font-size: 13px;
+	-fx-font-family: Verdana;
+}
+
+#votesTickerPositive {
+	-fx-text-fill: #538D00;
+}
+
+#votesTickerNegative {
+	-fx-text-fill: #8D1900;
+}
+
+#votesTickerPositive,
+#votesTickerNegative,
+#votesTickerZero {
+	-fx-font-size: 15px;
+	-fx-font-family: "Lucida Console";
+	-fx-font-weight: bold;
+}
+
+#editButton {
+	-fx-graphic: url("/com/qrequest/resources/images/edit_light.png");
+}
+
+#deleteButton {
+	-fx-graphic: url("/com/qrequest/resources/images/delete_light.png");
 }

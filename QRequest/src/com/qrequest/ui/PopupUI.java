@@ -5,7 +5,6 @@ import java.util.ArrayList;
 import java.util.UUID;
 
 import com.qrequest.control.DeletePostControl;
-import com.qrequest.control.EditQuestionControl;
 import com.qrequest.control.LoginControl;
 import com.qrequest.control.PostAnswerControl;
 import com.qrequest.control.PostQuestionControl;
@@ -251,10 +250,10 @@ public class PopupUI {
 			// top, right, bottom, left padding
 			gridPane.setPadding(new Insets(20, 10, 10, 10));
 			
-			TextField answerField = new TextField();
-			answerField.setPromptText("Answer");
-			answerField.setMinWidth(300);
-			answerField.setMaxWidth(300);
+			TextArea answerField = new TextArea();
+			answerField.setPromptText("Your answer");
+			answerField.setMaxSize(400, 400);
+			answerField.setWrapText(true);
 			gridPane.add(answerField, 0, 0);
 			
 			// Set the button types.
@@ -286,7 +285,7 @@ public class PopupUI {
 	 * @param question The question being edited.
 	 * @return <code>true</code> if the Question object's description was edited, </code>false</code> if the user canceled.
 	 */
-	public static boolean displayEditQuestionDialog(Question question) {
+	public static boolean displayEditQuestionDialog(Post post) {
 
 		// Create the custom dialog.
 		Dialog dialog = new Dialog();
@@ -303,17 +302,11 @@ public class PopupUI {
 		// top, right, bottom, left padding
 		gridPane.setPadding(new Insets(20, 10, 10, 10));
 
-		TextField titleField = new TextField();
-		titleField.setText(question.getTitle());
-		titleField.setMinWidth(300);
-		titleField.setMaxWidth(300);
-		titleField.setDisable(true);
-		gridPane.add(titleField, 0, 0);
-
 		TextArea descField = new TextArea();
-		descField.setText(question.getDescription());
-		descField.setMaxSize(300, 200);
-		gridPane.add(descField, 0, 1);
+		descField.setText(post.getDescription());
+		descField.setMaxSize(400, 400);
+		descField.setWrapText(true);
+		gridPane.add(descField, 0, 0);
 
 
 		// Set the button types.
@@ -323,14 +316,8 @@ public class PopupUI {
 		final Button confirmBtn = (Button)dialog.getDialogPane().lookupButton(confirmBtnType);
 		confirmBtn.addEventFilter(ActionEvent.ACTION, event -> {
 
-			int titleFieldLength = titleField.getText().length();
-
-			if (titleFieldLength < 10 || titleFieldLength > 50) {
-			   displayWarningDialog("Error Posting Question", "Questions must be 10 to 50 characters in length.");
-			   event.consume(); //make it so the dialog does not close
-			   return;
-			} else if (descField.getText().length() > 255) {
-			   displayWarningDialog("Error Posting Question", "Questions must be 50 characters or fewer.");
+			if (descField.getText().length() > 65535) {
+			   displayWarningDialog("Error Editing Question", "Description is too long.");
 			   event.consume(); //make it so the dialog does not close
 			   return;
 		   }
@@ -341,7 +328,7 @@ public class PopupUI {
 		dialogPane.setContent(gridPane);
 		
 		if(dialog.showAndWait().get().equals(confirmBtnType)) {
-			question.setDescription(descField.getText());
+			post.setDescription(descField.getText());
 			return true;
 		}
 		return false;

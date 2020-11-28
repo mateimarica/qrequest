@@ -93,7 +93,7 @@ abstract class DataManager {
 	 */
 	static boolean createAccount(Credentials creds) throws DatabaseConnectionException {
 		
-		if(!accountExists(creds.getUsername())) {
+		if(accountExists(creds.getUsername())) {
 			return false;
 		}
 		
@@ -229,7 +229,8 @@ abstract class DataManager {
 				votes = rs2.getInt("Votes");
 			}
 			
-			ResultSetWrapper rs3 = executeRetrieveQuery("SELECT Vote FROM Votes WHERE PostId = '" + ID + "' AND Voter = '" + LoginControl.getUser() + "';");
+			ResultSetWrapper rs3 = executeRetrieveQuery("SELECT Vote FROM Votes "
+					+ "WHERE PostId = '" + ID + "' AND Voter = '" + LoginControl.getUser() + "';");
 			
 			int currentUserVote = 0;
 			while(rs3.next()) {
@@ -238,7 +239,15 @@ abstract class DataManager {
 
 			Post post = null;
 			if(isQuestionMode) {
-				post = new Question(title, description, author, ID, date, votes, currentUserVote);
+				ResultSetWrapper rs4 = executeRetrieveQuery("SELECT COUNT(QuestionId) AS AnswerCount "
+						+ "FROM Answers WHERE QuestionId = '" + ID + "';");
+				
+				int answerCount = 0;
+				while(rs4.next()) {
+					answerCount = rs4.getInt("AnswerCount");
+				}
+				
+				post = new Question(title, description, author, ID, date, votes, currentUserVote, answerCount);
 			} else {
 				post = new Answer(description, answerer, question, ID, date, votes, currentUserVote);			
 			}
@@ -285,21 +294,24 @@ abstract class DataManager {
 			}
 	}
 	
-	static void editQuestion(Question question) {
-		String title = question.getTitle().replaceAll("'", "''");
-		String desc = question.getDescription().replaceAll("'", "''");
+	static void editPost(Post post) {
+		String desc = post.getDescription().replaceAll("'", "''");
 
-
-		executeUpdateQuery("UPDATE Questions SET Description = "
-				+ "'" + desc + "', Title = "
-				+ "'" + title + "' WHERE Id = '" + question.getID() + "';");
+		if(post.isQuestion()) {
+			executeUpdateQuery("UPDATE Questions SET Description = "
+					+ "'" + desc + "' WHERE Id = '" + post.getID() + "';");
+		} else {
+			executeUpdateQuery("UPDATE Answers SET Answer = "
+					+ "'" + desc + "' WHERE Id = '" + post.getID() + "';");
+		}
+		
 	}
 	
 	/**Deletes a question from the database.
 	 * @param question The question being deleted.
 	 */
 	static void deletePost(Post post) {
-			if(post.getClass().equals(Question.class)) { //If the post if a Question:
+			if(post.isQuestion()) { //If the post if a Question:
 				executeUpdateQuery("DELETE FROM Questions WHERE Id = '" + post.getID() + "';");
 				executeUpdateQuery("DELETE FROM Answers WHERE QuestionId = '" + post.getID() + "';");
 			} else { //If the post if an Answer:

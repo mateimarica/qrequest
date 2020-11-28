@@ -10,8 +10,6 @@
     -fx-text-fill: lightgray;
 }
 
-
-
 .titulo{
     -fx-font-weight: bold;
     -fx-font-size: 18px;
@@ -98,4 +96,33 @@
 	-fx-font-family: Verdana;
 	-fx-font-weight: bold;
 	-fx-cursor: hand;
+}
+
+#descriptionLabel {
+	-fx-font-size: 13px;
+	-fx-font-family: Verdana;
+}
+
+#votesTickerPositive {
+	-fx-text-fill: #42AB00;
+}
+
+#votesTickerNegative {
+	-fx-text-fill: #C43700;
+}
+
+#votesTickerPositive,
+#votesTickerNegative,
+#votesTickerZero {
+	-fx-font-size: 15px;
+	-fx-font-family: "Lucida Console";
+	-fx-font-weight: bold;
+}
+
+#editButton {
+	-fx-graphic: url("/com/qrequest/resources/images/edit_dark.png");
+}
+
+#deleteButton {
+	-fx-graphic: url("/com/qrequest/resources/images/delete_dark.png");
 }
