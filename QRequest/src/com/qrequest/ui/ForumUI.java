@@ -45,7 +45,13 @@ public class ForumUI {
 	private final int WINDOW_HEIGHT = 700, WINDOW_WIDTH = 552;
 	
 	/**Enunumator defining which "mode" the forum is in.*/
-	private enum Mode {FRONT_PAGE, QUESTION_VIEWER};
+	private enum Mode {
+		/**Represents the state where the the program is on the front page.*/
+		FRONT_PAGE, 
+		
+		/**Represents the state where the program is viewing an individual question & all of its answers.*/
+		QUESTION_VIEWER
+	};
 	
 	/**The current mode that the forum is in. Front page is default.*/
 	private Mode currentMode = Mode.FRONT_PAGE;
@@ -72,7 +78,7 @@ public class ForumUI {
 	private Stage stage;
 	
 	/**Called by LoginUI to start the scene*/
-	public void startScene(Stage stage) {
+	void startScene(Stage stage) {
 		startScene(stage, null);
 	}
 	
@@ -80,7 +86,7 @@ public class ForumUI {
 	 * @param stage The primary stage.
 	 * @param currentQuestion If this is not <code>null</code>, blows up this question immediately.
 	 */
-	public void startScene(Stage stage, Question currentQuestion) {
+	void startScene(Stage stage, Question currentQuestion) {
 		this.stage = stage;
 		
 		if(currentQuestion != null) {
@@ -227,12 +233,11 @@ public class ForumUI {
 	/**Displays a list of questions in the postList.*/
 	private void createQuestionsList() {
 		postList.getItems().clear();
-        ArrayList<Question> questionList = GetQuestionControl.getAllQuestions();
+		ArrayList<Question> questionList = GetQuestionControl.getAllQuestions();
         
-        for(int i = 0; i < questionList.size(); i++) {
-        	postList.getItems().add(buildQuestionPane(questionList.get(i)));
-        	
-        }
+		for(int i = 0; i < questionList.size(); i++) {
+			postList.getItems().add(buildQuestionPane(questionList.get(i)));
+		}
         
 	}
 	
@@ -382,6 +387,7 @@ public class ForumUI {
 			}
 		});
 		
+
 		Label questionTitleLabel = new Label(question.getTitle());
 		questionTitleLabel.setId("questionTitleLabel");
 		questionTitleLabel.setPadding(new Insets(0, 0, 0, 10));
@@ -431,7 +437,6 @@ public class ForumUI {
 	}
 	
 	/**Gets the votes down of a vote Label.
-	 * 
 	 * @param label The label whose vote count is being gotten.
 	 * @return The votes count.
 	 */
@@ -439,10 +444,7 @@ public class ForumUI {
 		return Integer.parseInt(label.getText().trim());
 	}
 	
-	/**Builds a post for a Question <i>or</i> Answer, for use in a blown-up Question.
-	 * @param post The 
-	 * @return
-	 */
+	
 	/**Builds a pane for a Question <i>or</i> Answer, for use in a blown-up Question. To be put on the postList.
 	 * @param question The <code>Post</code> that is to be made into a BorderPane.
 	 * @return The constructed postPane.
