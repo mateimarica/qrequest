@@ -24,7 +24,10 @@ public abstract class LoginControl {
 		return (user != null);
 	}
 	
-	//Hashes only password for saving into preferences
+	/**Hashes a password with SHA-1 for local storage of saved credentials.
+	 * @param password The password to be hashed.
+	 * @return The hashed password.
+	 */
 	public static String hashPassword(String password) throws DatabaseConnectionException {
 		return DataManager.hashPassword(password);
 	}

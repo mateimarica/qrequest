@@ -2,7 +2,7 @@ package com.qrequest.control;
 
 import com.qrequest.objects.Post;
 
-/**Class for deleting questions to the database.
+/**Class for deleting questions from the database.
  */
 public abstract class DeletePostControl {
 

@@ -17,7 +17,7 @@ public class Question extends Post {
 	 * @param title The question or the question's title.
 	 * @param description The question or the question's title.
 	 * @param author The user who asked the question.
-	 * @param uniqueID Unique question identifier
+	 * @param id Unique question identifier
 	 */
 	public Question(String title, String description, User author, UUID id) {
 		super(description, author, id);
@@ -28,8 +28,11 @@ public class Question extends Post {
 	 * @param title The question or the question's title.
 	 * @param description The question or the question's title.
 	 * @param author The user who asked the question.
-	 * @param uniqueID Unique question identifier
+	 * @param id Unique question identifier
 	 * @param timePosted The time when the question was posted.
+	 * @param votes The overall vote count of this question.
+	 * @param currentUserVote The current user's vote on this <code>Answer</code>, can be -1, 0, +1.
+	 * @param answerCount The number of answers this question has.
 	 */
 	public Question(String title, String description, User author, UUID id, Date timePosted, int votes, int currentUserVote, int answerCount) {
 		super(description, author, id, timePosted, votes, currentUserVote);
@@ -44,6 +47,9 @@ public class Question extends Post {
 		super(id);
 	}
 	
+	/**Returns number of answers this post has.
+	 * @return The number of answers this post has.
+	 */
 	public int getAnswerCount() {
 		return answerCount;
 	}

@@ -15,6 +15,9 @@ public abstract class GetQuestionControl {
 		return DataManager.getAllQuestions();
 	}
 	
+	/**Refreshes a question's voteCount, description, etc. in case they changed.
+	 * @param question The <code>Question</code> to be refreshed.
+	 */
 	public static void refreshQuestion(Question question) {
 		DataManager.refreshQuestion(question);
 	}

@@ -4,10 +4,10 @@ import com.qrequest.objects.Question;
 
 /**Class for posting questions to the database.
  */
-public abstract class PostQuestionControl {
+public abstract class CreateQuestionControl {
 	
-	/**Sends a question to the DataManager to be put into the database.
-	 * @param question The question being asked.
+	/**Saves a question into the database from a question object.
+	 * @param question The question being saved.
 	 */
 	public static void processPostQuestion(Question question) {
 		DataManager.createQuestion(question);

@@ -4,10 +4,8 @@ import java.util.ArrayList;
 
 import java.util.UUID;
 
-import com.qrequest.control.DeletePostControl;
+
 import com.qrequest.control.LoginControl;
-import com.qrequest.control.PostAnswerControl;
-import com.qrequest.control.PostQuestionControl;
 import com.qrequest.control.SearchUsersControl;
 import com.qrequest.control.ThemeHelper;
 import com.qrequest.objects.Answer;
@@ -32,7 +30,6 @@ import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.layout.GridPane;
 import javafx.stage.Stage;
-import javafx.util.Pair;
 
 /**Class for reducing the amount of boilerplate code when displaying pop-ups.
  */
@@ -94,7 +91,7 @@ public class PopupUI {
 		stage.getIcons().add(
 		    new Image(new PopupUI().getClass().getResource(MainUI.ICON_URL).toString()));
 		
-		return (dialog.showAndWait().get().equals(ButtonType.OK) ? true : false);
+		return (dialog.showAndWait().get().equals(ButtonType.OK));
 	}
 		
 	/**The dialog for asking a question. Allows user to enter the title and an optional description.<br>
@@ -281,9 +278,9 @@ public class PopupUI {
 			return null;
 	}
 	
-	/**Displays a pop-up window that gives the user the option to edit their own question's <i>description</i>.
-	 * @param question The question being edited.
-	 * @return <code>true</code> if the Question object's description was edited, </code>false</code> if the user canceled.
+	/**Displays a pop-up window that gives the user the option to edit their own post <i>description</i>.
+	 * @param post The post being edited.
+	 * @return <code>true</code> if the <code>Post</code> object's description was edited, <code>false</code> if the user canceled.
 	 */
 	public static boolean displayEditQuestionDialog(Post post) {
 

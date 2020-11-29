@@ -4,29 +4,65 @@ import com.qrequest.control.LoginControl;
 import com.qrequest.control.PreferenceManager;
 import com.qrequest.exceptions.DatabaseConnectionException;
 
+/**Represents a username and password pair.*/
 public class Credentials {
+	
+	/**The username.*/
 	private String username;
+	
+	/**The password.*/
 	private String password;
+	
+	/**<code>true</code> if the password is SHA-1 hashed, <code>false</code> if not.*/
 	private boolean isPasswordHashed;
 	
+	/**Create a <code>Credentials</code> object with the option to specify whether it's hashed or not.
+	 * @param username The username.
+	 * @param password The password.
+	 * @param isPasswordHashed <code>true</code> if the password is SHA-1 hashed, <code>false</code> if not.
+	 */
 	public Credentials(String username, String password, boolean isPasswordHashed) {
 		this.username = username;
 		this.password = password;
 		this.isPasswordHashed = isPasswordHashed;
 	}
 	
+	/**Create a <code>Credentials</code> object.
+	 * @param username The username.
+	 * @param password The password.
+	 */
 	public Credentials(String username, String password) {
 		this.username = username;
 		this.password = password;
 		this.isPasswordHashed = false;
 	}
 	
+	/**Returns the username.
+	 * @return The username.
+	 */
 	public String getUsername() {
 		return username;
 	}
 	
+	/**Returns the password.
+	 * @return The password.
+	 */
 	public String getPassword() {
 		return password;
+	}
+	
+	/**Hashes the password with SHA-1.
+	 * @throws DatabaseConnectionException If the database cannot be connected to.
+	 */
+	public void hashPassword() throws DatabaseConnectionException {
+		password = LoginControl.hashPassword(password);
+	}
+
+	/**Returns whether or not the password is hashed.
+	 * @return <code>true</code> if the password is SHA-1 hashed, <code>false</code> if not.
+	 */
+	public boolean isPasswordHashed() {
+		return isPasswordHashed;
 	}
 	
 	/* ---------------------------------------------------------------------------
@@ -34,19 +70,11 @@ public class Credentials {
 	 * ---------------------------------------------------------------------------
 	 */
 		
-	/**The static preference names
+	/**The static preference names.
 	 */
 	private final static String SAVED_USERNAME_PREF = "savedUsername",
 								SAVED_PASSWORD_PREF = "savedPassword";
 	
-	public void hashPassword() throws DatabaseConnectionException {
-			password = LoginControl.hashPassword(password);
-		
-	}
-	
-	public boolean isPasswordHashed() {
-		return isPasswordHashed;
-	}
 	
 	/**Retrieves the credentials saved in the preferences and returns them as a <code>Credentials</code> object.<br>
 	 * If no credentials saved, returns <code>null</code>.
@@ -77,8 +105,7 @@ public class Credentials {
 	}
 	
 	
-	/**Deletes any saved credentials.
-	 */
+	/**Deletes any saved credentials.*/
 	public static void removeCredentials() {
 		PreferenceManager.clearPreference(SAVED_USERNAME_PREF, SAVED_PASSWORD_PREF);
 	}

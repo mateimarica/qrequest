@@ -151,7 +151,9 @@ abstract class DataManager {
 		return false;
 	}
 	
-	//Post an answer
+	/**Post an answer.
+	 * @param answer The <code>Answer</code> object.
+	 */
 	static void postAnswer(Answer answer) {
 			
 		//Must escape all apostrophes with another apostrophe so MySQL recognizes that they aren't quotes
@@ -165,6 +167,9 @@ abstract class DataManager {
 				+ "CURRENT_TIMESTAMP);");
 	}	
 	
+	/**Wrapper method to retrieve all the questions from the database.
+	 * @return <code>ArrayList&ltQuestion&gt</code>
+	 */
 	static ArrayList<Question> getAllQuestions() {
 		ArrayList<Post> postList = getAllPosts(null);
 		ArrayList<Question> questionList = new ArrayList<>();
@@ -175,6 +180,10 @@ abstract class DataManager {
 		return questionList;
 	}
 	
+	/**Wrapper method to retrieve all the answers to a question.
+	 * @param question The <code>Question</code> object.
+	 * @return<code>ArrayList&ltAnswer&gt</code>
+	 */
 	static ArrayList<Answer> getAllAnswers(Question question) {
 		ArrayList<Post> postList = getAllPosts(question);
 		ArrayList<Answer> answerList = new ArrayList<>();
@@ -185,7 +194,16 @@ abstract class DataManager {
 		return answerList;
 	}
 	
-	static ArrayList<Post> getAllPosts(Question question) {
+	/**Method that does one of two things:<p>
+	 * <b>Case 1:</b> <code>Question</code> argument is <code>null</code><br>
+	 * - Retrieves all the questions in the database.
+	 * <br><br>
+	 * <b>Case 2:</b> <code>Question</code> argument is <bold>not</bold> <code>null</code><br>
+	 * - Retrieves all the answers to the question.
+	 * @param question The <code>Question</code> argument.
+	 * @return <code>ArrayList&ltPost&gt</code>
+	 */
+	private static ArrayList<Post> getAllPosts(Question question) {
 		boolean isQuestionMode = question == null;
 		
 		ArrayList<Post> answerList = new ArrayList<>();
@@ -258,6 +276,10 @@ abstract class DataManager {
 		return answerList;
 	}
 	
+	/**Gets all the Users whose usernames contain the given string.
+	 * @param username A string that will be matched to usernames in the database.
+	 * @return <code>ArrayList&ltUser&gt</code>
+	 */
 	static ArrayList<User> getUsers(String username) {
 		ArrayList<User> userList = new ArrayList<>();
 		
@@ -272,14 +294,19 @@ abstract class DataManager {
 		return userList;
 	}
 	
+	/**Hashes a password with SHA-1 for local storage of saved credentials.
+	 * @param password The password to be hashed.
+	 * @return The hashed password.
+	 */
 	static String hashPassword(String password) {
 			ResultSetWrapper rs =  executeRetrieveQuery("SELECT SHA1('" + password +"');");
 			rs.next();
 			return rs.getString(1);	
 	}
 	
-	
-	
+	/**Add a vote the database. Note: a <code>Vote</code> object contains the <code>Post</code> that it was voted on.
+	 * @param vote The vote to be added.
+	 */
 	static void addVote(Vote vote) {
 			if(vote.getVote().value() == 0) {
 				executeUpdateQuery("DELETE FROM Votes "
@@ -294,6 +321,9 @@ abstract class DataManager {
 			}
 	}
 	
+	/**Updated a post's description in the database.
+	 * @param post The <code>Post</code> object with the updated description.
+	 */
 	static void editPost(Post post) {
 		String desc = post.getDescription().replaceAll("'", "''");
 
@@ -319,7 +349,10 @@ abstract class DataManager {
 			}
 	}
 	
-
+	/**Execute an update-query with no return value.<br>
+	 * Example queries: <code> INSERT INTO, UPDATE, DELETE FROM, ...</code>
+	 * @param query The SQL query to be executed.
+	 */
 	private static void executeUpdateQuery(String query) {
 		System.out.println(query);
 		Statement st;		
@@ -334,6 +367,11 @@ abstract class DataManager {
 		}
 	}
 	
+	/**Execute a retrieve-query with return value(s).<br>
+	 * Example: <code>SELECT ...</code>
+	 * @param query The SQL query to be executed.
+	 * @return The <code>ResultSetWrapper</code> that contains the query's results. Functions the same as a <code>ResultSet</code>.
+	 */
 	private static ResultSetWrapper executeRetrieveQuery(String query) {
 		System.out.println(query);
 		Statement st;

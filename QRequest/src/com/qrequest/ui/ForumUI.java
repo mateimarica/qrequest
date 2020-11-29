@@ -7,8 +7,8 @@ import com.qrequest.control.EditPostControl;
 import com.qrequest.control.GetAnswerControl;
 import com.qrequest.control.GetQuestionControl;
 import com.qrequest.control.LoginControl;
-import com.qrequest.control.PostAnswerControl;
-import com.qrequest.control.PostQuestionControl;
+import com.qrequest.control.CreateAnswerControl;
+import com.qrequest.control.CreateQuestionControl;
 import com.qrequest.control.ThemeHelper;
 import com.qrequest.control.VoteControl;
 import com.qrequest.objects.Answer;
@@ -65,13 +65,21 @@ public class ForumUI {
 	/**Button to refresh the current post list*/
 	private Button refreshBtn;
 	
+	/**The root pane, i.e. what every JavaFX control is placed on*/
 	private BorderPane root;
 	
+	/**The stage*/
 	private Stage stage;
 	
+	/**Called by LoginUI to start the scene*/
 	public void startScene(Stage stage) {
 		startScene(stage, null);
 	}
+	
+	/**Starts the scene.
+	 * @param stage The primary stage.
+	 * @param currentQuestion If this is not <code>null</code>, blows up this question immediately.
+	 */
 	public void startScene(Stage stage, Question currentQuestion) {
 		this.stage = stage;
 		
@@ -100,7 +108,7 @@ public class ForumUI {
 		stage.show();		
 	}
 
-
+	/**Populates the menuBar and places it at the top of the root BorderPane.*/
 	private void populateMenuBar() {
 		MenuBar menuBar = new MenuBar();
 		
@@ -119,11 +127,12 @@ public class ForumUI {
 		root.setTop(menuBar);
 	}
 
-	
+	/**Called when the Search Users button is pressed. Triggers a pop-up window*/
 	private void searchUsersBtnPress() {
 		PopupUI.displaySearchUsersDialog();
 	}
 	
+	/**Populates the bottom toolBar and places at the bottom of the root BorderPane. */
 	private void populateToolbar() {
 		bottomBar.getItems().clear();
 		
@@ -145,16 +154,6 @@ public class ForumUI {
 			Button postAnswerBtn = new Button("\u2795 Answer question");
 			postAnswerBtn.setOnAction(e -> processPostAnswerButtonPress());
 			
-			/*if(currentQuestion.getAuthor().getUsername().equals(LoginControl.getUser().getUsername())) {
-				Button deleteBtn = new Button("\uD83D\uDDD1 Delete question");
-				deleteBtn.setOnAction(e -> processDeleteQuestionButtonPress());
-					
-				Button editBtn = new Button("\uD83D\uDD89 Edit Question");
-				editBtn.setOnAction(e -> processEditQuestionButtonPress());
-				bottomBar.getItems().addAll(deleteBtn, editBtn);
-			}*/
-			
-			
 			bottomBar.getItems().addAll(postAnswerBtn);
 			
 		}
@@ -166,36 +165,48 @@ public class ForumUI {
 		root.setBottom(bottomBar); //Put the bottomBar on the bottom of the root pane
 	}
 	
-	
-	
+	/**Called when the back button is pressed. Sets current question to null.*/
 	private void processBackButtonPress() {
 		currentQuestion = null;
 		backBtnPress();
 	}
 	
+	/**Called when the Ask Question button is clicked.<br>
+	 * Triggers a pop-up window where the user can create a question.
+	 * If the user doesn't cancel, the question is created in the database and displayed on the UI.
+	 */
 	private void processAskQuestionButtonPress() {
 		Question newQuestion = PopupUI.displayAskQuestionDialog();
 		if(newQuestion != null) {
-			PostQuestionControl.processPostQuestion(newQuestion);
+			CreateQuestionControl.processPostQuestion(newQuestion);
 			refresh();
 		}
 	}
 	
+	/**Called when the Ask Answer button is clicked.<br>
+	 * Triggers a pop-up window where the user can create a answer.
+	 * If the user doesn't cancel, the answer is created in the database and displayed on the UI.
+	 */
 	private void processPostAnswerButtonPress() {
 		Answer newAnswer = PopupUI.displayPostAnswerDialog(currentQuestion);
 		if(newAnswer != null) {
-			PostAnswerControl.processPostAnswer(newAnswer);
+			CreateAnswerControl.processPostAnswer(newAnswer);
 			refresh();
 		}
 	}
 	
-
+	/**Called when the user clicks "Log out" in the menu bar.<br>
+	 * Clears the saved credentials and user object, and starts the LoginUI scene.
+	 */
 	private void logout() {
 		Credentials.removeCredentials();
 		LoginControl.resetUser();
 		new LoginUI().startScene(stage);
 	}
 	
+	/**Refreshes the current window, usually to display updated objects.
+	 * If a question was in view when this method was called, the question will be reopened.
+	 */
 	private void refresh() {
 		if(currentMode == Mode.FRONT_PAGE) {
 			createQuestionsList();
@@ -204,12 +215,16 @@ public class ForumUI {
 		}
 	}
 	
+	/**Called when the <b>Dark mode</b> button is clicked.<br>
+	 * Saves the theme and restarts the scene to apply the new theme.
+	 * @param darkThemeEnabled The result of <code>isSelected()</code> on the darkModeItem CheckBoxItem.
+	 */
 	private void themeChanged(boolean darkThemeEnabled) {
 		ThemeHelper.saveTheme(darkThemeEnabled);
 		startScene(stage, currentQuestion);
 	}
 	
-	@SuppressWarnings({ "unchecked", "rawtypes" })
+	/**Displays a list of questions in the postList.*/
 	private void createQuestionsList() {
 		postList.getItems().clear();
         ArrayList<Question> questionList = GetQuestionControl.getAllQuestions();
@@ -221,15 +236,22 @@ public class ForumUI {
         
 	}
 	
+	/**Displays a single question and all of its answers in the postList.
+	 * @param question The question that is to be displayed.
+	*/
 	private void blowupQuestion(Question question) {
 		currentMode = Mode.QUESTION_VIEWER;
 		populateToolbar();
 		
-		GetQuestionControl.refreshQuestion(question);		
+		//Refreshes the question in case something changed between the question retrieval and this method call.
+		GetQuestionControl.refreshQuestion(question); 
 		
 		populateQuestion(question);
 	}
 	
+	/**Populates the listView with the question and all of its answers.
+	 * @param question The question that is to be displayed.
+	 */
 	private void populateQuestion(Question question) {
 		postList.getItems().clear();
 		postList.getItems().add(buildPostPane(question));
@@ -241,6 +263,7 @@ public class ForumUI {
 		}
 	}
 	
+	/**Called when the back button is pressed*/
 	private void backBtnPress() {
 		
 		postList.getItems().clear();
@@ -249,11 +272,15 @@ public class ForumUI {
 		refresh();
 	}
 	
+	/**Builds an individual question pane for the front page for placing on the postList
+	 * @param question The question that is to be made into a BorderPane.
+	 * @return The constructed postPane.
+	 */
 	private BorderPane buildQuestionPane(Question question) {
 		
-		BorderPane postPane = new BorderPane();
+		BorderPane questionPane = new BorderPane();
 		
-		postPane.setPadding(new Insets(2, 2, 2, 2));
+		questionPane.setPadding(new Insets(2, 2, 2, 2));
 	
 		
 		Insets insets = new Insets(30);
@@ -273,7 +300,7 @@ public class ForumUI {
 		votesPane.setAlignment(Pos.CENTER);
 		//top, right, bottom, left
 		votesPane.setPadding(new Insets(25, 10, 25, 10));
-		postPane.setLeft(votesPane);
+		questionPane.setLeft(votesPane);
 
 		
 		ToggleButton upvoteBtn = new ToggleButton("\u25B2");
@@ -288,7 +315,7 @@ public class ForumUI {
 		
 		BorderPane innerPostPane = new BorderPane();
 		innerPostPane.setLeft(voteButtonsPane);
-		postPane.setCenter(innerPostPane);
+		questionPane.setCenter(innerPostPane);
 		
 		
 		if(question.getCurrentUserVote() == 1) {
@@ -316,7 +343,7 @@ public class ForumUI {
 				question.setCurrentUserVote(VoteType.RESET_VOTE);
 			}
 			
-			int votes = getTrimmedVotesLabel(votesLabel);
+			int votes = getVoteCount(votesLabel);
 			if(votes == 0) {
 				votesLabel.setId("votesTickerZero");
 			} else if (votes > 0) {
@@ -345,7 +372,7 @@ public class ForumUI {
 				question.setCurrentUserVote(VoteType.RESET_VOTE);
 			}
 			
-			int votes = getTrimmedVotesLabel(votesLabel);
+			int votes = getVoteCount(votesLabel);
 			if(votes == 0) {
 				votesLabel.setId("votesTickerZero");
 			} else if (votes > 0) {
@@ -391,18 +418,35 @@ public class ForumUI {
 		
 		
 		
-		return postPane;
+		return questionPane;
 	}
 	
+	/**Edits the vote count label for post to display a user's vote immediately.
+	 * @param label The vote count Label object.
+	 * @param offset How much the vote count changed by.<br>(Example: neutral -> positive = +1)
+	 */
 	private void formatVotesLabel(Label label, int offset) {
-		int labelAsInt = getTrimmedVotesLabel(label);
+		int labelAsInt = getVoteCount(label);
 		label.setText(labelAsInt + offset + ((labelAsInt + offset) < 0 ? "" : " "));
 	}
 	
-	private int getTrimmedVotesLabel(Label label) {
+	/**Gets the votes down of a vote Label.
+	 * 
+	 * @param label The label whose vote count is being gotten.
+	 * @return The votes count.
+	 */
+	private int getVoteCount(Label label) {
 		return Integer.parseInt(label.getText().trim());
 	}
 	
+	/**Builds a post for a Question <i>or</i> Answer, for use in a blown-up Question.
+	 * @param post The 
+	 * @return
+	 */
+	/**Builds a pane for a Question <i>or</i> Answer, for use in a blown-up Question. To be put on the postList.
+	 * @param question The <code>Post</code> that is to be made into a BorderPane.
+	 * @return The constructed postPane.
+	 */
 	private BorderPane buildPostPane(Post post) {
 		
 		boolean isQuestion = post.isQuestion();
@@ -472,7 +516,7 @@ public class ForumUI {
 				post.setCurrentUserVote(VoteType.RESET_VOTE);
 			}
 			
-			int votes = getTrimmedVotesLabel(votesLabel);
+			int votes = getVoteCount(votesLabel);
 			if(votes == 0) {
 				votesLabel.setId("votesTickerZero");
 			} else if (votes > 0) {
@@ -501,7 +545,7 @@ public class ForumUI {
 				post.setCurrentUserVote(VoteType.RESET_VOTE);
 			}
 			
-			int votes = getTrimmedVotesLabel(votesLabel);
+			int votes = getVoteCount(votesLabel);
 			if(votes == 0) {
 				votesLabel.setId("votesTickerZero");
 			} else if (votes > 0) {
@@ -547,17 +591,6 @@ public class ForumUI {
 		GridPane.setConstraints(descriptionLabel, 0, 4);
 		
 		innerInnerPostPane.getChildren().addAll(authorLabel, descriptionLabel);
-		/*
-		 * 
-			if(currentQuestion.getAuthor().getUsername().equals(LoginControl.getUser().getUsername())) {
-				Button deleteBtn = new Button("\uD83D\uDDD1 Delete question");
-				deleteBtn.setOnAction(e -> processDeleteQuestionButtonPress());
-					
-				Button editBtn = new Button("\uD83D\uDD89 Edit Question");
-				editBtn.setOnAction(e -> processEditQuestionButtonPress());
-				bottomBar.getItems().addAll(deleteBtn, editBtn);
-			}
-		 */
 		
 		VBox buttonPane = new VBox(10);
 		buttonPane.setPadding(new Insets(5, 5, 5, 5));
@@ -597,6 +630,10 @@ public class ForumUI {
 			reportButton.setPrefSize(30, 30);
 			reportButton.setId("reportButton");
 			reportButton.setTooltip(new Tooltip("Report post"));
+			reportButton.setOnAction(e -> {
+				//report button function goes here
+			});
+			
 			buttonPane.getChildren().addAll(reportButton);
 		}
 		postPane.setRight(buttonPane);

@@ -5,29 +5,41 @@ import java.util.UUID;
 
 import com.qrequest.objects.Vote.VoteType;
 
+/**Generic class for a post, could be a question or answer*/
 public abstract class Post {
 	
+	/**unique ID, invisible to user*/
+	private UUID id; 
 	
-	private UUID id; //unique ID, invisible to user
-	
-	/**The time at which the question was posted.
-	 */
+	/**The time at which the question was posted.*/
 	private TeiTime timePosted = new TeiTime();
 	
-	/**The answer to a question.
-	 */
+	/**The description of the post*/
 	private String description;
 	
+	/**The user who created the post.*/
 	private User author;
 	
+	/**The number of votes this post has.*/
 	private int votes;
 	
+	/**The current user's vote on this object, can be -1, 0, +1.*/
 	private int currentUserVote;
 	
+	/**Create a post with only an ID.*/
 	protected Post(UUID id) {
 		this.id = id;
 	}
 	
+	/**Builds a Post object for use when retrieving from the database.
+	 * @param description The question or the question's title.
+	 * @param author The user who asked the question.
+	 * @param id Unique question identifier
+	 * @param timePosted The time when the question was posted.
+	 * @param votes The overall vote count of this post.
+	 * @param currentUserVote The current user's vote on this <code>Post</code>, can be -1, 0, +1.
+	 * @param answerCount The number of answers this post has.
+	 */
 	protected Post(String description, User author, UUID id, Date timePosted, int votes, int currentUserVote) {
 		this.description = description;
 		this.author = author;
@@ -37,6 +49,11 @@ public abstract class Post {
 		this.currentUserVote = currentUserVote;
 	}
 	
+	/**Builds a post with a description, author, and id.
+	 * @param description The question or the question's title.
+	 * @param author The user who asked the question.
+	 * @param id Unique question identifier
+	 */
 	protected Post(String description, User author, UUID id) {
 		this.description = description;
 		this.author = author;

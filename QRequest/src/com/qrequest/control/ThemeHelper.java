@@ -5,8 +5,8 @@ package com.qrequest.control;
 public class ThemeHelper {
 	/**Relative URL for the theme within the project.
 	*/
-	public final static String lightThemeFileURL = "/com/qrequest/resources/css/light-theme.css",
-							   darkThemeFileURL  = "/com/qrequest/resources/css/dark-theme.css";
+	private final static String lightThemeFileURL = "/com/qrequest/resources/css/light-theme.css",
+							    darkThemeFileURL  = "/com/qrequest/resources/css/dark-theme.css";
 	
 	
 	/**The preference key code for the dark mode setting. Used to retrieve the value.
@@ -18,6 +18,9 @@ public class ThemeHelper {
 		return (value.equals("true") ? true : false);
 	}
 	
+	/**Get the relative URL of the currently set theme.
+	 * @return The relative URL of the currently set theme.
+	 */
 	public static String getCurrentThemeURL() {
 		String value = PreferenceManager.getPreference((DARK_MODE_ENABLED_PREF));
 		return (value.equals("true") ? darkThemeFileURL  : lightThemeFileURL);
@@ -30,6 +33,5 @@ public class ThemeHelper {
 		String newValue = isDarkModeEnabled + "";
 		PreferenceManager.savePreference(DARK_MODE_ENABLED_PREF, newValue);
 	}
-
 	
 }
