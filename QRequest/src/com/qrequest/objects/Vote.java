@@ -45,6 +45,7 @@ public class Vote {
 		this.post = post;
 		this.voter = voter;
 		this.vote = vote;
+		
 	}
 	
 	/**Returns the user that did the voting.

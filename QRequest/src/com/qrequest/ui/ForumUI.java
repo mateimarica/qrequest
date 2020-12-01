@@ -42,9 +42,9 @@ public class ForumUI {
 	private ListView<BorderPane> postList;
 	
 	/**The dimensions of the window. Don't change this*/
-	private final int WINDOW_HEIGHT = 700, WINDOW_WIDTH = 552;
+	private final int WINDOW_HEIGHT = 700, WINDOW_WIDTH = 800;
 	
-	/**Enunumator defining which "mode" the forum is in.*/
+	/**Enumerator defining which "mode" the forum is in.*/
 	private enum Mode {
 		/**Represents the state where the the program is on the front page.*/
 		FRONT_PAGE, 
@@ -93,6 +93,7 @@ public class ForumUI {
 			this.currentQuestion = currentQuestion;
 		}	
 		
+		
 		root = new BorderPane();
 		
 		postList = new ListView<>();
@@ -108,10 +109,15 @@ public class ForumUI {
 		populateToolbar();		
 		
 		Scene scene = new Scene(root, WINDOW_WIDTH, WINDOW_HEIGHT);
+		
 		scene.getStylesheets().add(ThemeHelper.getCurrentThemeURL());
 		
 		stage.setScene(scene);
-		stage.show();		
+		stage.show();	
+		
+		stage.setResizable(true);
+		stage.setMinHeight(300);
+		stage.setMinWidth(800);
 	}
 
 	/**Populates the menuBar and places it at the top of the root BorderPane.*/
@@ -205,9 +211,10 @@ public class ForumUI {
 	 * Clears the saved credentials and user object, and starts the LoginUI scene.
 	 */
 	private void logout() {
+		stage.close();
 		Credentials.removeCredentials();
 		LoginControl.resetUser();
-		new LoginUI().startScene(stage);
+		new LoginUI().startScene(MainUI.setUpStage(new Stage()));
 	}
 	
 	/**Refreshes the current window, usually to display updated objects.
@@ -451,6 +458,8 @@ public class ForumUI {
 	 */
 	private BorderPane buildPostPane(Post post) {
 		
+		String postType = post.getClass().getSimpleName();
+		
 		boolean isQuestion = post.isQuestion();
 		
 		BorderPane postPane = new BorderPane();
@@ -567,6 +576,7 @@ public class ForumUI {
 		if(isQuestion) {
 			Label questionTitleLabel = new Label(((Question)post).getTitle());
 			questionTitleLabel.setId("questionTitleLabel");
+			questionTitleLabel.setMouseTransparent(true);
 			questionTitleLabel.setPadding(new Insets(0, 0, 0, 10));
 			questionTitleLabel.setMaxWidth(WINDOW_WIDTH * 0.65);
 			questionTitleLabel.setMinWidth(WINDOW_WIDTH * 0.65);
@@ -600,9 +610,9 @@ public class ForumUI {
 			Button editButton = new Button();
 			editButton.setPrefSize(30, 30);
 			editButton.setId("editButton");
-			editButton.setTooltip(new Tooltip("Edit post"));
+			editButton.setTooltip(new Tooltip("Edit " + postType));
 			editButton.setOnAction(e -> {
-				if(PopupUI.displayEditQuestionDialog(post)) {
+				if(PopupUI.displayEditPostDialog(post)) {
 					EditPostControl.processEditPost(post);
 					refresh();
 				}
@@ -611,9 +621,10 @@ public class ForumUI {
 			Button deleteButton = new Button();
 			deleteButton.setPrefSize(30, 30);
 			deleteButton.setId("deleteButton");
-			deleteButton.setTooltip(new Tooltip("Delete post"));	
+			deleteButton.setTooltip(new Tooltip("Delete " + postType));	
 			deleteButton.setOnAction(e -> {
-				if(PopupUI.displayConfirmationDialog("Confirm Deletion", "Are you sure you want to delete this post? This cannot be undone!")) {
+				if(PopupUI.displayConfirmationDialog("Confirm Deletion", 
+						"Are you sure you want to delete this " + postType + "? This cannot be undone!")) {
 					DeletePostControl.processDeletePost(post);
 					if(isQuestion) {
 						currentQuestion = null;
@@ -631,7 +642,7 @@ public class ForumUI {
 			Button reportButton = new Button("\uD83D\uDDE3");
 			reportButton.setPrefSize(30, 30);
 			reportButton.setId("reportButton");
-			reportButton.setTooltip(new Tooltip("Report post"));
+			reportButton.setTooltip(new Tooltip("Report " + postType));
 			reportButton.setOnAction(e -> {
 				//report button function goes here
 			});

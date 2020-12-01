@@ -13,9 +13,6 @@ import javafx.stage.Stage;
  */
 public class MainUI extends Application {
 	
-	/**Instance of the window.
-	 */
-	static Stage stage;
 	
 	final static String ICON_URL = "/com/qrequest/resources/images/icon.png";
 	
@@ -25,21 +22,10 @@ public class MainUI extends Application {
 		launch(args);
 	}
 	
+	
 	@Override
 	public void start(Stage stage) throws Exception {
-		MainUI.stage = stage;
-		
-		stage.getIcons().add(new Image(ICON_URL));
-		
-		//Overriding the program's close request function.
-		stage.setOnCloseRequest(e -> {
-			e.consume(); //lets Java know that we are handing the user's close request
-			closeProgram();			
-		});
-		
-		stage.setTitle("QRequest");
-		stage.setResizable(false);
-		
+		setUpStage(stage);
 		
 		//Checks the saved credentials (if there are any)
 		Credentials creds = Credentials.getSavedCredentials();
@@ -64,9 +50,26 @@ public class MainUI extends Application {
 		
 	}
 	
+	/**Sets up the stage's icon, setOnCloseRequest() function, and the title.
+	 * @param stage The stage.
+	 * @return The set up stage.
+	 */
+	static Stage setUpStage(Stage stage) {
+		stage.getIcons().add(new Image(ICON_URL));
+		
+		//Overriding the program's close request function.
+		stage.setOnCloseRequest(e -> {
+			e.consume(); //lets Java know that we are handing the user's close request
+			closeProgram(stage);			
+		});
+		
+		stage.setTitle("QRequest");
+		return stage;
+	}
+	
 	/**Called when the close is closed.
 	 */
-	private void closeProgram() {
+	private static void closeProgram(Stage stage) {
 		//This method is called when the user tries to close the program.
 		//This could have some kind of saving functionality if needed.
 		stage.close();

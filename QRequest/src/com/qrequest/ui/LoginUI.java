@@ -56,19 +56,20 @@ public class LoginUI {
 	/**If this checkbox is ticked when the Login action is triggered, the user's credentials will be saved.*/
 	@FXML private CheckBox saveCredentialsCheckBox;	
 	
-	
+	private static Stage stage;
 	/**The login menu is created and shown by this method. Called by the MainUI class.
 	 * @param stage Where all the controls are created, put into the grid layout pane, put in the scene, then the stage, then shown.
 	 */
 	public void startScene(Stage stage) {	
 		try {
+			stage.setResizable(false);
+			LoginUI.stage = stage;
 			GridPane root = FXMLLoader.load(getClass().getResource("/com/qrequest/resources/fxml/LoginUI.fxml"));
-			
 			Scene loginScene = new Scene(root, WINDOW_WIDTH, WINDOW_HEIGHT);
 				
 			loginScene.getStylesheets().add(ThemeHelper.getCurrentThemeURL());
 					
-						stage.setScene(loginScene);
+			stage.setScene(loginScene);
 			stage.show();
 		} catch (IOException e) { e .printStackTrace(); }
 	}
@@ -106,7 +107,7 @@ public class LoginUI {
 						Credentials.removeCredentials();
 					}
 					
-					new ForumUI().startScene(MainUI.stage);
+					new ForumUI().startScene(LoginUI.stage);
 				} else {
 					PopupUI.displayErrorDialog("Login Failed", "Username or password is incorrect.");
 				}

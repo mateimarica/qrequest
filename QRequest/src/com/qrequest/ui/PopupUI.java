@@ -34,6 +34,8 @@ import javafx.stage.Stage;
 /**Class for reducing the amount of boilerplate code when displaying pop-ups.
  */
 public class PopupUI {
+	
+	private static final int MAX_DESC_LENGTH = 65535;
 
 	/**Displays a warning dialog.
 	 * @param title The title of the pop-up window.
@@ -142,8 +144,8 @@ public class PopupUI {
 			   displayWarningDialog("Error Posting Question", "Questions must be 8 to 200 characters in length.");
 			   event.consume(); //make it so the dialog does not close
 			   return;
-			} else if (descField.getText().length() > 65535) {
-			   displayWarningDialog("Error Posting Question", "Questions must be 65535 characters or fewer.");
+			} else if (descField.getText().length() > MAX_DESC_LENGTH) {
+			   displayWarningDialog("Error Posting Question", "Questions must be " + MAX_DESC_LENGTH + " characters or fewer.");
 			   event.consume(); //make it so the dialog does not close
 			   return;
 		   }
@@ -261,8 +263,8 @@ public class PopupUI {
 			postAnswerBtn.addEventFilter(ActionEvent.ACTION, event -> {
 				int answerFieldLength = answerField.getText().length();
 				
-				if (answerFieldLength < 1 || answerFieldLength > 50) {
-				   displayWarningDialog("Did not post answer", "Answer must be 1 to 65535 characters in length.");
+				if (answerFieldLength < 1 || answerFieldLength > MAX_DESC_LENGTH) {
+				   displayWarningDialog("Did not post answer", "Answer must be 1 to " + MAX_DESC_LENGTH +  " characters in length.");
 				   event.consume(); //make it so the dialog does not close
 				   return;
 				}
@@ -282,11 +284,13 @@ public class PopupUI {
 	 * @param post The post being edited.
 	 * @return <code>true</code> if the <code>Post</code> object's description was edited, <code>false</code> if the user canceled.
 	 */
-	public static boolean displayEditQuestionDialog(Post post) {
+	public static boolean displayEditPostDialog(Post post) {
 
+		String postType = post.getClass().getSimpleName();
+		
 		// Create the custom dialog.
 		Dialog dialog = new Dialog();
-		dialog.setTitle("Edit Question");
+		dialog.setTitle("Edit " + postType);
 
 		//Set the icon for the popup
 		Stage stage = (Stage) dialog.getDialogPane().getScene().getWindow();
@@ -313,8 +317,8 @@ public class PopupUI {
 		final Button confirmBtn = (Button)dialog.getDialogPane().lookupButton(confirmBtnType);
 		confirmBtn.addEventFilter(ActionEvent.ACTION, event -> {
 
-			if (descField.getText().length() > 65535) {
-			   displayWarningDialog("Error Editing Question", "Description is too long.");
+			if (descField.getText().length() > MAX_DESC_LENGTH) {
+			   displayWarningDialog("Error Editing " + postType, "Description is too long.");
 			   event.consume(); //make it so the dialog does not close
 			   return;
 		   }
