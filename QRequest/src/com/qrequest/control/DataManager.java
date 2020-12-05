@@ -78,7 +78,8 @@ abstract class DataManager {
 		//build user object
 		User user;
 		if(rs.next()) {
-			user = new User(rs.getString("Username"));
+			//creates a user object with a username, and determines if user is an admin.
+			user = new User(rs.getString("Username"), rs.getInt("IsAdmin") == 1);
 			return user;
 		}
 
@@ -98,7 +99,7 @@ abstract class DataManager {
 		}
 		
 		executeUpdateQuery("INSERT INTO Users VALUES('" + creds.getUsername() 
-							+ "', SHA1('" + creds.getPassword() + "'));");
+							+ "', SHA1('" + creds.getPassword() + "'), 0);");
 		return true;
 	}
 	
@@ -117,7 +118,7 @@ abstract class DataManager {
 				+ "'" + question.getAuthor().getUsername() + "', "
 				+ "'" + question.getID() + "', "
 				+ "CURRENT_TIMESTAMP, "
-				+ "NULL);"); //this NULL is where the Tag argument will go
+				+ "NULL, -1);"); //this NULL is where the Tag argument will go
 	}
 	
 	
@@ -211,7 +212,7 @@ abstract class DataManager {
 		String query;
 		
 		if(isQuestionMode) {
-			query = "SELECT * FROM Questions ORDER BY TimePosted DESC;";
+			query = "SELECT * FROM Questions ORDER BY IsPinned DESC, TimePosted DESC;";
 		} else {
 			query = "SELECT * FROM Answers "
 					+ "WHERE QuestionId = '" + question.getID() + "'"
@@ -227,15 +228,17 @@ abstract class DataManager {
 			User author = null, answerer = null;
 			UUID ID;
 			Date date;
+			boolean isPinned = false;
 			if(isQuestionMode) {
 				title = rs.getString("Title");
 				description = rs.getString("Description");
-				author = new User(rs.getString("Author"));
+				author = new User(rs.getString("Author"), false);
 				ID = UUID.fromString(rs.getString("Id"));
 				date = rs.getTimestamp("TimePosted");
+				isPinned = rs.getInt("IsPinned") == 1;
 			} else {
 				description = rs.getString("Answer");
-				answerer = new User(rs.getString("Answerer"));
+				answerer = new User(rs.getString("Answerer"), false);
 				ID = UUID.fromString(rs.getString("Id"));
 				date = (Date) rs.getTimestamp("TimePosted");
 			}
@@ -265,7 +268,7 @@ abstract class DataManager {
 					answerCount = rs4.getInt("AnswerCount");
 				}
 				
-				post = new Question(title, description, author, ID, date, votes, currentUserVote, answerCount);
+				post = new Question(title, description, author, ID, date, votes, currentUserVote, answerCount, isPinned);
 			} else {
 				post = new Answer(description, answerer, question, ID, date, votes, currentUserVote);			
 			}
@@ -287,7 +290,7 @@ abstract class DataManager {
 		ResultSetWrapper rs = executeRetrieveQuery("SELECT * FROM Users WHERE Username LIKE '%" + username +"%';");
 		
 		while(rs.next()) {			
-			User user = new User(rs.getString("Username"));					
+			User user = new User(rs.getString("Username"), false);					
 			userList.add(user);	
 		}
 		
@@ -320,6 +323,12 @@ abstract class DataManager {
 								 + "ON DUPLICATE KEY UPDATE Vote = " + vote.getVote().value() + ";");
 			}
 	}
+	
+	static void pinQuestion(Question question) {
+		executeUpdateQuery("UPDATE Questions SET IsPinned = IsPinned * -1"
+				+ " WHERE Id = '" + question.getID() +"';");
+	}
+	
 	
 	/**Updated a post's description in the database.
 	 * @param post The <code>Post</code> object with the updated description.
@@ -364,6 +373,7 @@ abstract class DataManager {
 			System.err.println("SQL error in DataManager: "
 					+ "\n\t=======STACK TRACE=========\\n" + e.getStackTrace()
 					+ "\n\t=========MESSAGE===========\\n" + e.getMessage());
+			System.err.flush();
 		}
 	}
 	
@@ -382,6 +392,7 @@ abstract class DataManager {
 			System.err.println("SQL error in DataManager: "
 					+ "\n\t=======STACK TRACE=========\\n" + e.getStackTrace()
 					+ "\n\t=========MESSAGE===========\\n" + e.getMessage());
+			System.err.flush();
 		}
 		return null;
 	}
@@ -397,6 +408,8 @@ abstract class DataManager {
 			}
 		}
 	}
+	
+
 
 
 }

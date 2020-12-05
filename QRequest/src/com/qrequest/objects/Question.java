@@ -13,6 +13,10 @@ public class Question extends Post {
 	/**The number of answers this question has.*/
 	private int answerCount;
 	
+	/**True if question is pinned, false if not.
+	 */
+	private boolean isPinned;
+	
 	/**Builds a Question object without a date for putting into the database, which assigns the time posted.
 	 * @param title The question or the question's title.
 	 * @param description The question or the question's title.
@@ -34,10 +38,11 @@ public class Question extends Post {
 	 * @param currentUserVote The current user's vote on this <code>Answer</code>, can be -1, 0, +1.
 	 * @param answerCount The number of answers this question has.
 	 */
-	public Question(String title, String description, User author, UUID id, Date timePosted, int votes, int currentUserVote, int answerCount) {
+	public Question(String title, String description, User author, UUID id, Date timePosted, int votes, int currentUserVote, int answerCount, boolean isPinned) {
 		super(description, author, id, timePosted, votes, currentUserVote);
 		this.title = title;
 		this.answerCount = answerCount;
+		this.isPinned = isPinned;
 	}
 	
 	/**Builds a question with just an ID
@@ -59,5 +64,9 @@ public class Question extends Post {
 	 */
 	public String getTitle() {
 		return title;
+	}
+	
+	public boolean isPinned() {
+		return isPinned;
 	}
 }

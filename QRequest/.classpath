@@ -1,10 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
-	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/jdk-15.0.1">
-		<accessrules>
-			<accessrule kind="accessible" pattern="javafx/**"/>
-		</accessrules>
-	</classpathentry>
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="lib" path="libs/mysql-connector-java-5.0.8-bin.jar"/>
 	<classpathentry kind="lib" path="libs/javafx-sdk-11.0.2/lib/javafx-swt.jar"/>
@@ -15,5 +10,6 @@
 	<classpathentry kind="lib" path="libs/javafx-sdk-11.0.2/lib/javafx.media.jar"/>
 	<classpathentry kind="lib" path="libs/javafx-sdk-11.0.2/lib/javafx.swing.jar"/>
 	<classpathentry kind="lib" path="libs/javafx-sdk-11.0.2/lib/javafx.web.jar"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/jdk-13.0.2"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

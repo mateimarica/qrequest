@@ -6,6 +6,10 @@ import java.util.ArrayList;
  */
 public class User {
 	
+	/**true if user is an administrator, otherwise false.
+	 */
+	private boolean isAdmin;
+	
 	/**The unique 3 to 10 character username. This is the primary key.
 	 */
 	private String username;
@@ -21,8 +25,9 @@ public class User {
 	/**Creates a User object with its username.
 	 * @param username The username.
 	 */
-	public User(String username) {
+	public User(String username, boolean isAdmin) {
 		this.username = username;
+		this.isAdmin = isAdmin;
 	}
 	
 	/**Returns the user's username
@@ -30,6 +35,10 @@ public class User {
 	 */
 	public String getUsername() {
 		return username;
+	}
+	
+	public boolean isAdmin() {
+		return isAdmin;
 	}
 	
 	@Override

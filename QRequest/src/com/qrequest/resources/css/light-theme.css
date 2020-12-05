@@ -43,11 +43,16 @@ list-cell:even,
     -fx-background-color: #8D1900;
 }
 
+#pinnedQuestionTitleLabel,
 #questionTitleLabel {
 	-fx-font-size: 15px;
 	-fx-font-family: Verdana;
 	-fx-font-weight: bold;
 	-fx-cursor: hand;
+}
+
+#pinnedQuestionTitleLabel {
+	-fx-text-fill: #538D00;
 }
 
 #descriptionLabel {

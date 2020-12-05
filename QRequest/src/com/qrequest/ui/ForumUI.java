@@ -7,6 +7,7 @@ import com.qrequest.control.EditPostControl;
 import com.qrequest.control.GetAnswerControl;
 import com.qrequest.control.GetQuestionControl;
 import com.qrequest.control.LoginControl;
+import com.qrequest.control.PinQuestionControl;
 import com.qrequest.control.CreateAnswerControl;
 import com.qrequest.control.CreateQuestionControl;
 import com.qrequest.control.ThemeHelper;
@@ -24,6 +25,7 @@ import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckMenuItem;
 import javafx.scene.control.Label;
+import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuBar;
@@ -292,6 +294,27 @@ public class ForumUI {
 		
 		BorderPane questionPane = new BorderPane();
 		
+		if(LoginControl.getUser().isAdmin()) {
+		
+			ToggleButton pinButton = new ToggleButton("L");
+			pinButton.setPrefSize(30, 30);
+			pinButton.setSelected(question.isPinned());
+			pinButton.setId("upvoteButton");
+			pinButton.setTooltip(new Tooltip("Pin this question"));
+			pinButton.setOnAction(e -> {
+				PinQuestionControl.pinQuestion(question);
+				refresh();
+			});
+			
+			VBox pinButtonsPane = new VBox(pinButton);
+			pinButtonsPane.setSpacing(5);
+			pinButtonsPane.setPadding(new Insets(0, 0, 0, 0));
+			pinButtonsPane.setAlignment(Pos.CENTER);
+			
+			questionPane.setRight(pinButtonsPane);
+		
+		}
+		
 		questionPane.setPadding(new Insets(2, 2, 2, 2));
 	
 		
@@ -396,7 +419,7 @@ public class ForumUI {
 		
 
 		Label questionTitleLabel = new Label(question.getTitle());
-		questionTitleLabel.setId("questionTitleLabel");
+		questionTitleLabel.setId(question.isPinned() ? "pinnedQuestionTitleLabel" : "questionTitleLabel");
 		questionTitleLabel.setPadding(new Insets(0, 0, 0, 10));
 		questionTitleLabel.setMaxWidth(WINDOW_WIDTH * 0.65);
 		questionTitleLabel.setMinWidth(WINDOW_WIDTH * 0.65);
