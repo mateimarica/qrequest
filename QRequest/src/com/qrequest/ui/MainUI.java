@@ -17,7 +17,7 @@ public class MainUI extends Application {
 	final static String ICON_URL = "/com/qrequest/resources/images/icon.png";
 	
 	/**Starts the JavaFX instance.
-	 */
+	  */
 	void begin(String[] args) {
 		launch(args);
 	}
