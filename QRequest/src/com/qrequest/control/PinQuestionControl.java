@@ -1,7 +1,5 @@
 package com.qrequest.control;
 
-import java.util.ArrayList;
-
 import com.qrequest.objects.Question;
 
 public abstract class PinQuestionControl {

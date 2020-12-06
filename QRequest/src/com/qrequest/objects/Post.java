@@ -54,10 +54,10 @@ public abstract class Post {
 	 * @param author The user who asked the question.
 	 * @param id Unique question identifier
 	 */
-	protected Post(String description, User author, UUID id) {
+	protected Post(String description, User author) {
 		this.description = description;
 		this.author = author;
-		this.id = id;
+		this.id = UUID.randomUUID();
 	}
 	
 	
@@ -100,7 +100,7 @@ public abstract class Post {
 	}
 	
 	public void setCurrentUserVote(VoteType newCurrentUserVote) {
-		currentUserVote = newCurrentUserVote.value();
+		currentUserVote = newCurrentUserVote.getValue();
 	}
 	
 	public boolean isQuestion() {
@@ -109,6 +109,10 @@ public abstract class Post {
 	
 	public boolean isAnswer() {
 		return getClass().equals(Answer.class);
+	}
+	
+	public String getPostType() {
+		return getClass().getSimpleName();
 	}
 	
 	

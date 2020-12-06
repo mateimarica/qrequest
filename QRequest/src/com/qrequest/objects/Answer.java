@@ -15,8 +15,8 @@ public class Answer extends Post{
 	 * @param question The <code>Question</code> that this <code>Answer</code> belongs to.
 	 * @param id The <code>UUID</code> unique identifier.
 	 */
-	public Answer(String answer, User answerer, Question question, UUID id) {
-		super(answer, answerer, id);
+	public Answer(String answer, User answerer, Question question) {
+		super(answer, answerer);
 		this.question = question;
 	}
 	

@@ -31,7 +31,9 @@ list-cell:even,
 
 
 .list-view {
-	-fx-selection-bar-non-focused: derive(-fx-base, 10%);
+	-fx-selection-bar: #ffffff;
+	-fx-selection-bar-non-focused: derive(-fx-base, 50%);
+
 }
 
 
@@ -82,4 +84,16 @@ list-cell:even,
 
 #deleteButton {
 	-fx-graphic: url("/com/qrequest/resources/images/delete_light.png");
+}
+
+#pinButton {
+	-fx-graphic: url("/com/qrequest/resources/images/pin_light.png");
+}
+
+#pinButton:selected {
+    -fx-background-color: #538D00;
+}
+
+#reportButton {
+	-fx-graphic: url("/com/qrequest/resources/images/report_light.png");
 }

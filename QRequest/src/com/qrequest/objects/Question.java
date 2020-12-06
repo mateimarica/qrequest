@@ -23,8 +23,8 @@ public class Question extends Post {
 	 * @param author The user who asked the question.
 	 * @param id Unique question identifier
 	 */
-	public Question(String title, String description, User author, UUID id) {
-		super(description, author, id);
+	public Question(String title, String description, User author) {
+		super(description, author);
 		this.title = title;
 	}
 	

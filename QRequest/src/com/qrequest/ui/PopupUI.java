@@ -1,7 +1,7 @@
 package com.qrequest.ui;
 
 import java.util.ArrayList;
-
+import java.util.NoSuchElementException;
 import java.util.UUID;
 
 
@@ -11,6 +11,7 @@ import com.qrequest.control.ThemeHelper;
 import com.qrequest.objects.Answer;
 import com.qrequest.objects.Post;
 import com.qrequest.objects.Question;
+import com.qrequest.objects.Report;
 import com.qrequest.objects.User;
 
 import javafx.event.ActionEvent;
@@ -22,6 +23,7 @@ import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonBar.ButtonData;
 import javafx.scene.control.ButtonType;
+import javafx.scene.control.ComboBox;
 import javafx.scene.control.Dialog;
 import javafx.scene.control.DialogPane;
 import javafx.scene.control.ListView;
@@ -93,7 +95,12 @@ public class PopupUI {
 		stage.getIcons().add(
 		    new Image(new PopupUI().getClass().getResource(MainUI.ICON_URL).toString()));
 		
-		return (dialog.showAndWait().get().equals(ButtonType.OK));
+		try {
+			return (dialog.showAndWait().get().equals(ButtonType.OK));
+		} catch (NoSuchElementException e) {
+			return false;
+		}
+		
 	}
 		
 	/**The dialog for asking a question. Allows user to enter the title and an optional description.<br>
@@ -106,11 +113,7 @@ public class PopupUI {
 		Dialog dialog = new Dialog();
 		dialog.setTitle("Post a Question");
 		
-		//Set the icon for the popup
-		Stage stage = (Stage) dialog.getDialogPane().getScene().getWindow();
-		stage.getIcons().add(
-		    new Image(new PopupUI().getClass().getResource(MainUI.ICON_URL).toString()));
-		
+		setupDialogStyling(dialog);		
 
 		GridPane gridPane = new GridPane();
 		gridPane.setHgap(10);
@@ -128,6 +131,7 @@ public class PopupUI {
 		TextArea descField = new TextArea();
 		descField.setPromptText("Description (Optional)");
 		descField.setMaxSize(300, 200);
+		descField.setWrapText(true);
 		gridPane.add(descField, 0, 1);
 		
 		
@@ -152,11 +156,10 @@ public class PopupUI {
 		});
 		
 		DialogPane dialogPane = dialog.getDialogPane();
-		dialogPane.getStylesheets().add(ThemeHelper.getCurrentThemeURL());
 		dialogPane.setContent(gridPane);
 		
 		if(dialog.showAndWait().get().equals(postQuestionBtnType)) {
-			return new Question(titleField.getText(), descField.getText(), LoginControl.getUser(), UUID.randomUUID());
+			return new Question(titleField.getText(), descField.getText(), LoginControl.getUser());
 		}
 		return null;
 	}
@@ -171,11 +174,7 @@ public class PopupUI {
 		Dialog dialog = new Dialog();
 		dialog.setTitle("Search Users");
 		
-		//Set the icon for the popup
-		Stage stage = (Stage) dialog.getDialogPane().getScene().getWindow();
-		stage.getIcons().add(
-		    new Image(new PopupUI().getClass().getResource(MainUI.ICON_URL).toString()));
-		
+		setupDialogStyling(dialog);		
 
 		GridPane gridPane = new GridPane();
 		gridPane.setHgap(10);
@@ -209,7 +208,6 @@ public class PopupUI {
 		dialog.getDialogPane().getButtonTypes().addAll(ButtonType.CLOSE);
 		
 		DialogPane dialogPane = dialog.getDialogPane();
-		dialogPane.getStylesheets().add(ThemeHelper.getCurrentThemeURL());
 		dialogPane.setContent(gridPane);
 		dialog.showAndWait();
 	}
@@ -237,11 +235,7 @@ public class PopupUI {
 			Dialog dialog = new Dialog();
 			dialog.setTitle("Post an Answer");
 			
-			//Set the icon for the popup
-			Stage stage = (Stage) dialog.getDialogPane().getScene().getWindow();
-			stage.getIcons().add(
-			    new Image(new PopupUI().getClass().getResource(MainUI.ICON_URL).toString()));
-			
+			setupDialogStyling(dialog);
 
 			GridPane gridPane = new GridPane();
 			gridPane.setHgap(10);
@@ -271,11 +265,10 @@ public class PopupUI {
 			});
 			
 			DialogPane dialogPane = dialog.getDialogPane();
-			dialogPane.getStylesheets().add(ThemeHelper.getCurrentThemeURL());
 			dialogPane.setContent(gridPane);
 	
 			if(dialog.showAndWait().get().equals(postAnswerBtnType)) {
-				return new Answer(answerField.getText(), LoginControl.getUser(), question, UUID.randomUUID());
+				return new Answer(answerField.getText(), LoginControl.getUser(), question);
 			}
 			return null;
 	}
@@ -286,16 +279,13 @@ public class PopupUI {
 	 */
 	public static boolean displayEditPostDialog(Post post) {
 
-		String postType = post.getClass().getSimpleName();
+		String postType = post.getPostType();
 		
 		// Create the custom dialog.
 		Dialog dialog = new Dialog();
 		dialog.setTitle("Edit " + postType);
 
-		//Set the icon for the popup
-		Stage stage = (Stage) dialog.getDialogPane().getScene().getWindow();
-		stage.getIcons().add(
-		    new Image(new PopupUI().getClass().getResource(MainUI.ICON_URL).toString()));
+		setupDialogStyling(dialog);
 
 		GridPane gridPane = new GridPane();
 		gridPane.setHgap(10);
@@ -325,7 +315,6 @@ public class PopupUI {
 		});
 
 		DialogPane dialogPane = dialog.getDialogPane();
-		dialogPane.getStylesheets().add(ThemeHelper.getCurrentThemeURL());
 		dialogPane.setContent(gridPane);
 		
 		if(dialog.showAndWait().get().equals(confirmBtnType)) {
@@ -333,6 +322,87 @@ public class PopupUI {
 			return true;
 		}
 		return false;
+	}
+	
+	/**Displays a pop-up window that gives the user the option to edit their own post <i>description</i>.
+	 * @param post The post being edited.
+	 * @return <code>true</code> if the <code>Post</code> object's description was edited, <code>false</code> if the user canceled.
+	 */
+	public static Report displayReportPostDialog(Post post) {
+
+		Report report = new Report(LoginControl.getUser(), post);
+		
+		String postType = post.getPostType();
+		
+		// Create the custom dialog.
+		Dialog dialog = new Dialog();
+		dialog.setTitle("Report " + postType);
+
+		setupDialogStyling(dialog);
+		
+		GridPane gridPane = new GridPane();
+		gridPane.setHgap(10);
+		gridPane.setVgap(10);
+		// top, right, bottom, left padding
+		gridPane.setPadding(new Insets(20, 10, 10, 10));
+
+		
+		ComboBox<String> reportTypeBox = new ComboBox<>();	
+		reportTypeBox.setPromptText("Reason for report");
+		GridPane.setConstraints(reportTypeBox, 0, 0);
+		String[] reportTypes = report.getReportTypes();
+		for(int i = 0; i < reportTypes.length; i++) {
+			reportTypeBox.getItems().add(reportTypes[i]);
+		}
+		
+		TextArea reportField = new TextArea();
+		reportField.setPromptText("Detailed report (Optional)");
+		reportField.setMaxSize(300, 200);
+		reportField.setWrapText(true);
+		GridPane.setConstraints(reportField, 0, 1);
+		
+		
+		gridPane.getChildren().addAll(reportTypeBox, reportField);
+
+		// Set the button types.
+		ButtonType confirmBtnType = new ButtonType("Send Report", ButtonData.RIGHT);
+		dialog.getDialogPane().getButtonTypes().addAll(confirmBtnType, ButtonType.CANCEL);
+
+		final Button confirmBtn = (Button)dialog.getDialogPane().lookupButton(confirmBtnType);
+		confirmBtn.addEventFilter(ActionEvent.ACTION, event -> {
+
+			if (reportField.getText().length() > 1000) {
+			   displayWarningDialog("Error Reporting " + postType, "Report is too long.");
+			   event.consume(); //make it so the dialog does not close
+			   return;
+			}
+			
+			if(reportTypeBox.getSelectionModel().isEmpty()) {
+				 displayWarningDialog("Error Reporting " + postType, "Must select reason for report.");
+				event.consume(); //make it so the dialog does not close
+				return;
+			}
+		});
+
+		DialogPane dialogPane = dialog.getDialogPane();
+		dialogPane.setContent(gridPane);
+		
+		if(dialog.showAndWait().get().equals(confirmBtnType)) {
+			report.setReportType(reportTypeBox.getValue());
+			report.setDesc(reportField.getText());
+			return report;
+		}
+		return null;
+	}
+	
+	private static void setupDialogStyling(Dialog dialog) {
+		//Set the icon for the popup
+		Stage stage = (Stage) dialog.getDialogPane().getScene().getWindow();
+		stage.getIcons().add(
+		    new Image(new PopupUI().getClass().getResource(MainUI.ICON_URL).toString()));
+		
+		//sets the theme
+		dialog.getDialogPane().getStylesheets().add(ThemeHelper.getCurrentThemeURL());
 	}
 	
 }

@@ -14,6 +14,7 @@ import com.qrequest.objects.Answer;
 import com.qrequest.objects.Credentials;
 import com.qrequest.objects.Post;
 import com.qrequest.objects.Question;
+import com.qrequest.objects.Report;
 import com.qrequest.objects.ResultSetWrapper;
 import com.qrequest.objects.User;
 import com.qrequest.objects.Vote;
@@ -98,8 +99,10 @@ abstract class DataManager {
 			return false;
 		}
 		
-		executeUpdateQuery("INSERT INTO Users VALUES('" + creds.getUsername() 
-							+ "', SHA1('" + creds.getPassword() + "'), 0);");
+	
+		executeUpdateQuery("INSERT INTO Users VALUES('%s', SHA1('%s'), 0);",
+				creds.getUsername(), creds.getPassword());
+		
 		return true;
 	}
 	
@@ -112,13 +115,8 @@ abstract class DataManager {
 		String title = question.getTitle().replaceAll("'", "''");
 		String desc = question.getDescription().replaceAll("'", "''");
 		
-		executeUpdateQuery("INSERT INTO Questions VALUES("
-				+ "'" + title + "', "
-				+ "'" + desc + "', "
-				+ "'" + question.getAuthor().getUsername() + "', "
-				+ "'" + question.getID() + "', "
-				+ "CURRENT_TIMESTAMP, "
-				+ "NULL, -1);"); //this NULL is where the Tag argument will go
+		executeUpdateQuery("INSERT INTO Questions VALUES('%s', '%s', '%s', '%s', CURRENT_TIMESTAMP, NULL, -1);",
+				title, desc, question.getAuthor(), question.getID());
 	}
 	
 	
@@ -159,13 +157,10 @@ abstract class DataManager {
 			
 		//Must escape all apostrophes with another apostrophe so MySQL recognizes that they aren't quotes
 		String answerText = answer.getDescription().replaceAll("'", "''");
+
+		executeUpdateQuery("Insert INTO Answers VALUES('%s', '%s', '%s', '%s', CURRENT_TIMESTAMP);",
+				answerText, answer.getAuthor(), answer.getID(), answer.getQuestion().getID());
 		
-		executeUpdateQuery("INSERT INTO Answers VALUES("
-				+ "'" + answerText + "', "
-				+ "'" + answer.getAuthor().getUsername() + "', "
-				+ "'" + answer.getID() + "', "
-				+ "'" + answer.getQuestion().getID() + "', "
-				+ "CURRENT_TIMESTAMP);");
 	}	
 	
 	/**Wrapper method to retrieve all the questions from the database.
@@ -311,22 +306,35 @@ abstract class DataManager {
 	 * @param vote The vote to be added.
 	 */
 	static void addVote(Vote vote) {
-			if(vote.getVote().value() == 0) {
+			if(vote.getVote().getValue() == 0) {
 				executeUpdateQuery("DELETE FROM Votes "
 								 + "WHERE PostId = '" + vote.getPost().getID() + "' "
 								 + "AND Voter = '" + vote.getVoter() + "';");
 			} else {
 				executeUpdateQuery("INSERT INTO Votes "
-								 + "VALUES(" + vote.getVote().value() 
+								 + "VALUES(" + vote.getVote().getValue() 
 									+ ", '" + vote.getPost().getID() 
 									+ "', '" + vote.getVoter() + "') "
-								 + "ON DUPLICATE KEY UPDATE Vote = " + vote.getVote().value() + ";");
+								 + "ON DUPLICATE KEY UPDATE Vote = " + vote.getVote().getValue() + ";");
 			}
 	}
 	
 	static void pinQuestion(Question question) {
 		executeUpdateQuery("UPDATE Questions SET IsPinned = IsPinned * -1"
 				+ " WHERE Id = '" + question.getID() +"';");
+	}
+	
+	static void reportPost(Report report) {
+		executeUpdateQuery(
+				"INSERT INTO Reports VALUES('%s', '%s', CURRENT_TIMESTAMP, '%s', '%s', '%s');",
+				
+				report.getReportType().replaceAll("'", "''"), 
+				report.getDesc().replaceAll("'", "''"), 
+				report.getReporter(), 
+				report.getReportedPost().getID(),
+				report.getID(), 1
+				
+		);
 	}
 	
 	
@@ -362,7 +370,8 @@ abstract class DataManager {
 	 * Example queries: <code> INSERT INTO, UPDATE, DELETE FROM, ...</code>
 	 * @param query The SQL query to be executed.
 	 */
-	private static void executeUpdateQuery(String query) {
+	private static void executeUpdateQuery(String query, Object ...args) {
+		query = String.format(query, args);
 		System.out.println(query);
 		Statement st;		
 		try {
@@ -377,12 +386,15 @@ abstract class DataManager {
 		}
 	}
 	
+	
+	
 	/**Execute a retrieve-query with return value(s).<br>
 	 * Example: <code>SELECT ...</code>
 	 * @param query The SQL query to be executed.
 	 * @return The <code>ResultSetWrapper</code> that contains the query's results. Functions the same as a <code>ResultSet</code>.
 	 */
-	private static ResultSetWrapper executeRetrieveQuery(String query) {
+	private static ResultSetWrapper executeRetrieveQuery(String query, Object ...args) {
+		query = String.format(query, args);
 		System.out.println(query);
 		Statement st;
 		try {

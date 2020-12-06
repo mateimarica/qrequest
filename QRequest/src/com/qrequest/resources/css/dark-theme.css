@@ -59,7 +59,7 @@
 }
 
 .list-view {
-	-fx-selection-bar: green;
+	-fx-selection-bar: #0091c9;
 	-fx-selection-bar-non-focused: derive(-fx-base, 50%);
 }
 
@@ -130,4 +130,16 @@
 
 #deleteButton {
 	-fx-graphic: url("/com/qrequest/resources/images/delete_dark.png");
+}
+
+#pinButton {
+	-fx-graphic: url("/com/qrequest/resources/images/pin_dark.png");
+}
+
+#pinButton:selected {
+    -fx-background-color: #538D00;
+}
+
+#reportButton {
+	-fx-graphic: url("/com/qrequest/resources/images/report_dark.png");
 }

@@ -8,6 +8,7 @@ import com.qrequest.control.GetAnswerControl;
 import com.qrequest.control.GetQuestionControl;
 import com.qrequest.control.LoginControl;
 import com.qrequest.control.PinQuestionControl;
+import com.qrequest.control.ReportPostControl;
 import com.qrequest.control.CreateAnswerControl;
 import com.qrequest.control.CreateQuestionControl;
 import com.qrequest.control.ThemeHelper;
@@ -16,6 +17,7 @@ import com.qrequest.objects.Answer;
 import com.qrequest.objects.Credentials;
 import com.qrequest.objects.Post;
 import com.qrequest.objects.Question;
+import com.qrequest.objects.Report;
 import com.qrequest.objects.Vote;
 import com.qrequest.objects.Vote.VoteType;
 
@@ -296,11 +298,11 @@ public class ForumUI {
 		
 		if(LoginControl.getUser().isAdmin()) {
 		
-			ToggleButton pinButton = new ToggleButton("L");
+			ToggleButton pinButton = new ToggleButton();
 			pinButton.setPrefSize(30, 30);
 			pinButton.setSelected(question.isPinned());
-			pinButton.setId("upvoteButton");
-			pinButton.setTooltip(new Tooltip("Pin this question"));
+			pinButton.setId("pinButton");
+			pinButton.setTooltip(new Tooltip("Pin Question"));
 			pinButton.setOnAction(e -> {
 				PinQuestionControl.pinQuestion(question);
 				refresh();
@@ -481,7 +483,7 @@ public class ForumUI {
 	 */
 	private BorderPane buildPostPane(Post post) {
 		
-		String postType = post.getClass().getSimpleName();
+		String postType = post.getPostType();
 		
 		boolean isQuestion = post.isQuestion();
 		
@@ -662,12 +664,16 @@ public class ForumUI {
 			
 			
 		} else {
-			Button reportButton = new Button("\uD83D\uDDE3");
+			Button reportButton = new Button();
 			reportButton.setPrefSize(30, 30);
 			reportButton.setId("reportButton");
 			reportButton.setTooltip(new Tooltip("Report " + postType));
 			reportButton.setOnAction(e -> {
-				//report button function goes here
+				Report report = PopupUI.displayReportPostDialog(post);
+				if(report != null) {
+					ReportPostControl.reportPost(report);
+					PopupUI.displayInfoDialog("Report Sent", "Thank you for helping keep our platform safe!");
+				}
 			});
 			
 			buttonPane.getChildren().addAll(reportButton);

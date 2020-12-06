@@ -3,7 +3,7 @@ package com.qrequest.objects;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 
-/**Represents the date of a question or answer.<br>
+/**Repesents a certain point in time.<br>
  * <code>toString()</code> returns relative informal date.<br>(Example: "3 days ago")
  */
 @SuppressWarnings("serial")
