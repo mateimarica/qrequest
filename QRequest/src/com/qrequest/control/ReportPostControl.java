@@ -1,7 +1,5 @@
 package com.qrequest.control;
 
-
-
 import com.qrequest.objects.Report;
 
 public abstract class ReportPostControl {

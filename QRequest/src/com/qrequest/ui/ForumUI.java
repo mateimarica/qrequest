@@ -2,8 +2,7 @@ package com.qrequest.ui;
 
 import java.util.ArrayList;
 
-import com.qrequest.control.DeletePostControl;
-import com.qrequest.control.EditPostControl;
+
 import com.qrequest.control.GetAnswerControl;
 import com.qrequest.control.GetQuestionControl;
 import com.qrequest.control.LoginControl;
@@ -632,36 +631,7 @@ public class ForumUI {
 		VBox buttonPane = new VBox(10);
 		buttonPane.setPadding(new Insets(5, 5, 5, 5));
 		if(LoginControl.getUser().getUsername().equals(post.getAuthor().getUsername())) {
-			Button editButton = new Button();
-			editButton.setPrefSize(30, 30);
-			editButton.setId("editButton");
-			editButton.setTooltip(new Tooltip("Edit " + postType));
-			editButton.setOnAction(e -> {
-				if(PopupUI.displayEditPostDialog(post)) {
-					EditPostControl.processEditPost(post);
-					refresh();
-				}
-			});
-			
-			Button deleteButton = new Button();
-			deleteButton.setPrefSize(30, 30);
-			deleteButton.setId("deleteButton");
-			deleteButton.setTooltip(new Tooltip("Delete " + postType));	
-			deleteButton.setOnAction(e -> {
-				if(PopupUI.displayConfirmationDialog("Confirm Deletion", 
-						"Are you sure you want to delete this " + postType + "? This cannot be undone!")) {
-					DeletePostControl.processDeletePost(post);
-					if(isQuestion) {
-						currentQuestion = null;
-						backBtnPress();
-					} else {
-						refresh();
-					}
-				}
-			});
-			
-			buttonPane.getChildren().addAll(editButton, deleteButton);
-			
+						
 			
 		} else {
 			Button reportButton = new Button();
