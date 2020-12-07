@@ -229,9 +229,14 @@ abstract class DataManager {
 						title, (tag != null) ? ("AND Tag = '" + tag.name() + "'") : "");
 			}			
 		} else {
-			query = "SELECT * FROM Answers "
+			/*query = "SELECT * FROM Answers "
 					+ "WHERE QuestionId = '" + question.getID() + "'"
-					+ " ORDER BY TimePosted DESC;";
+					+ " ORDER BY TimePosted DESC;";*/
+			
+			query = String.format("SELECT * FROM Answers "
+					+ "WHERE QuestionId = '%s' "
+					+ "ORDER BY IFNULL((SELECT SUM(Vote) FROM Votes WHERE PostId = Answers.Id), 0) DESC, TimePosted DESC;", 
+					question.getID());
 		}
 		
 		// Order by TimePosted DESCENDING so that newer answers are at the top
@@ -404,8 +409,8 @@ abstract class DataManager {
 			st.close();
 		} catch (SQLException e) {
 			System.err.println("SQL error in DataManager: "
-					+ "\n\t=======STACK TRACE=========\\n" + e.getStackTrace()
-					+ "\n\t=========MESSAGE===========\\n" + e.getMessage());
+					+ "\n\t=======STACK TRACE=========\n" + e.getStackTrace()
+					+ "\n\t=========MESSAGE===========\n" + e.getMessage());
 			System.err.flush();
 		}
 	}
@@ -429,7 +434,7 @@ abstract class DataManager {
 		} catch (SQLException e) {
 			System.err.println("SQL error in DataManager: "
 					+ "\n\t=======STACK TRACE=========\n" + e.getStackTrace()
-					+ "\n\n\t=========MESSAGE===========\n" + e.getMessage());
+					+ "\n\t=========MESSAGE===========\n" + e.getMessage());
 			System.err.flush();
 		}
 		return null;
