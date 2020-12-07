@@ -131,6 +131,9 @@ abstract class DataManager {
 		//updates Question object
 		while(rs.next()) {
 			question.setDescription(rs.getString("Description"));
+			question.setTag(Tag.getEnum(rs.getString("Tag")));
+			String solvedAnswerId = rs.getString("SolvedAnswerId");
+			question.setSolvedAnswer((solvedAnswerId == null) ? null : (new Answer(UUID.fromString(solvedAnswerId))));
 		}		
 	}
 	
@@ -223,10 +226,13 @@ abstract class DataManager {
 			if(filters == null) {
 				query = "SELECT * FROM Questions ORDER BY IsPinned DESC, TimePosted DESC;";
 			} else {
-				String title = filters.getTitle();
+				String keywords = filters.getKeywords();
 				Tag tag = filters.getTag();
-				query = String.format("SELECT * FROM Questions WHERE Title LIKE '%%%s%%' %s ORDER BY Title DESC;",
-						title, (tag != null) ? ("AND Tag = '" + tag.name() + "'") : "");
+				Boolean hasSolvedAns = filters.hasSolvedAnswer();
+				query = String.format("SELECT * FROM Questions WHERE Title LIKE '%%%s%%' OR Description LIKE '%%%s%%' %s %s ORDER BY Title DESC;",
+						keywords, keywords,
+						(tag != null) ? ("AND Tag = '" + tag.name() + "'") : "",
+						hasSolvedAns == null ? "" : "AND SolvedAnswerId IS" + (hasSolvedAns ? " NOT" : "") + " NULL"); //yeah I know this garbage is hard to read
 			}			
 		} else {
 			/*query = "SELECT * FROM Answers "
@@ -249,6 +255,7 @@ abstract class DataManager {
 			UUID ID;
 			Date date;
 			boolean isPinned = false;
+			Answer solvedAnswer = null;
 			if(isQuestionMode) {
 				title = rs.getString("Title");
 				description = rs.getString("Description");
@@ -257,6 +264,8 @@ abstract class DataManager {
 				date = rs.getTimestamp("TimePosted");
 				isPinned = rs.getInt("IsPinned") == 1;
 				tag = rs.getString("Tag");
+				String solvedAnswerId = rs.getString("SolvedAnswerId");
+				solvedAnswer = (solvedAnswerId == null) ? null : (new Answer(UUID.fromString(solvedAnswerId)));
 			} else {
 				description = rs.getString("Answer");
 				answerer = new User(rs.getString("Answerer"), false);
@@ -289,7 +298,7 @@ abstract class DataManager {
 					answerCount = rs4.getInt("AnswerCount");
 				}
 				
-				post = new Question(title, description, author, ID, date, votes, currentUserVote, answerCount, isPinned, tag);
+				post = new Question(title, description, author, ID, date, votes, currentUserVote, answerCount, isPinned, tag, solvedAnswer);
 			} else {
 				post = new Answer(description, answerer, question, ID, date, votes, currentUserVote);			
 			}
@@ -391,7 +400,10 @@ abstract class DataManager {
 		);
 	}
 	
-	
+	static void markSolved(Question question, Answer answer) {
+		executeUpdateQuery("UPDATE Questions SET SolvedAnswerId = %s WHERE Id = '%s';",
+				answer == null ? "NULL" : "'" + answer.getID() + "'", question.getID());
+	}
 	
 	/**Execute an update-query with no return value.<br>
 	 * Example queries: <code> INSERT INTO, UPDATE, DELETE FROM, ...</code>

@@ -92,9 +92,8 @@
 }
 
 #tagLabel {
-	-fx-font-size: 16px;
+	-fx-font-size: 20px;
 	-fx-font-family: Verdana;
-	-fx-font-weight: bold;
 }
 
 #pinnedQuestionTitleLabel,
@@ -142,6 +141,7 @@
 	-fx-graphic: url("/com/qrequest/resources/images/pin_dark.png");
 }
 
+#markSolvedButton:selected,
 #pinButton:selected {
     -fx-background-color: #538D00;
 }
@@ -150,7 +150,24 @@
 	-fx-graphic: url("/com/qrequest/resources/images/report_dark.png");
 }
 
+#markSolvedButton {
+	-fx-graphic: url("/com/qrequest/resources/images/marksolved_dark.png");
+}
+
+#markedSolvedLabel {
+	-fx-font-size: 20px;
+	-fx-text-fill: #6bb500;
+}
+
+
 #noResultsLabel {
 	-fx-font-size: 15px;
 	-fx-font-family: Verdana;
+	
 }
+
+.tooltip {
+	-fx-font-size: 14px;        
+	-fx-font-weight: normal;
+	-fx-font-style: normal;
+}  

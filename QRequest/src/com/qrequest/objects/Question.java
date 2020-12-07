@@ -19,6 +19,8 @@ public class Question extends Post {
 	
 	private Tag tag;
 	
+	private Answer solvedAnswer;
+	
 	/**Builds a Question object without a date for putting into the database, which assigns the time posted.
 	 * @param title The question or the question's title.
 	 * @param description The question or the question's title.
@@ -41,12 +43,13 @@ public class Question extends Post {
 	 * @param currentUserVote The current user's vote on this <code>Answer</code>, can be -1, 0, +1.
 	 * @param answerCount The number of answers this question has.
 	 */
-	public Question(String title, String description, User author, UUID id, Date timePosted, int votes, int currentUserVote, int answerCount, boolean isPinned, String tagName) {
+	public Question(String title, String description, User author, UUID id, Date timePosted, int votes, int currentUserVote, int answerCount, boolean isPinned, String tagName, Answer solvedAnswer) {
 		super(description, author, id, timePosted, votes, currentUserVote);
 		this.title = title;
 		this.answerCount = answerCount;
 		this.isPinned = isPinned;
 		this.tag = Tag.getEnum(tagName);
+		this.solvedAnswer = solvedAnswer;
 	}
 	
 	/**Builds a question with just an ID
@@ -80,5 +83,17 @@ public class Question extends Post {
 	
 	public void setTag(Tag tag) {
 		this.tag = tag;
+	}
+	
+	public Answer getSolvedAnswer() {
+		return solvedAnswer;
+	}
+	
+	public boolean hasSolvedAnswer() {
+		return solvedAnswer != null;
+	}
+	
+	public void setSolvedAnswer(Answer solvedAnswer) {
+		this.solvedAnswer = solvedAnswer;
 	}
 }

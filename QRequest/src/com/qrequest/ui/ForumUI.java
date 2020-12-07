@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import com.qrequest.control.GetAnswerControl;
 import com.qrequest.control.GetQuestionControl;
 import com.qrequest.control.LoginControl;
+import com.qrequest.control.MarkSolvedControl;
 import com.qrequest.control.PinQuestionControl;
 import com.qrequest.control.ReportPostControl;
 import com.qrequest.control.SearchQuestionControl;
@@ -57,7 +58,9 @@ public class ForumUI {
 		FRONT_PAGE, 
 		
 		/**Represents the state where the program is viewing an individual question & all of its answers.*/
-		QUESTION_VIEWER
+		QUESTION_VIEWER,
+		
+		SEARCH_PAGE
 	};
 	
 	/**The current mode that the forum is in. Front page is default.*/
@@ -167,6 +170,8 @@ public class ForumUI {
 	private void searchQuestionsBtnPress() {
 		QuestionSearchFilters filters = PopupUI.displaySearchQuestionsDialog();
 		if(filters != null) {
+			currentMode = Mode.SEARCH_PAGE;
+			populateToolbar();
 			createQuestionsList(SearchQuestionControl.searchQuestions(filters));
 		}
 	}
@@ -189,18 +194,18 @@ public class ForumUI {
 			bottomBar.getItems().addAll(askQuestionBtn, searchUsersBtn, searchQuestionsBtn);
 			
 			
-			
-			
-			
 		} else {//If the app is in the question viewer, display these buttons on the bottomBar:
 			Button backBtn = new Button("\u25C0 Go back");
 			backBtn.setOnAction(e -> processBackButtonPress());
 			bottomBar.getItems().add(backBtn);
 			
-			Button postAnswerBtn = new Button("\u2795 Answer question");
-			postAnswerBtn.setOnAction(e -> processPostAnswerButtonPress());
-			
-			bottomBar.getItems().addAll(postAnswerBtn);
+			if(currentMode == Mode.QUESTION_VIEWER) {
+				Button postAnswerBtn = new Button("\u2795 Answer question");
+				postAnswerBtn.setOnAction(e -> processPostAnswerButtonPress());
+				
+				
+				bottomBar.getItems().addAll(postAnswerBtn, searchQuestionsBtn);
+			}
 			
 		}
 		//Always display this button on the bottomBar:
@@ -257,7 +262,7 @@ public class ForumUI {
 	private void refresh() {
 		if(currentMode == Mode.FRONT_PAGE) {
 			createQuestionsList(GetQuestionControl.getAllQuestions());
-		} else {
+		} else if(currentMode == Mode.QUESTION_VIEWER) {
 			blowupQuestion(currentQuestion);
 		}
 	}
@@ -478,7 +483,7 @@ public class ForumUI {
 		
 		Label authorLabel = new Label("Posted " + question.getTimePosted() + " by " + question.getAuthor().getUsername());
 		authorLabel.setPadding(new Insets(10, 0, 10, 20));
-		authorLabel.setMinWidth(WINDOW_WIDTH * 0.45);
+		//authorLabel.setMinWidth(WINDOW_WIDTH * 0.45);
 		authorLabel.setMaxWidth(WINDOW_WIDTH * 0.45);
 		authorLabel.setWrapText(true);
 		GridPane.setConstraints(authorLabel, 1, 1);
@@ -489,6 +494,17 @@ public class ForumUI {
 		answersCountLabel.setMaxWidth(WINDOW_WIDTH * 0.18);
 		answersCountLabel.setWrapText(true);
 		GridPane.setConstraints(answersCountLabel, 1, 2);
+		
+		if(question.hasSolvedAnswer()) {
+			Label markedSolvedLabel = new Label("\u2714");
+			markedSolvedLabel.setId("markedSolvedLabel");
+			markedSolvedLabel.setTooltip(new Tooltip("This question has been answered"));
+			markedSolvedLabel.setPadding(new Insets(0, 0, 0, 10));
+			markedSolvedLabel.setMaxHeight(1);
+			
+			innerInnerPostPane.add(markedSolvedLabel, 0, 1);
+		}
+		
 		
 		innerInnerPostPane.getChildren().addAll(tagLabel, questionTitleLabel, authorLabel, answersCountLabel);
 		
@@ -651,7 +667,7 @@ public class ForumUI {
 				questionTitleLabel.setId("questionTitleLabel");
 			}
 			questionTitleLabel.setMouseTransparent(true);
-			questionTitleLabel.setPadding(new Insets(0, 0, 0, 30));
+			questionTitleLabel.setPadding(new Insets(0, 0, 0, 40));
 			questionTitleLabel.setMaxWidth(WINDOW_WIDTH * 0.65);
 			questionTitleLabel.setMinWidth(WINDOW_WIDTH * 0.65);
 			questionTitleLabel.setWrapText(true);
@@ -677,6 +693,23 @@ public class ForumUI {
 		GridPane.setConstraints(descriptionLabel, 0, 4);
 		
 		innerInnerPostPane.getChildren().addAll(authorLabel, descriptionLabel);
+		
+		Label markedSolvedLabel = new Label();
+		if(post.isAnswer()) {
+			Answer solvedAnswer = ((Answer)post).getQuestion().getSolvedAnswer();		
+			if(solvedAnswer != null && solvedAnswer.getID().equals(post.getID())) {
+				markedSolvedLabel.setText("\u2714");
+				markedSolvedLabel.setId("markedSolvedLabel");
+				markedSolvedLabel.setTooltip(new Tooltip("This answer is what the asker was looking for"));
+				//markedSolvedLabel.setPadding(new Insets(0, 0, 0, 10));
+				//markedSolvedLabel.setMinWidth(WINDOW_WIDTH * 0.18);
+				markedSolvedLabel.setWrapText(true);
+				VBox symbolsBox = new VBox(markedSolvedLabel);
+				symbolsBox.setPadding(new Insets(0, 20, 0, 0));
+				symbolsBox.setAlignment(Pos.CENTER);
+				innerPostPane.setRight(symbolsBox);
+			}
+		}
 		
 		VBox buttonPane = new VBox(10);
 		buttonPane.setPadding(new Insets(5, 5, 5, 5));
@@ -712,6 +745,36 @@ public class ForumUI {
 			buttonPane.getChildren().addAll(editButton, deleteButton);
 			
 		} else {
+			
+			
+			
+			if(post.isAnswer() //If the post is an answer
+					&& ((Answer)post).getQuestion().getAuthor().getUsername().equals(LoginControl.getUser().getUsername()) //AND the answer's question is yours
+					&& !post.getAuthor().getUsername().equals(LoginControl.getUser().getUsername())) { //and the answer isn't yours
+				
+				ToggleButton markSolvedButton = new ToggleButton();
+				Answer solvedAnswer = ((Answer)post).getQuestion().getSolvedAnswer();
+				if(solvedAnswer != null && solvedAnswer.getID().equals(post.getID())) {
+					markSolvedButton.setSelected(true);
+				}
+				markSolvedButton.setPrefSize(30, 30);
+				markSolvedButton.setId("markSolvedButton");
+				markSolvedButton.setTooltip(new Tooltip("Mark as solved"));
+				markSolvedButton.setOnAction(e -> {
+					if(markSolvedButton.isSelected()) {
+						MarkSolvedControl.markSolved(((Answer)post).getQuestion(), (Answer)post);
+						refresh();
+					} else {
+						MarkSolvedControl.markSolved(((Answer)post).getQuestion(), null);
+						markedSolvedLabel.setVisible(false);
+					}						
+					
+				});
+				
+				buttonPane.getChildren().add(markSolvedButton);
+			}		
+			
+			
 			Button reportButton = new Button();
 			reportButton.setPrefSize(30, 30);
 			reportButton.setId("reportButton");

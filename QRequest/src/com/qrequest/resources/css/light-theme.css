@@ -46,9 +46,8 @@ list-cell:even,
 }
 
 #tagLabel {
-	-fx-font-size: 16px;
+	-fx-font-size: 20px;
 	-fx-font-family: Verdana;
-	-fx-font-weight: bold;
 }
 
 #pinnedQuestionTitleLabel,
@@ -96,6 +95,11 @@ list-cell:even,
 	-fx-graphic: url("/com/qrequest/resources/images/pin_light.png");
 }
 
+#markSolvedButton:selected {
+	-fx-graphic: url("/com/qrequest/resources/images/marksolved_dark.png");
+}
+
+#markSolvedButton:selected,
 #pinButton:selected {
     -fx-background-color: #538D00;
 }
@@ -104,7 +108,23 @@ list-cell:even,
 	-fx-graphic: url("/com/qrequest/resources/images/report_light.png");
 }
 
+#markSolvedButton {
+	-fx-graphic: url("/com/qrequest/resources/images/marksolved_light.png");
+}
+
+#markedSolvedLabel {
+	-fx-font-size: 20px;
+	-fx-text-fill: #538D00;
+}
+
 #noResultsLabel {
 	-fx-font-size: 15px;
 	-fx-font-family: Verdana;
 }
+
+.tooltip {
+	-fx-font-size: 14px;        
+	-fx-font-weight: normal;
+	-fx-font-style: normal;
+}  
+

@@ -9,6 +9,10 @@ public class Answer extends Post{
 	/**The question that this answer is posted to.*/
 	private Question question;
 	
+	public Answer(UUID id) {
+		super(id);
+	}
+	
 	/**Create an Answer object for the first time, used in PopupUI when creating a question.
 	 * @param answer The answer as a <code>String</code>.
 	 * @param answerer The <code>User</code> who created this answer.

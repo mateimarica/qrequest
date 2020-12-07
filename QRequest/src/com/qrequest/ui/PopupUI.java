@@ -25,6 +25,7 @@ import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonBar.ButtonData;
 import javafx.scene.control.ButtonType;
+import javafx.scene.control.CheckBox;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Dialog;
 import javafx.scene.control.DialogPane;
@@ -324,19 +325,25 @@ public class PopupUI {
 		gridPane.setPadding(new Insets(20, 10, 10, 10));
 
 		TextField titleField = new TextField();
-		titleField.setPromptText("Question title");
+		titleField.setPromptText("Keywords");
 		titleField.setPrefWidth(300);
 		gridPane.add(titleField, 0, 0);
 		
 		ComboBox<Tag> tagTypeBox = new ComboBox<>();	
-		tagTypeBox.setPromptText("Question tag");
+		tagTypeBox.setPromptText("Tag...");
 		Tag[] tagTypes = Tag.values();
 		for(int i = 0; i < tagTypes.length; i++) {
 			tagTypeBox.getItems().add(tagTypes[i]);
 		}
 		gridPane.add(tagTypeBox, 0, 1);
 		
-
+		
+		ComboBox<String> hasBeenAnsweredBox = new ComboBox<>();
+		hasBeenAnsweredBox.setPromptText("Has been answered?");
+		hasBeenAnsweredBox.getItems().addAll("Either", "Yes", "No");
+		gridPane.add(hasBeenAnsweredBox, 0, 2);
+		/*CheckBox hasBeenAnsweredBox = new CheckBox("Has solved answer");
+		gridPane.add(hasBeenAnsweredBox, 0, 2);*/
 
 		// Set the button types.
 		ButtonType searchBtnType = new ButtonType("Search Questions", ButtonData.RIGHT);
@@ -345,7 +352,7 @@ public class PopupUI {
 		final Button searchBtn = (Button)dialog.getDialogPane().lookupButton(searchBtnType);
 		searchBtn.addEventFilter(ActionEvent.ACTION, event -> {
 
-			if (titleField.getText().length() == 0 && tagTypeBox.getSelectionModel().isEmpty()) {
+			if (titleField.getText().length() == 0 && tagTypeBox.getSelectionModel().isEmpty() && hasBeenAnsweredBox.getSelectionModel().isEmpty()) {
 			   displayErrorDialog("Error Searching", "Must enter title or select a tag.");
 			   event.consume(); //make it so the dialog does not close
 			   return;
@@ -356,7 +363,7 @@ public class PopupUI {
 		dialogPane.setContent(gridPane);
 
 		if(dialog.showAndWait().get().equals(searchBtnType)) {
-			return new QuestionSearchFilters(titleField.getText(), tagTypeBox.getValue());
+			return new QuestionSearchFilters(titleField.getText(), tagTypeBox.getValue(), hasBeenAnsweredBox.getValue());
 		}
 		return null;
 	}
