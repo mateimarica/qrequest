@@ -45,3 +45,11 @@ CREATE TABLE `Reports` (
   PRIMARY KEY (`ReportId`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1
 
+CREATE TABLE `Messages` (
+  `Sender` varchar(10) DEFAULT NULL,
+  `Receiver` varchar(10) DEFAULT NULL,
+  `Body` text,
+  `TimePosted` datetime DEFAULT NULL,
+  PRIMARY KEY (`Sender`)
+)
+
