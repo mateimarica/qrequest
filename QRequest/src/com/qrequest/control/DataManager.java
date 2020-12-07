@@ -325,6 +325,34 @@ abstract class DataManager {
 				+ " WHERE Id = '" + question.getID() +"';");
 	}
 	
+	/**Updated a post's description in the database.
+	 * @param post The <code>Post</code> object with the updated description.
+	 */
+	static void editPost(Post post) {
+		String desc = post.getDescription().replaceAll("'", "''");
+
+		if(post.isQuestion()) {
+			executeUpdateQuery("UPDATE Questions SET Description = "
+					+ "'" + desc + "' WHERE Id = '" + post.getID() + "';");
+		} else {
+			executeUpdateQuery("UPDATE Answers SET Answer = "
+					+ "'" + desc + "' WHERE Id = '" + post.getID() + "';");
+		}
+
+	}
+
+	/**Deletes a question from the database.
+	 * @param question The question being deleted.
+	 */
+	static void deletePost(Post post) {
+			if(post.isQuestion()) { //If the post if a Question:
+				executeUpdateQuery("DELETE FROM Questions WHERE Id = '" + post.getID() + "';");
+				executeUpdateQuery("DELETE FROM Answers WHERE QuestionId = '" + post.getID() + "';");
+			} else { //If the post if an Answer:
+				executeUpdateQuery("DELETE FROM Answers WHERE Id = '" + post.getID() + "';");
+			}
+	}
+	
 	static void reportPost(Report report) {
 		executeUpdateQuery(
 				"INSERT INTO Reports VALUES('%s', '%s', CURRENT_TIMESTAMP, '%s', '%s', '%s');",

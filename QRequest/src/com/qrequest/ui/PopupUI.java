@@ -194,7 +194,6 @@ public class PopupUI {
 		searchUsersBtn.setOnAction(e->searchButtonPress(usersView, searchField));
 		usersView.setOnMouseClicked(event -> {
 		    	if(event.getClickCount() == 2){
-		    		System.out.println("lmao");
 		    		System.out.println(usersView.getSelectionModel());
 		    	}
 		    });
@@ -225,6 +224,57 @@ public class PopupUI {
 		}
 	}
 	
+	/**Displays a pop-up window that gives the user the option to edit their own post <i>description</i>.
+	 * @param post The post being edited.
+	 * @return <code>true</code> if the <code>Post</code> object's description was edited, <code>false</code> if the user canceled.
+	 */
+	public static boolean displayEditPostDialog(Post post) {
+
+		String postType = post.getPostType();
+
+		// Create the custom dialog.
+		Dialog dialog = new Dialog();
+		dialog.setTitle("Edit " + postType);
+
+		setupDialogStyling(dialog);
+
+		GridPane gridPane = new GridPane();
+		gridPane.setHgap(10);
+		gridPane.setVgap(10);
+		// top, right, bottom, left padding
+		gridPane.setPadding(new Insets(20, 10, 10, 10));
+
+		TextArea descField = new TextArea();
+		descField.setText(post.getDescription());
+		descField.setMaxSize(400, 400);
+		descField.setWrapText(true);
+		gridPane.add(descField, 0, 0);
+
+
+		// Set the button types.
+		ButtonType confirmBtnType = new ButtonType("Confirm", ButtonData.RIGHT);
+		dialog.getDialogPane().getButtonTypes().addAll(confirmBtnType, ButtonType.CANCEL);
+
+		final Button confirmBtn = (Button)dialog.getDialogPane().lookupButton(confirmBtnType);
+		confirmBtn.addEventFilter(ActionEvent.ACTION, event -> {
+
+			if (descField.getText().length() > MAX_DESC_LENGTH) {
+			   displayWarningDialog("Error Editing " + postType, "Description is too long.");
+			   event.consume(); //make it so the dialog does not close
+			   return;
+		   }
+		});
+
+		DialogPane dialogPane = dialog.getDialogPane();
+		dialogPane.setContent(gridPane);
+
+		if(dialog.showAndWait().get().equals(confirmBtnType)) {
+			post.setDescription(descField.getText());
+			return true;
+		}
+		return false;
+	}
+
 	
 	/**Displays a pop-up window that gives the option for the user to post an answer to a question.
 	 * @param question The question being answered.
@@ -343,6 +393,8 @@ public class PopupUI {
 		}
 		return null;
 	}
+	
+	
 	
 	private static void setupDialogStyling(Dialog dialog) {
 		//Set the icon for the popup

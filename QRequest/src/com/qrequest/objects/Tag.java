@@ -4,13 +4,19 @@ package com.qrequest.objects;
  */
 
 public class Tag {
+	private Tag() {}
 	
-	public static String[] tagTypes = {
-			"Philosophy", 
+	
+	public static String[] TAG_TYPES = {
 			"Science", 
-			"Woodworking",
-			"Programming",
-			"Puberty"
+			"Manual Labour",
+			"Computer Science",
+			"Literature",
+			"Sports",
+			"Music",
+			"Human Anatomy",
+			"Food",
+			"Other"
 	};
 	
 	
