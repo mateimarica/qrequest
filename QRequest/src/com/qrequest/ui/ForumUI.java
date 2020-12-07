@@ -45,7 +45,7 @@ public class ForumUI {
 	private ListView<BorderPane> postList;
 	
 	/**The dimensions of the window. Don't change this*/
-	private final int WINDOW_HEIGHT = 700, WINDOW_WIDTH = 800;
+	private final int WINDOW_HEIGHT = 700, WINDOW_WIDTH = 800; 
 	
 	/**Enumerator defining which "mode" the forum is in.*/
 	private enum Mode {
