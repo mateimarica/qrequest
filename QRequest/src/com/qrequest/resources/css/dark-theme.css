@@ -91,6 +91,12 @@
     -fx-background-color: #8D1900;
 }
 
+#tagLabel {
+	-fx-font-size: 16px;
+	-fx-font-family: Verdana;
+	-fx-font-weight: bold;
+}
+
 #pinnedQuestionTitleLabel,
 #questionTitleLabel {
 	-fx-font-size: 15px;

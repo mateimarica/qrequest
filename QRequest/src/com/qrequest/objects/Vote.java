@@ -25,6 +25,7 @@ public class Vote {
 		public int getValue() {
 			return value;
 		}
+		
 	};
 	
 	/**The post that was voted on.*/

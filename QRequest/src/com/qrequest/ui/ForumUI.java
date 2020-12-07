@@ -8,6 +8,7 @@ import com.qrequest.control.GetQuestionControl;
 import com.qrequest.control.LoginControl;
 import com.qrequest.control.PinQuestionControl;
 import com.qrequest.control.ReportPostControl;
+import com.qrequest.control.SearchQuestionControl;
 import com.qrequest.control.CreateAnswerControl;
 import com.qrequest.control.CreateQuestionControl;
 import com.qrequest.control.DeletePostControl;
@@ -18,6 +19,7 @@ import com.qrequest.objects.Answer;
 import com.qrequest.objects.Credentials;
 import com.qrequest.objects.Post;
 import com.qrequest.objects.Question;
+import com.qrequest.objects.QuestionSearchFilters;
 import com.qrequest.objects.Report;
 import com.qrequest.objects.Vote;
 import com.qrequest.objects.Vote.VoteType;
@@ -72,6 +74,9 @@ public class ForumUI {
 	
 	/**Button to search for users*/
 	private Button searchUsersBtn;
+	
+	/**Button to search for users*/
+	private Button searchQuestionsBtn;
 	
 	/**Button to refresh the current post list*/
 	private Button refreshBtn;
@@ -135,10 +140,19 @@ public class ForumUI {
 		accountMenu.getItems().add(logoutItem);
 		
 		Menu optionsMenu = new Menu("Options");
+		
+		/*Menu sortOptionItem = new Menu("Sort");
+		MenuItem sortByTagItem = new MenuItem("By tag");
+		MenuItem sortByTitleItem = new MenuItem("By title");
+		MenuItem sortByVotesItem = new MenuItem("By votes");
+		MenuItem sortByTimeItem = new MenuItem("By time posted");
+		sortOptionItem.getItems().addAll(sortByTagItem, sortByTitleItem, sortByVotesItem, sortByTimeItem);
+		optionsMenu.getItems().addAll(sortOptionItem);*/
+		
 		CheckMenuItem darkModeItem = new CheckMenuItem("Dark mode");
 		darkModeItem.setOnAction(e -> themeChanged(darkModeItem.isSelected()));
 		darkModeItem.setSelected(ThemeHelper.isDarkModeEnabled());
-		optionsMenu.getItems().add(darkModeItem);
+		optionsMenu.getItems().addAll(darkModeItem);
 		
 		menuBar.getMenus().addAll(accountMenu, optionsMenu);
 		root.setTop(menuBar);
@@ -147,6 +161,14 @@ public class ForumUI {
 	/**Called when the Search Users button is pressed. Triggers a pop-up window*/
 	private void searchUsersBtnPress() {
 		PopupUI.displaySearchUsersDialog();
+	}
+	
+
+	private void searchQuestionsBtnPress() {
+		QuestionSearchFilters filters = PopupUI.displaySearchQuestionsDialog();
+		if(filters != null) {
+			createQuestionsList(SearchQuestionControl.searchQuestions(filters));
+		}
 	}
 	
 	/**Populates the bottom toolBar and places at the bottom of the root BorderPane. */
@@ -160,7 +182,14 @@ public class ForumUI {
 			
 			searchUsersBtn = new Button("\uD83D\uDC64 Search Users");
 			searchUsersBtn.setOnAction(e -> searchUsersBtnPress());
-			bottomBar.getItems().addAll(askQuestionBtn, searchUsersBtn);
+			
+			searchQuestionsBtn = new Button("\uD83D\uDD0D Search Questions");
+			searchQuestionsBtn.setOnAction(e -> searchQuestionsBtnPress());
+			
+			bottomBar.getItems().addAll(askQuestionBtn, searchUsersBtn, searchQuestionsBtn);
+			
+			
+			
 			
 			
 		} else {//If the app is in the question viewer, display these buttons on the bottomBar:
@@ -227,7 +256,7 @@ public class ForumUI {
 	 */
 	private void refresh() {
 		if(currentMode == Mode.FRONT_PAGE) {
-			createQuestionsList();
+			createQuestionsList(GetQuestionControl.getAllQuestions());
 		} else {
 			blowupQuestion(currentQuestion);
 		}
@@ -243,9 +272,9 @@ public class ForumUI {
 	}
 	
 	/**Displays a list of questions in the postList.*/
-	private void createQuestionsList() {
+	private void createQuestionsList(ArrayList<Question> questionList) {
 		postList.getItems().clear();
-		ArrayList<Question> questionList = GetQuestionControl.getAllQuestions();
+		
         
 		for(int i = 0; i < questionList.size(); i++) {
 			postList.getItems().add(buildQuestionPane(questionList.get(i)));
@@ -420,40 +449,46 @@ public class ForumUI {
 			}
 		});
 		
-
+		GridPane innerInnerPostPane = new GridPane();
+		innerInnerPostPane.setPadding(new Insets(5, 10, 10, 10)); //top, right, bottom, left
+		//innerInnerPostPane.setGridLinesVisible(true);
+		innerPostPane.setCenter(innerInnerPostPane);
+		
+		Label tagLabel = new Label(question.getTag().getSymbol());
+		tagLabel.setTooltip(new Tooltip(question.getTag().getDescription()));
+		tagLabel.setId("tagLabel");
+		tagLabel.setMinWidth(WINDOW_WIDTH * 0.03);
+		tagLabel.setPadding(new Insets(0, 0, 0, 10));
+		GridPane.setConstraints(tagLabel, 0, 0);
+		
 		Label questionTitleLabel = new Label(question.getTitle());
 		questionTitleLabel.setId(question.isPinned() ? "pinnedQuestionTitleLabel" : "questionTitleLabel");
 		questionTitleLabel.setPadding(new Insets(0, 0, 0, 10));
 		questionTitleLabel.setMaxWidth(WINDOW_WIDTH * 0.65);
 		questionTitleLabel.setMinWidth(WINDOW_WIDTH * 0.65);
 		questionTitleLabel.setWrapText(true);
-		
+		GridPane.setConstraints(questionTitleLabel, 1, 0);
 		
 		questionTitleLabel.setOnMouseClicked(e -> {
 			currentQuestion = question;
 			blowupQuestion(question);
 		});
 		
-		GridPane innerInnerPostPane = new GridPane();
-		innerInnerPostPane.setPadding(new Insets(5, 10, 10, 10)); //top, right, bottom, left
-		GridPane.setConstraints(questionTitleLabel, 0, 0);
-		innerPostPane.setCenter(innerInnerPostPane);
-		
 		Label authorLabel = new Label("Posted " + question.getTimePosted() + " by " + question.getAuthor().getUsername());
 		authorLabel.setPadding(new Insets(10, 0, 10, 20));
 		authorLabel.setMinWidth(WINDOW_WIDTH * 0.45);
 		authorLabel.setMaxWidth(WINDOW_WIDTH * 0.45);
 		authorLabel.setWrapText(true);
-		GridPane.setConstraints(authorLabel, 0, 1);
+		GridPane.setConstraints(authorLabel, 1, 1);
 		
 		Label answersCountLabel = new Label(question.getAnswerCount() + " responses");
 		answersCountLabel.setPadding(new Insets(0, 0, 0, 20));
 		answersCountLabel.setMinWidth(WINDOW_WIDTH * 0.18);
 		answersCountLabel.setMaxWidth(WINDOW_WIDTH * 0.18);
 		answersCountLabel.setWrapText(true);
-		GridPane.setConstraints(answersCountLabel, 0, 2);
+		GridPane.setConstraints(answersCountLabel, 1, 2);
 		
-		innerInnerPostPane.getChildren().addAll(questionTitleLabel, authorLabel, answersCountLabel);
+		innerInnerPostPane.getChildren().addAll(tagLabel, questionTitleLabel, authorLabel, answersCountLabel);
 		
 		
 		
@@ -600,20 +635,26 @@ public class ForumUI {
 		
 		
 		if(isQuestion) {
+			Label tagLabel = new Label(((Question)post).getTag().getSymbol());
+			tagLabel.setTooltip(new Tooltip(((Question)post).getTag().getDescription()));
+			tagLabel.setId("tagLabel");
+			tagLabel.setMinWidth(WINDOW_WIDTH * 0.03);
+			tagLabel.setPadding(new Insets(0, 0, 0, 10));
+			GridPane.setConstraints(tagLabel, 0, 0);
+			
 			Label questionTitleLabel = new Label(((Question)post).getTitle());
 			if(((Question)post).isPinned()) {
 				questionTitleLabel.setId("pinnedQuestionTitleLabel");
-			}
-			else {
+			} else {
 				questionTitleLabel.setId("questionTitleLabel");
 			}
 			questionTitleLabel.setMouseTransparent(true);
-			questionTitleLabel.setPadding(new Insets(0, 0, 0, 10));
+			questionTitleLabel.setPadding(new Insets(0, 0, 0, 30));
 			questionTitleLabel.setMaxWidth(WINDOW_WIDTH * 0.65);
 			questionTitleLabel.setMinWidth(WINDOW_WIDTH * 0.65);
 			questionTitleLabel.setWrapText(true);
 			GridPane.setConstraints(questionTitleLabel, 0, 0);
-			innerInnerPostPane.getChildren().add(questionTitleLabel);
+			innerInnerPostPane.getChildren().addAll(tagLabel, questionTitleLabel);
 		}
 	
 		

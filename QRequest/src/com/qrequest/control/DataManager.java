@@ -14,8 +14,10 @@ import com.qrequest.objects.Answer;
 import com.qrequest.objects.Credentials;
 import com.qrequest.objects.Post;
 import com.qrequest.objects.Question;
+import com.qrequest.objects.QuestionSearchFilters;
 import com.qrequest.objects.Report;
 import com.qrequest.objects.ResultSetWrapper;
+import com.qrequest.objects.Tag;
 import com.qrequest.objects.User;
 import com.qrequest.objects.Vote;
 
@@ -115,8 +117,8 @@ abstract class DataManager {
 		String title = question.getTitle().replaceAll("'", "''");
 		String desc = question.getDescription().replaceAll("'", "''");
 		
-		executeUpdateQuery("INSERT INTO Questions VALUES('%s', '%s', '%s', '%s', CURRENT_TIMESTAMP, NULL, -1);",
-				title, desc, question.getAuthor(), question.getID());
+		executeUpdateQuery("INSERT INTO Questions VALUES('%s', '%s', '%s', '%s', CURRENT_TIMESTAMP, '%s', -1);",
+				title, desc, question.getAuthor(), question.getID(), question.getTag().name());
 	}
 	
 	
@@ -168,7 +170,17 @@ abstract class DataManager {
 	 * @return <code>ArrayList&ltQuestion&gt</code>
 	 */
 	static ArrayList<Question> getAllQuestions() {
-		ArrayList<Post> postList = getAllPosts(null);
+		ArrayList<Post> postList = getAllPosts(null, null);
+		ArrayList<Question> questionList = new ArrayList<>();
+		for(int i = 0; i < postList.size(); i++) {
+			questionList.add((Question)postList.get(i));
+		}
+		
+		return questionList;
+	}
+	
+	static ArrayList<Question> getFilteredQuestions(QuestionSearchFilters filters) {
+		ArrayList<Post> postList = getAllPosts(null, filters);
 		ArrayList<Question> questionList = new ArrayList<>();
 		for(int i = 0; i < postList.size(); i++) {
 			questionList.add((Question)postList.get(i));
@@ -182,7 +194,7 @@ abstract class DataManager {
 	 * @return<code>ArrayList&ltAnswer&gt</code>
 	 */
 	static ArrayList<Answer> getAllAnswers(Question question) {
-		ArrayList<Post> postList = getAllPosts(question);
+		ArrayList<Post> postList = getAllPosts(question, null);
 		ArrayList<Answer> answerList = new ArrayList<>();
 		for(int i = 0; i < postList.size(); i++) {
 			answerList.add((Answer)postList.get(i));
@@ -200,7 +212,7 @@ abstract class DataManager {
 	 * @param question The <code>Question</code> argument.
 	 * @return <code>ArrayList&ltPost&gt</code>
 	 */
-	private static ArrayList<Post> getAllPosts(Question question) {
+	private static ArrayList<Post> getAllPosts(Question question, QuestionSearchFilters filters) {
 		boolean isQuestionMode = question == null;
 		
 		ArrayList<Post> answerList = new ArrayList<>();
@@ -208,7 +220,14 @@ abstract class DataManager {
 		String query;
 		
 		if(isQuestionMode) {
-			query = "SELECT * FROM Questions ORDER BY IsPinned DESC, TimePosted DESC;";
+			if(filters == null) {
+				query = "SELECT * FROM Questions ORDER BY IsPinned DESC, TimePosted DESC;";
+			} else {
+				String title = filters.getTitle();
+				Tag tag = filters.getTag();
+				query = String.format("SELECT * FROM Questions WHERE Title LIKE '%%%s%%' %s ORDER BY Title DESC;",
+						title, (tag != null) ? ("AND Tag = '" + tag.name() + "'") : "");
+			}			
 		} else {
 			query = "SELECT * FROM Answers "
 					+ "WHERE QuestionId = '" + question.getID() + "'"
@@ -220,7 +239,7 @@ abstract class DataManager {
 			
 		//build Question object and put into ArrayList
 		while(rs.next()) {
-			String title = null, description;
+			String title = null, description, tag = null;
 			User author = null, answerer = null;
 			UUID ID;
 			Date date;
@@ -232,6 +251,7 @@ abstract class DataManager {
 				ID = UUID.fromString(rs.getString("Id"));
 				date = rs.getTimestamp("TimePosted");
 				isPinned = rs.getInt("IsPinned") == 1;
+				tag = rs.getString("Tag");
 			} else {
 				description = rs.getString("Answer");
 				answerer = new User(rs.getString("Answerer"), false);
@@ -264,7 +284,7 @@ abstract class DataManager {
 					answerCount = rs4.getInt("AnswerCount");
 				}
 				
-				post = new Question(title, description, author, ID, date, votes, currentUserVote, answerCount, isPinned);
+				post = new Question(title, description, author, ID, date, votes, currentUserVote, answerCount, isPinned, tag);
 			} else {
 				post = new Answer(description, answerer, question, ID, date, votes, currentUserVote);			
 			}
@@ -283,7 +303,7 @@ abstract class DataManager {
 		ArrayList<User> userList = new ArrayList<>();
 		
 		// Order by TimePosted DESCENDING so that newer posts are at the top
-		ResultSetWrapper rs = executeRetrieveQuery("SELECT * FROM Users WHERE Username LIKE '%" + username +"%';");
+		ResultSetWrapper rs = executeRetrieveQuery("SELECT * FROM Users WHERE Username LIKE '%%" + username +"%%';");
 		
 		while(rs.next()) {			
 			User user = new User(rs.getString("Username"), false);					
@@ -332,8 +352,8 @@ abstract class DataManager {
 		String desc = post.getDescription().replaceAll("'", "''");
 
 		if(post.isQuestion()) {
-			executeUpdateQuery("UPDATE Questions SET Description = "
-					+ "'" + desc + "' WHERE Id = '" + post.getID() + "';");
+			executeUpdateQuery("UPDATE Questions SET Description = '%s', Tag = '%s' WHERE Id = '%s';",
+					desc, ((Question)post).getTag().name(), post.getID());
 		} else {
 			executeUpdateQuery("UPDATE Answers SET Answer = "
 					+ "'" + desc + "' WHERE Id = '" + post.getID() + "';");
@@ -373,7 +393,9 @@ abstract class DataManager {
 	 * @param query The SQL query to be executed.
 	 */
 	private static void executeUpdateQuery(String query, Object ...args) {
-		query = String.format(query, args);
+		if(args.length != 0) {
+			query = String.format(query, args);
+		}
 		System.out.println(query);
 		Statement st;		
 		try {
@@ -396,7 +418,9 @@ abstract class DataManager {
 	 * @return The <code>ResultSetWrapper</code> that contains the query's results. Functions the same as a <code>ResultSet</code>.
 	 */
 	private static ResultSetWrapper executeRetrieveQuery(String query, Object ...args) {
-		query = String.format(query, args);
+		if(args.length != 0) {
+			query = String.format(query, args);
+		}
 		System.out.println(query);
 		Statement st;
 		try {
@@ -404,8 +428,8 @@ abstract class DataManager {
 			return new ResultSetWrapper(st.executeQuery(query));
 		} catch (SQLException e) {
 			System.err.println("SQL error in DataManager: "
-					+ "\n\t=======STACK TRACE=========\\n" + e.getStackTrace()
-					+ "\n\t=========MESSAGE===========\\n" + e.getMessage());
+					+ "\n\t=======STACK TRACE=========\n" + e.getStackTrace()
+					+ "\n\n\t=========MESSAGE===========\n" + e.getMessage());
 			System.err.flush();
 		}
 		return null;

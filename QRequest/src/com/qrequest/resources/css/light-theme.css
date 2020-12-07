@@ -1,7 +1,7 @@
 .root { 
  	-fx-accent: #868686;
  	-fx-focus-color: -fx-accent;
-    -fx-base: #B5B5B5;
+    -fx-base: #dedede;
     -fx-control-inner-background: derive(-fx-base, 35%);
     -fx-control-inner-background-alt: -fx-control-inner-background ;
 }
@@ -43,6 +43,12 @@ list-cell:even,
 
 #downvoteButton:selected {
     -fx-background-color: #8D1900;
+}
+
+#tagLabel {
+	-fx-font-size: 16px;
+	-fx-font-family: Verdana;
+	-fx-font-weight: bold;
 }
 
 #pinnedQuestionTitleLabel,

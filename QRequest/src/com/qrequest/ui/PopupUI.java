@@ -11,7 +11,9 @@ import com.qrequest.control.ThemeHelper;
 import com.qrequest.objects.Answer;
 import com.qrequest.objects.Post;
 import com.qrequest.objects.Question;
+import com.qrequest.objects.QuestionSearchFilters;
 import com.qrequest.objects.Report;
+import com.qrequest.objects.Tag;
 import com.qrequest.objects.User;
 
 import javafx.event.ActionEvent;
@@ -134,6 +136,13 @@ public class PopupUI {
 		descField.setWrapText(true);
 		gridPane.add(descField, 0, 1);
 		
+		ComboBox<Tag> tagTypeBox = new ComboBox<>();	
+		tagTypeBox.setPromptText("Select a tag for your question");
+		Tag[] tagTypes = Tag.values();
+		for(int i = 0; i < tagTypes.length; i++) {
+			tagTypeBox.getItems().add(tagTypes[i]);
+		}
+		gridPane.add(tagTypeBox, 0, 2);
 		
 		// Set the button types.
 		ButtonType postQuestionBtnType = new ButtonType("Post Question", ButtonData.RIGHT);
@@ -148,18 +157,26 @@ public class PopupUI {
 			   displayWarningDialog("Error Posting Question", "Questions must be 8 to 200 characters in length.");
 			   event.consume(); //make it so the dialog does not close
 			   return;
-			} else if (descField.getText().length() > MAX_DESC_LENGTH) {
+			}
+			if (descField.getText().length() > MAX_DESC_LENGTH) {
 			   displayWarningDialog("Error Posting Question", "Questions must be " + MAX_DESC_LENGTH + " characters or fewer.");
 			   event.consume(); //make it so the dialog does not close
 			   return;
 		   }
+			
+			if(tagTypeBox.getSelectionModel().isEmpty()) {
+				 displayWarningDialog("Error Posting Question", "Must select a tag.");
+				event.consume(); //make it so the dialog does not close
+				return;
+			}
 		});
 		
 		DialogPane dialogPane = dialog.getDialogPane();
 		dialogPane.setContent(gridPane);
 		
 		if(dialog.showAndWait().get().equals(postQuestionBtnType)) {
-			return new Question(titleField.getText(), descField.getText(), LoginControl.getUser());
+			
+			return new Question(titleField.getText(), descField.getText(), LoginControl.getUser(), tagTypeBox.getValue());
 		}
 		return null;
 	}
@@ -249,6 +266,17 @@ public class PopupUI {
 		descField.setMaxSize(400, 400);
 		descField.setWrapText(true);
 		gridPane.add(descField, 0, 0);
+		
+		ComboBox<Tag> tagTypeBox = null;
+		if(post.isQuestion()) {
+			tagTypeBox = new ComboBox<>();	
+			tagTypeBox.getSelectionModel().select(((Question)post).getTag());
+			Tag[] tagTypes = Tag.values();
+			for(int i = 0; i < tagTypes.length; i++) {
+				tagTypeBox.getItems().add(tagTypes[i]);
+			}
+			gridPane.add(tagTypeBox, 0, 1);
+		}
 
 
 		// Set the button types.
@@ -270,9 +298,67 @@ public class PopupUI {
 
 		if(dialog.showAndWait().get().equals(confirmBtnType)) {
 			post.setDescription(descField.getText());
+			
+			if(post.isQuestion()) {
+				((Question)post).setTag(tagTypeBox.getValue());
+			}
+			
 			return true;
 		}
 		return false;
+	}
+	
+
+	public static QuestionSearchFilters displaySearchQuestionsDialog() {
+
+		// Create the custom dialog.
+		Dialog dialog = new Dialog();
+		dialog.setTitle("Search Questions");
+
+		setupDialogStyling(dialog);
+
+		GridPane gridPane = new GridPane();
+		gridPane.setHgap(10);
+		gridPane.setVgap(10);
+		// top, right, bottom, left padding
+		gridPane.setPadding(new Insets(20, 10, 10, 10));
+
+		TextField titleField = new TextField();
+		titleField.setPromptText("Question title");
+		titleField.setPrefWidth(300);
+		gridPane.add(titleField, 0, 0);
+		
+		ComboBox<Tag> tagTypeBox = new ComboBox<>();	
+		tagTypeBox.setPromptText("Question tag");
+		Tag[] tagTypes = Tag.values();
+		for(int i = 0; i < tagTypes.length; i++) {
+			tagTypeBox.getItems().add(tagTypes[i]);
+		}
+		gridPane.add(tagTypeBox, 0, 1);
+		
+
+
+		// Set the button types.
+		ButtonType searchBtnType = new ButtonType("Search Questions", ButtonData.RIGHT);
+		dialog.getDialogPane().getButtonTypes().addAll(searchBtnType, ButtonType.CANCEL);
+
+		final Button searchBtn = (Button)dialog.getDialogPane().lookupButton(searchBtnType);
+		searchBtn.addEventFilter(ActionEvent.ACTION, event -> {
+
+			if (titleField.getText().length() == 0 && tagTypeBox.getSelectionModel().isEmpty()) {
+			   displayErrorDialog("Error Searching", "Must enter title or select a tag.");
+			   event.consume(); //make it so the dialog does not close
+			   return;
+		   }
+		});
+
+		DialogPane dialogPane = dialog.getDialogPane();
+		dialogPane.setContent(gridPane);
+
+		if(dialog.showAndWait().get().equals(searchBtnType)) {
+			return new QuestionSearchFilters(titleField.getText(), tagTypeBox.getValue());
+		}
+		return null;
 	}
 
 	

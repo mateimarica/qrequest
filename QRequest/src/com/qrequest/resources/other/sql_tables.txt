@@ -1,4 +1,5 @@
 --All the commands to create the database tables
+--Last updated Dec 6, 2020
 
 CREATE TABLE `Users` (
   `Username` varchar(10) NOT NULL DEFAULT '',

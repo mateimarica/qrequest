@@ -16,7 +16,7 @@ public class TeiTime extends GregorianCalendar {
 		
 		// If less than a minute has passed, print seconds
 		if(minutesPassed == 0) {
-			return "Just now";
+			return "just now";
 		}
 		
 		// If less than an hour has passed, print minutes
