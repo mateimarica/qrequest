@@ -229,7 +229,7 @@ abstract class DataManager {
 				String keywords = filters.getKeywords();
 				Tag tag = filters.getTag();
 				Boolean hasSolvedAns = filters.hasSolvedAnswer();
-				query = String.format("SELECT * FROM Questions WHERE Title LIKE '%%%s%%' OR Description LIKE '%%%s%%' %s %s ORDER BY Title DESC;",
+				query = String.format("SELECT * FROM Questions WHERE (Title LIKE '%%%s%%' OR Description LIKE '%%%s%%') %s %s ORDER BY Title DESC;",
 						keywords, keywords,
 						(tag != null) ? ("AND Tag = '" + tag.name() + "'") : "",
 						hasSolvedAns == null ? "" : "AND SolvedAnswerId IS" + (hasSolvedAns ? " NOT" : "") + " NULL"); //yeah I know this garbage is hard to read
