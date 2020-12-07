@@ -103,3 +103,8 @@ list-cell:even,
 #reportButton {
 	-fx-graphic: url("/com/qrequest/resources/images/report_light.png");
 }
+
+#noResultsLabel {
+	-fx-font-size: 15px;
+	-fx-font-family: Verdana;
+}

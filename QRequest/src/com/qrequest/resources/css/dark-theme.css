@@ -149,3 +149,8 @@
 #reportButton {
 	-fx-graphic: url("/com/qrequest/resources/images/report_dark.png");
 }
+
+#noResultsLabel {
+	-fx-font-size: 15px;
+	-fx-font-family: Verdana;
+}

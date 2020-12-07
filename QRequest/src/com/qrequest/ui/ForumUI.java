@@ -275,11 +275,13 @@ public class ForumUI {
 	private void createQuestionsList(ArrayList<Question> questionList) {
 		postList.getItems().clear();
 		
-        
-		for(int i = 0; i < questionList.size(); i++) {
-			postList.getItems().add(buildQuestionPane(questionList.get(i)));
-		}
-        
+        if(questionList.size() == 0) {
+        	postList.getItems().add(buildEmptyPane());
+        } else {
+        	for(int i = 0; i < questionList.size(); i++) {
+    			postList.getItems().add(buildQuestionPane(questionList.get(i)));
+    		}
+        }
 	}
 	
 	/**Displays a single question and all of its answers in the postList.
@@ -727,6 +729,26 @@ public class ForumUI {
 		postPane.setRight(buttonPane);
 		
 		return postPane;
+	}
+	
+	private BorderPane buildEmptyPane() {
+		
+		BorderPane emptyPane = new BorderPane();
+		
+		String[] noResultsMsg = {"Hmm... There's nothing here.", 
+								"No results.", 
+								"Looks like your search yielded no results. Try something else?",
+								"You've stumbled upon a dead end."};
+
+		Label label = new Label(noResultsMsg[(int)(Math.random() * noResultsMsg.length)]);
+		label.setId("noResultsLabel");
+		label.setMouseTransparent(true);
+		label.setPadding(new Insets(30, 0, 30, 30));
+		label.setMaxWidth(WINDOW_WIDTH * 0.65);
+		label.setMinWidth(WINDOW_WIDTH * 0.65);
+		emptyPane.setLeft(label);
+		
+		return emptyPane;
 	}
 	
 }
