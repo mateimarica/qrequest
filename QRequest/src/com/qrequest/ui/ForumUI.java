@@ -10,6 +10,7 @@ import com.qrequest.control.LoginControl;
 import com.qrequest.control.PinQuestionControl;
 import com.qrequest.control.CreateAnswerControl;
 import com.qrequest.control.CreateQuestionControl;
+import com.qrequest.control.MessageControl;
 import com.qrequest.control.ThemeHelper;
 import com.qrequest.control.VoteControl;
 import com.qrequest.objects.Answer;
@@ -18,6 +19,7 @@ import com.qrequest.objects.Post;
 import com.qrequest.objects.Question;
 import com.qrequest.objects.Vote;
 import com.qrequest.objects.Vote.VoteType;
+import com.qrequest.objects.Message;
 
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -70,8 +72,8 @@ public class ForumUI {
 	/**Button to search for users*/
 	private Button searchUsersBtn;
 	
-	/**Button to refresh the current post list*/
-	private Button refreshBtn;
+	/**Button to open the messaging pop-up window*/
+	private Button messagingBtn;
 	
 	/**The root pane, i.e. what every JavaFX control is placed on*/
 	private BorderPane root;
@@ -155,9 +157,13 @@ public class ForumUI {
 			askQuestionBtn = new Button("\u2795 Ask a question");
 			askQuestionBtn.setOnAction(e -> processAskQuestionButtonPress());
 			
+			messagingBtn = new Button("Send a Message");
+			messagingBtn.setOnAction(e -> messagingBtnPress());
+			
 			searchUsersBtn = new Button("\uD83D\uDC64 Search Users");
 			searchUsersBtn.setOnAction(e -> searchUsersBtnPress());
-			bottomBar.getItems().addAll(askQuestionBtn, searchUsersBtn);
+			bottomBar.getItems().addAll(askQuestionBtn, searchUsersBtn, 
+					messagingBtn);
 			
 			
 		} else {//If the app is in the question viewer, display these buttons on the bottomBar:
@@ -172,7 +178,7 @@ public class ForumUI {
 			
 		}
 		//Always display this button on the bottomBar:
-		refreshBtn = new Button("\uD83D\uDDD8 Refresh");
+		Button refreshBtn = new Button("\uD83D\uDDD8 Refresh");
 		refreshBtn.setOnAction(e -> refresh());
 		bottomBar.getItems().add(refreshBtn);
 		
@@ -207,6 +213,11 @@ public class ForumUI {
 			CreateAnswerControl.processPostAnswer(newAnswer);
 			refresh();
 		}
+	}
+	
+	/**Called when the Send Message button is pressed. Triggers a pop-up window*/
+	private void messagingBtnPress() {
+		PopupUI.displayMessageDialog();
 	}
 	
 	/**Called when the user clicks "Log out" in the menu bar.<br>

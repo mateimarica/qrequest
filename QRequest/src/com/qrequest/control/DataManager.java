@@ -1,6 +1,7 @@
 package com.qrequest.control;
 
 import java.sql.Connection;
+
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -18,6 +19,10 @@ import com.qrequest.objects.ResultSetWrapper;
 import com.qrequest.objects.User;
 import com.qrequest.objects.Vote;
 
+import javafx.collections.ObservableList;
+
+import com.qrequest.objects.TeiTime;
+import com.qrequest.objects.Message;
 //class is abstract so no instances can be made - all references are to be STATIC
 //default access modifiers so ONLY control classes can access the DataManager
 /**Database manager. Only this class should connect to and access the database.
@@ -287,7 +292,7 @@ abstract class DataManager {
 		ArrayList<User> userList = new ArrayList<>();
 		
 		// Order by TimePosted DESCENDING so that newer posts are at the top
-		ResultSetWrapper rs = executeRetrieveQuery("SELECT * FROM Users WHERE Username LIKE '%" + username +"%';");
+		ResultSetWrapper rs = executeRetrieveQuery("SELECT * FROM Users WHERE Username LIKE '%%" + username +"%%';");
 		
 		while(rs.next()) {			
 			User user = new User(rs.getString("Username"), false);					
@@ -356,6 +361,34 @@ abstract class DataManager {
 			} else { //If the post if an Answer:
 				executeUpdateQuery("DELETE FROM Answers WHERE Id = '" + post.getID() + "';");
 			}
+	}
+	
+	/**Saves a question into the database from a question object.
+	 * @param question The question being saved.
+	 */
+	static void createMessage(Message message) {
+		//Must escape all apostrophes with another apostrophe so MySQL recognizes that they aren't quotes
+		String recip = message.getReceiver().replaceAll("'", "''");
+		String body = message.getText().replaceAll("'", "''");
+		executeUpdateQuery("INSERT INTO Messages VALUES("
+				+ "'" + message.getSender() + "', "
+				+ "'" + recip + "', "
+				+ "'" + body + "', "
+				+ "CURRENT_TIMESTAMP);");
+	}
+	
+	static ArrayList<String> getAllFilteredMessages(String userID) {
+		ArrayList<String> answerList = new ArrayList<>();
+		
+		String query = ("SELECT Body FROM Messages WHERE Receiver = '" + userID + "';");
+		ResultSetWrapper rs = executeRetrieveQuery(query);
+			
+		//build Question object and put into ArrayList
+		while(rs.next()) {
+			String body = rs.getString("Body");
+			answerList.add(body);	
+		}
+		return answerList;
 	}
 	
 	/**Execute an update-query with no return value.<br>
