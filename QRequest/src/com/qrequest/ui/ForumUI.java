@@ -599,7 +599,12 @@ public class ForumUI {
 		
 		if(isQuestion) {
 			Label questionTitleLabel = new Label(((Question)post).getTitle());
-			questionTitleLabel.setId("questionTitleLabel");
+			if(((Question)post).isPinned()) {
+				questionTitleLabel.setId("pinnedQuestionTitleLabel");
+			}
+			else {
+				questionTitleLabel.setId("questionTitleLabel");
+			}
 			questionTitleLabel.setMouseTransparent(true);
 			questionTitleLabel.setPadding(new Insets(0, 0, 0, 10));
 			questionTitleLabel.setMaxWidth(WINDOW_WIDTH * 0.65);
