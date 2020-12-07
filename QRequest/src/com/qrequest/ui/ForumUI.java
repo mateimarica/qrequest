@@ -737,7 +737,6 @@ public class ForumUI {
 		
 		String[] noResultsMsg = {"Hmm... There's nothing here.", 
 								"No results.", 
-								"Looks like your search yielded no results. Try something else?",
 								"You've stumbled upon a dead end."};
 
 		Label label = new Label(noResultsMsg[(int)(Math.random() * noResultsMsg.length)]);
