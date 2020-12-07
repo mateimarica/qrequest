@@ -117,7 +117,7 @@ abstract class DataManager {
 		String title = question.getTitle().replaceAll("'", "''");
 		String desc = question.getDescription().replaceAll("'", "''");
 		
-		executeUpdateQuery("INSERT INTO Questions VALUES('%s', '%s', '%s', '%s', CURRENT_TIMESTAMP, '%s', -1);",
+		executeUpdateQuery("INSERT INTO Questions VALUES('%s', '%s', '%s', '%s', CURRENT_TIMESTAMP, '%s', -1, NULL);",
 				title, desc, question.getAuthor(), question.getID(), question.getTag().name());
 	}
 	
