@@ -1,12 +1,25 @@
 package com.qrequest.objects;
 
-import java.sql.Date;
-
-/**Represents a message from one user to another. Currently unimplemented.*/
 public class Message {
-	User sender;
-	User reciever;
-	Date timeSent;
-	String text;
-
+	private String sender;
+	private String receiver;
+	private String body;
+	
+	public Message (String senderIn, String receiverIn, String bodyIn) {
+		this.sender = senderIn;
+		this.receiver = receiverIn;
+		this.body = bodyIn;
+	}
+	
+	public String getSender() {
+		return sender;
+	}
+	
+	public String getReceiver() {
+		return receiver;
+	}
+	
+	public String getText() {
+		return body;
+	}
 }

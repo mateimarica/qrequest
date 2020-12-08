@@ -4,7 +4,8 @@ import java.util.ArrayList;
 import java.util.NoSuchElementException;
 import java.util.UUID;
 
-
+import com.qrequest.control.GetQuestionControl;
+import com.qrequest.control.MessageControl;
 import com.qrequest.control.LoginControl;
 import com.qrequest.control.SearchUsersControl;
 import com.qrequest.control.ThemeHelper;
@@ -15,6 +16,7 @@ import com.qrequest.objects.QuestionSearchFilters;
 import com.qrequest.objects.Report;
 import com.qrequest.objects.Tag;
 import com.qrequest.objects.User;
+import com.qrequest.objects.Message;
 
 import javafx.event.ActionEvent;
 import javafx.geometry.HPos;
@@ -33,6 +35,7 @@ import javafx.scene.control.ListView;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
+import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.stage.Stage;
 
@@ -41,6 +44,7 @@ import javafx.stage.Stage;
 public class PopupUI {
 	
 	private static final int MAX_DESC_LENGTH = 65535;
+	private static final int MAX_NAME_LENGTH = 10;
 
 	/**Displays a warning dialog.
 	 * @param title The title of the pop-up window.
@@ -485,6 +489,74 @@ public class PopupUI {
 			return report;
 		}
 		return null;
+	}
+	
+	
+	/**The dialog for asking a question. Allows user to enter the title and an optional description.<br>
+	 * Posts questions upon pressing "OK" and refreshes the question table.
+	 * @return The created <code>Question</code> object, or <code>null</code> if the user canceled.
+	 */
+	public static void displayMessageDialog() {
+		
+//		ArrayList<String> textList = MessageControl.processAllFilteredMessages(recipientField.getText());
+//		 for (int i = 0; i < textList.size(); i++) {
+//			 allMessages.getItems().add(textList.get(i));
+//		 }
+//		 gridPane.add(allMessages, 0, 2);
+//		 System.out.println(textList.toString());
+		Dialog dialog = new Dialog();
+		dialog.setTitle("Private Messaging");
+		
+		//Set the icon for the popup
+		Stage stage = (Stage) dialog.getDialogPane().getScene().getWindow();
+		stage.getIcons().add(
+		    new Image(new PopupUI().getClass().getResource(MainUI.ICON_URL).toString()));
+		
+
+		GridPane gridPane = new GridPane();
+		gridPane.setHgap(10);
+		gridPane.setVgap(10);
+		// top, right, bottom, left padding
+		gridPane.setPadding(new Insets(20, 10, 10, 10));
+		
+		ListView<String> usersView = new ListView<String>();
+		ListView<String> allMessages = new ListView<String>();
+		
+		TextField searchField = new TextField();
+		searchField.setOnAction(e->searchButtonPress(usersView, searchField));
+		searchField.setPromptText("Search Users");
+		searchField.setMinWidth(190);
+		searchField.setMaxWidth(190);
+		
+		Button searchUsersBtn = new Button("Search");
+		searchUsersBtn.setOnAction(e->searchButtonPress(usersView, searchField));
+		usersView.setOnMouseClicked(event -> {
+		    	if(event.getClickCount() == 2){
+		    		ArrayList<String> textList = MessageControl.processAllFilteredMessages(searchField.getText());
+		   		 	for (int i = 0; i < textList.size(); i++) {
+		   			 allMessages.getItems().add(textList.get(i));
+		   		 }
+		   		 	//should just update the allMessages reference (or clear it )
+		   		 	// and refresh the stage/gridpane
+		   		 if (textList.size() > 0) {
+		   			 gridPane.add(allMessages, 0, 2);
+		   		 }
+		   		 System.out.println(textList.toString());
+		    	}
+		    });
+		
+		GridPane.setHalignment(searchUsersBtn, HPos.RIGHT);
+		gridPane.add(searchUsersBtn, 0, 0);
+		gridPane.add(searchField, 0, 0);
+		gridPane.add(usersView, 0,1);
+		
+		
+		dialog.getDialogPane().getButtonTypes().addAll(ButtonType.CLOSE);
+		
+		DialogPane dialogPane = dialog.getDialogPane();
+		dialogPane.getStylesheets().add(ThemeHelper.getCurrentThemeURL());
+		dialogPane.setContent(gridPane);
+		dialog.showAndWait();
 	}
 	
 	

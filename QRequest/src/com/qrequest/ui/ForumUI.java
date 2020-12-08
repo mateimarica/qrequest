@@ -87,6 +87,8 @@ public class ForumUI {
 	/**The root pane, i.e. what every JavaFX control is placed on*/
 	private BorderPane root;
 	
+	private Button messagingBtn;
+	
 	/**The stage*/
 	private Stage stage;
 	
@@ -185,13 +187,16 @@ public class ForumUI {
 			askQuestionBtn = new Button("\u2795 Ask a question");
 			askQuestionBtn.setOnAction(e -> processAskQuestionButtonPress());
 			
+			messagingBtn = new Button("Send a Message");
+			messagingBtn.setOnAction(e -> messagingBtnPress());
+			
 			searchUsersBtn = new Button("\uD83D\uDC64 Search Users");
 			searchUsersBtn.setOnAction(e -> searchUsersBtnPress());
 			
 			searchQuestionsBtn = new Button("\uD83D\uDD0D Search Questions");
 			searchQuestionsBtn.setOnAction(e -> searchQuestionsBtnPress());
 			
-			bottomBar.getItems().addAll(askQuestionBtn, searchUsersBtn, searchQuestionsBtn);
+			bottomBar.getItems().addAll(askQuestionBtn, searchUsersBtn, searchQuestionsBtn, messagingBtn);
 			
 			
 		} else {//If the app is in the question viewer, display these buttons on the bottomBar:
@@ -245,6 +250,12 @@ public class ForumUI {
 			refresh();
 		}
 	}
+	
+	/**Called when the Send Message button is pressed. Triggers a pop-up window*/
+	private void messagingBtnPress() {
+		PopupUI.displayMessageDialog();
+	}
+	
 	
 	/**Called when the user clicks "Log out" in the menu bar.<br>
 	 * Clears the saved credentials and user object, and starts the LoginUI scene.

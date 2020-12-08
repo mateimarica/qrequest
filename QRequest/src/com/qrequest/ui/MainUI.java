@@ -34,8 +34,15 @@ public class MainUI extends Application {
 		if(creds != null) {
 			
 			try {
-				LoginControl.processLogin(creds);
-				new ForumUI().startScene(stage);
+				if(LoginControl.processLogin(creds)) {
+					new ForumUI().startScene(stage);
+				} else {
+					Credentials.removeCredentials();
+					new LoginUI().startScene(stage);
+					PopupUI.displayErrorDialog("Login Error", 
+							"Couldn't automatically log in with your saved credentials. Perhaps the database was reset?");
+				}
+				
 			} catch (DatabaseConnectionException e) {
 				
 				new LoginUI().startScene(stage);
