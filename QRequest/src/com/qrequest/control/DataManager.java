@@ -322,7 +322,7 @@ abstract class DataManager {
 		ArrayList<User> userList = new ArrayList<>();
 		
 		// Order by TimePosted DESCENDING so that newer posts are at the top
-		ResultSetWrapper rs = executeRetrieveQuery("SELECT * FROM Users WHERE Username LIKE '%%" + username +"%%';");
+		ResultSetWrapper rs = executeRetrieveQuery("SELECT * FROM Users WHERE Username LIKE '" + username +"%%';");
 		
 		while(rs.next()) {			
 			User user = new User(rs.getString("Username"), false);					
@@ -424,18 +424,27 @@ abstract class DataManager {
 				+ "CURRENT_TIMESTAMP);");
 	}
 	
-	static ArrayList<String> getAllFilteredMessages(String userID) {
-		ArrayList<String> answerList = new ArrayList<>();
+	/**Populates arraylist of message contents filtered by the provided username
+	 * @param userID the username to filter by 
+	 * @return ArrayList<String> the list of filtered messages
+	 */
+	static ArrayList<Message> getAllFilteredMessages(String userID) {
+		ArrayList<Message> messageList = new ArrayList<>();
+		String self = LoginControl.getUser().getUsername();
 		
-		String query = ("SELECT Body FROM Messages WHERE Receiver = '" + userID + "';");
+		String query = ("SELECT * FROM Messages WHERE ((Receiver = '" + userID 
+				+ "' AND Sender = '" + self + "') OR ( Receiver = '"
+				+ self + "' AND Sender = '" + userID + "'));");
+		
+		
 		ResultSetWrapper rs = executeRetrieveQuery(query);
 			
-		//build Question object and put into ArrayList
+
 		while(rs.next()) {
-			String body = rs.getString("Body");
-			answerList.add(body);	
+			Message newMessage = new Message(rs.getString("Sender"), rs.getString("Receiver"), rs.getString("Body"), rs.getTimestamp("TimePosted"));
+			messageList.add(newMessage);	
 		}
-		return answerList;
+		return messageList;
 	}
 	
 	

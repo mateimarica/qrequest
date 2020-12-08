@@ -2,6 +2,8 @@ package com.qrequest.ui;
 
 import java.util.ArrayList;
 import java.util.NoSuchElementException;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.UUID;
 
 import com.qrequest.control.GetQuestionControl;
@@ -21,6 +23,7 @@ import com.qrequest.objects.Message;
 import javafx.event.ActionEvent;
 import javafx.geometry.HPos;
 import javafx.geometry.Insets;
+import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
@@ -31,13 +34,21 @@ import javafx.scene.control.CheckBox;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Dialog;
 import javafx.scene.control.DialogPane;
+import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
+import javafx.scene.control.Tooltip;
 import javafx.scene.image.Image;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.HBox;
+import javafx.scene.text.Text;
+import javafx.scene.text.TextAlignment;
 import javafx.stage.Stage;
+import sun.net.www.protocol.mailto.Handler;
 
 /**Class for reducing the amount of boilerplate code when displaying pop-ups.
  */
@@ -492,73 +503,135 @@ public class PopupUI {
 	}
 	
 	
-	/**The dialog for asking a question. Allows user to enter the title and an optional description.<br>
-	 * Posts questions upon pressing "OK" and refreshes the question table.
-	 * @return The created <code>Question</code> object, or <code>null</code> if the user canceled.
+	
+	/**The dialog for sending/receiving message.
 	 */
 	public static void displayMessageDialog() {
-		
-//		ArrayList<String> textList = MessageControl.processAllFilteredMessages(recipientField.getText());
-//		 for (int i = 0; i < textList.size(); i++) {
-//			 allMessages.getItems().add(textList.get(i));
-//		 }
-//		 gridPane.add(allMessages, 0, 2);
-//		 System.out.println(textList.toString());
 		Dialog dialog = new Dialog();
 		dialog.setTitle("Private Messaging");
 		
-		//Set the icon for the popup
-		Stage stage = (Stage) dialog.getDialogPane().getScene().getWindow();
-		stage.getIcons().add(
-		    new Image(new PopupUI().getClass().getResource(MainUI.ICON_URL).toString()));
+		setupDialogStyling(dialog);
 		
-
 		GridPane gridPane = new GridPane();
 		gridPane.setHgap(10);
 		gridPane.setVgap(10);
-		// top, right, bottom, left padding
 		gridPane.setPadding(new Insets(20, 10, 10, 10));
 		
-		ListView<String> usersView = new ListView<String>();
-		ListView<String> allMessages = new ListView<String>();
+		/*ListView<String> usersView = new ListView<String>();
+		usersView.setMinSize(200, 200);
+		usersView.setMaxSize(200, 200);*/
+		
+		ListView<BorderPane> allMessages = new ListView<>();
+		allMessages.setMinSize(200, 200);
+		allMessages.setMaxSize(400, 400);
+		
+		//Button searchUsersBtn = new Button("Search");
 		
 		TextField searchField = new TextField();
-		searchField.setOnAction(e->searchButtonPress(usersView, searchField));
+		searchField.setOnKeyReleased(e-> {
+			
+			String key = e.getCode().toString();
+			
+			if(searchField.getLength() != 0 && !key.equals("BACK_SPACE") && !key.equals("DELETE")) {
+				ArrayList<User> userList = SearchUsersControl.getUsers(searchField.getText());
+				
+				if(userList.size() != 0) {
+					int caretPosition = searchField.getCaretPosition();
+					searchField.setText(userList.get(0).getUsername());
+					e.consume();
+					searchField.selectPositionCaret(caretPosition);
+					searchField.selectRange(searchField.getLength(), caretPosition);
+				}
+			}
+			
+			
+		});
+		searchField.setOnAction(e-> {
+			refreshMessaging(allMessages, searchField);
+   		 	//System.out.println(textList.toString());
+   		 	///allMessages.refresh();
+		});
 		searchField.setPromptText("Search Users");
 		searchField.setMinWidth(190);
 		searchField.setMaxWidth(190);
+		class RefreshMessagingTask extends TimerTask {
+		    public void run() {
+		    	refreshMessaging(allMessages, searchField);
+		    }
+		}
+
+		// And From your main() method or any other method
+		Timer timer = new Timer();
+		timer.schedule(new RefreshMessagingTask(), 0, 5000);
 		
-		Button searchUsersBtn = new Button("Search");
-		searchUsersBtn.setOnAction(e->searchButtonPress(usersView, searchField));
-		usersView.setOnMouseClicked(event -> {
-		    	if(event.getClickCount() == 2){
-		    		ArrayList<String> textList = MessageControl.processAllFilteredMessages(searchField.getText());
-		   		 	for (int i = 0; i < textList.size(); i++) {
-		   			 allMessages.getItems().add(textList.get(i));
-		   		 }
-		   		 	//should just update the allMessages reference (or clear it )
-		   		 	// and refresh the stage/gridpane
-		   		 if (textList.size() > 0) {
-		   			 gridPane.add(allMessages, 0, 2);
-		   		 }
-		   		 System.out.println(textList.toString());
-		    	}
-		    });
 		
-		GridPane.setHalignment(searchUsersBtn, HPos.RIGHT);
-		gridPane.add(searchUsersBtn, 0, 0);
+		BorderPane composeBox = new BorderPane();
+		
+		TextField composeField = new TextField();
+		composeField.setOnAction(e->{});
+		composeField.setPromptText("Compose Message:");
+		composeField.setMinWidth(150);
+		
+		composeBox.setLeft(composeField);
+		//searchUsersBtn.setOnAction(e-> {
+	    		
+	    	
+		    //});
+		
+		Button sendMessageBtn = new Button("Send Message");
+		sendMessageBtn.addEventFilter(ActionEvent.ACTION, event -> {
+			Message message = new Message(LoginControl.getUser().getUsername(), searchField.getText(), composeField.getText(), null);
+			MessageControl.processSendMessage(message);
+			Label newLabel = new Label(message.getText());
+			BorderPane box = new BorderPane();
+			box.setRight(newLabel);
+			
+			allMessages.getItems().add(box);
+		});
+		composeBox.setRight(sendMessageBtn);
+		
 		gridPane.add(searchField, 0, 0);
-		gridPane.add(usersView, 0,1);
+		//gridPane.add(searchUsersBtn, 1, 0);
+		gridPane.add(allMessages, 0, 1);
+		gridPane.add(composeBox, 0, 2);
+		//gridPane.add(sendMessageBtn, 1, 2);
 		
-		
+		//ButtonType postAnswerBtnType = new ButtonType("Post Answer", ButtonData.RIGHT);
 		dialog.getDialogPane().getButtonTypes().addAll(ButtonType.CLOSE);
 		
 		DialogPane dialogPane = dialog.getDialogPane();
-		dialogPane.getStylesheets().add(ThemeHelper.getCurrentThemeURL());
 		dialogPane.setContent(gridPane);
+		
 		dialog.showAndWait();
+		timer.cancel();
 	}
-	
+
+	static void refreshMessaging(ListView<BorderPane> allMessages, TextField searchField) {
+		allMessages.getItems().clear();
+		ArrayList<Message> messageList = MessageControl.processAllFilteredMessages(searchField.getText());
+		
+		 	for (int i = 0; i < messageList.size(); i++) {
+		 		
+		 		Label messageLabel = new Label(messageList.get(i).getText());
+		 		messageLabel.setTooltip(new Tooltip(messageList.get(i).getTimeSent().toString()));
+		 		//messageLabel.setTextAlignment(TextAlignment.RIGHT);
+		 		//messageLabel.setAlignment(Pos.CENTER_RIGHT);
+		 		
+		 		//FlowPane messagePane = new FlowPane(messageLabel);
+		 		//messageLabel.setAlignment(
+		 		//		(LoginControl.getUser().getUsername().equals(messageList.get(i).getSender())) ? Pos.CENTER_RIGHT : Pos.CENTER_LEFT);
+		 		
+		 		BorderPane box = new BorderPane();
+		 		
+		 		if((LoginControl.getUser().getUsername().equals(messageList.get(i).getSender()))) {
+		 			box.setRight(messageLabel);
+		 		} else {
+		 			box.setLeft(messageLabel);
+		 		}
+		 		allMessages.getItems().add(box);
+		 		
+		 	} 	
+	}
 	
 	
 	private static void setupDialogStyling(Dialog dialog) {
