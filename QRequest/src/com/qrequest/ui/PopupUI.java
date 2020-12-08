@@ -4,7 +4,6 @@ import java.util.ArrayList;
 
 import java.util.UUID;
 
-import com.qrequest.control.GetQuestionControl;
 import com.qrequest.control.LoginControl;
 import com.qrequest.control.SearchUsersControl;
 import com.qrequest.control.MessageControl;
@@ -12,10 +11,8 @@ import com.qrequest.control.ThemeHelper;
 import com.qrequest.objects.Answer;
 import com.qrequest.objects.Post;
 import com.qrequest.objects.Question;
-import com.qrequest.objects.TeiTime;
 import com.qrequest.objects.User;
 import com.qrequest.objects.Message;
-
 import javafx.event.ActionEvent;
 import javafx.geometry.HPos;
 import javafx.geometry.Insets;
@@ -31,7 +28,6 @@ import javafx.scene.control.ListView;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
-import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.stage.Stage;
 
@@ -340,18 +336,9 @@ public class PopupUI {
 		return false;
 	}
 	
-	/**The dialog for asking a question. Allows user to enter the title and an optional description.<br>
-	 * Posts questions upon pressing "OK" and refreshes the question table.
-	 * @return The created <code>Question</code> object, or <code>null</code> if the user canceled.
+	/**The dialog for sending/receiving message.
 	 */
 	public static void displayMessageDialog() {
-		
-//		ArrayList<String> textList = MessageControl.processAllFilteredMessages(recipientField.getText());
-//		 for (int i = 0; i < textList.size(); i++) {
-//			 allMessages.getItems().add(textList.get(i));
-//		 }
-//		 gridPane.add(allMessages, 0, 2);
-//		 System.out.println(textList.toString());
 		Dialog dialog = new Dialog();
 		dialog.setTitle("Private Messaging");
 		
@@ -360,15 +347,18 @@ public class PopupUI {
 		stage.getIcons().add(
 		    new Image(new PopupUI().getClass().getResource(MainUI.ICON_URL).toString()));
 		
-
 		GridPane gridPane = new GridPane();
 		gridPane.setHgap(10);
 		gridPane.setVgap(10);
-		// top, right, bottom, left padding
 		gridPane.setPadding(new Insets(20, 10, 10, 10));
 		
 		ListView<String> usersView = new ListView<String>();
+		usersView.setMinSize(200, 200);
+		usersView.setMaxSize(200, 200);
+		
 		ListView<String> allMessages = new ListView<String>();
+		usersView.setMinSize(200, 200);
+		usersView.setMaxSize(400, 400);
 		
 		TextField searchField = new TextField();
 		searchField.setOnAction(e->searchButtonPress(usersView, searchField));
@@ -376,28 +366,38 @@ public class PopupUI {
 		searchField.setMinWidth(190);
 		searchField.setMaxWidth(190);
 		
+		TextField composeField = new TextField();
+		composeField.setOnAction(e->searchButtonPress(usersView, searchField));
+		composeField.setPromptText("Compose Message:");
+		composeField.setMinSize(200, 200);
+		composeField.setMaxSize(400, 400);
+		
 		Button searchUsersBtn = new Button("Search");
 		searchUsersBtn.setOnAction(e->searchButtonPress(usersView, searchField));
 		usersView.setOnMouseClicked(event -> {
 		    	if(event.getClickCount() == 2){
+		    		allMessages.getItems().clear();
 		    		ArrayList<String> textList = MessageControl.processAllFilteredMessages(searchField.getText());
 		   		 	for (int i = 0; i < textList.size(); i++) {
 		   			 allMessages.getItems().add(textList.get(i));
-		   		 }
-		   		 	//should just update the allMessages reference (or clear it )
-		   		 	// and refresh the stage/gridpane
-		   		 if (textList.size() > 0) {
-		   			 gridPane.add(allMessages, 0, 2);
-		   		 }
-		   		 System.out.println(textList.toString());
+		   		 	} 	
+		   		 	System.out.println(textList.toString());
+		   		 	allMessages.refresh();
 		    	}
 		    });
 		
-		GridPane.setHalignment(searchUsersBtn, HPos.RIGHT);
-		gridPane.add(searchUsersBtn, 0, 0);
-		gridPane.add(searchField, 0, 0);
-		gridPane.add(usersView, 0,1);
+		Button sendMessageBtn = new Button("Send Message");
+		sendMessageBtn.addEventFilter(ActionEvent.ACTION, event -> {
+			Message message = new Message(LoginControl.getUser().getUsername(), searchField.getText(), composeField.getText());
+			MessageControl.processSendMessage(message);
+		});
 		
+		gridPane.add(searchField, 0, 0);
+		gridPane.add(searchUsersBtn, 1, 0);
+		gridPane.add(usersView, 0,1);
+		gridPane.add(allMessages, 1, 1);
+		gridPane.add(composeField, 0, 2);
+		gridPane.add(sendMessageBtn, 1, 2);
 		
 		dialog.getDialogPane().getButtonTypes().addAll(ButtonType.CLOSE);
 		

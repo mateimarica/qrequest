@@ -377,10 +377,16 @@ abstract class DataManager {
 				+ "CURRENT_TIMESTAMP);");
 	}
 	
+	/**Populates arraylist of message contents filtered by the provided username
+	 * @param userID the username to filter by 
+	 * @return ArrayList<String> the list of filtered messages
+	 */
 	static ArrayList<String> getAllFilteredMessages(String userID) {
 		ArrayList<String> answerList = new ArrayList<>();
-		
-		String query = ("SELECT Body FROM Messages WHERE Receiver = '" + userID + "';");
+		String self = LoginControl.getUser().getUsername();
+		String query = ("SELECT * FROM Messages WHERE ((Receiver = '" + userID 
+				+ "' AND Sender = '" + self + "') OR ( Receiver = '"
+				+ self + "' AND Sender = '" + userID + "'));");
 		ResultSetWrapper rs = executeRetrieveQuery(query);
 			
 		//build Question object and put into ArrayList
