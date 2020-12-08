@@ -1,10 +1,14 @@
 package com.qrequest.ui;
 
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.NoSuchElementException;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.UUID;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 import com.qrequest.control.GetQuestionControl;
 import com.qrequest.control.MessageControl;
@@ -554,7 +558,17 @@ public class PopupUI {
 		searchField.setPromptText("Search Users");
 		searchField.setMinWidth(190);
 		searchField.setMaxWidth(190);
-		class RefreshMessagingTask extends TimerTask {
+		/*Runnable runnable =
+			    () -> { 
+			    	refreshMessaging(allMessages, searchField); 
+			    }
+			;
+		ScheduledExecutorService ses = Executors.newSingleThreadScheduledExecutor() ;
+		ses.scheduleWithFixedDelay( runnable , 0L , 3L , TimeUnit.SECONDS ) ;
+*/
+		
+		
+		/*class RefreshMessagingTask extends TimerTask {
 		    public void run() {
 		    	refreshMessaging(allMessages, searchField);
 		    }
@@ -562,7 +576,7 @@ public class PopupUI {
 
 		// And From your main() method or any other method
 		Timer timer = new Timer();
-		timer.schedule(new RefreshMessagingTask(), 0, 5000);
+		timer.schedule(, 0, 5000);*/
 		
 		
 		BorderPane composeBox = new BorderPane();
@@ -594,6 +608,10 @@ public class PopupUI {
 		//gridPane.add(searchUsersBtn, 1, 0);
 		gridPane.add(allMessages, 0, 1);
 		gridPane.add(composeBox, 0, 2);
+		
+		Button refreshbtn = new Button("\uD83D\uDDD8 Refresh");
+		refreshbtn.setOnAction(e -> refreshMessaging(allMessages, searchField));
+		gridPane.add(refreshbtn, 0, 3);
 		//gridPane.add(sendMessageBtn, 1, 2);
 		
 		//ButtonType postAnswerBtnType = new ButtonType("Post Answer", ButtonData.RIGHT);
@@ -603,7 +621,7 @@ public class PopupUI {
 		dialogPane.setContent(gridPane);
 		
 		dialog.showAndWait();
-		timer.cancel();
+		//ses.shutdownNow();
 	}
 
 	static void refreshMessaging(ListView<BorderPane> allMessages, TextField searchField) {

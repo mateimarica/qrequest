@@ -187,7 +187,7 @@ public class ForumUI {
 			askQuestionBtn = new Button("\u2795 Ask a question");
 			askQuestionBtn.setOnAction(e -> processAskQuestionButtonPress());
 			
-			messagingBtn = new Button("Send a Message");
+			messagingBtn = new Button("\u2709 Send a Message");
 			messagingBtn.setOnAction(e -> messagingBtnPress());
 			
 			searchUsersBtn = new Button("\uD83D\uDC64 Search Users");
