@@ -32,6 +32,7 @@ public class AskQuestionUI {
 	public AskQuestionUI(ForumUI forumUI) {
 		this.forumUI = forumUI;
 		
+		
 		askQuestionBtn = new Button("\u2795 Ask a question");
 		askQuestionBtn.setOnAction(e -> askQuestionButtonPress());
 	}
