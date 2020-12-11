@@ -4,8 +4,8 @@ import java.io.IOException;
 
 import com.qrequest.control.CreateAccountControl;
 import com.qrequest.control.LoginControl;
-import com.qrequest.control.ThemeHelper;
 import com.qrequest.exceptions.DatabaseConnectionException;
+import com.qrequest.helpers.ThemeHelper;
 import com.qrequest.objects.Credentials;
 
 import javafx.fxml.FXML;
@@ -74,7 +74,6 @@ public class LoginUI {
 		} catch (IOException e) { e .printStackTrace(); }
 	}
 	
-
 	
 	/**Runs whens the "Login"/"Create Button" button is clicked. (Note: not the button at the button)
 	 * <dt>Login Case:</dt>
@@ -98,7 +97,7 @@ public class LoginUI {
 			
 			try {
 				Credentials creds = new Credentials(username, password, false);
-				loginSuccessful = LoginControl.processLogin(creds);
+				loginSuccessful = new LoginControl().processLogin(creds);
 				if (loginSuccessful) {
 					if(saveCredentialsCheckBox.isSelected()) {
 						creds.hashPassword(); //The password should only be saved locally if hashed.
@@ -123,7 +122,7 @@ public class LoginUI {
 			}
 			
 			try {
-					if(!CreateAccountControl.processCreateAccount(new Credentials(username, password))) {
+					if(!new CreateAccountControl().processCreateAccount(new Credentials(username, password))) {
 						PopupUI.displayErrorDialog("Error Creating Account", "An account with that username already exists.");
 						return;
 					}				
@@ -238,9 +237,7 @@ public class LoginUI {
 
 		}
 	}
-	
-	
-	
+		
 	/**Runs when the "Show password" checkbox is ticked/unticked.<br>
 	 * When ticked, overlays a regular textfield over the passwordField to act as the unmasked passwordField.<br>
 	 * When unticked, hides the unmasked "passwordField".<br>

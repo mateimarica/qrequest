@@ -1,26 +1,14 @@
 package com.qrequest.objects;
 
-import java.util.ArrayList;
 
-/**Represents a user.
- */
+/**Represents a user.*/
 public class User {
 	
-	/**true if user is an administrator, otherwise false.
-	 */
+	/**<code>true</code> if user is an administrator, otherwise <code>false</code>*/
 	private boolean isAdmin;
 	
-	/**The unique 3 to 10 character username. This is the primary key.
-	 */
+	/**The unique 3 to 10 character username. This is the primary key.*/
 	private String username;
-	
-	/**The questions that the user has asked.
-	 */
-	private ArrayList<Question> questions;
-	
-	/**The answers that the user has made.
-	 */
-	private ArrayList<Answer> answers;
 	
 	/**Creates a User object with its username.
 	 * @param username The username.
@@ -37,6 +25,9 @@ public class User {
 		return username;
 	}
 	
+	/**Returns whether or not the user is an admin.
+	 * @return <code>true</code> if user is an administrator, otherwise <code>false</code>
+	 */
 	public boolean isAdmin() {
 		return isAdmin;
 	}

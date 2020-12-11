@@ -8,11 +8,11 @@ import com.qrequest.objects.Vote.VoteType;
 /**Generic class for a post, could be a question or answer*/
 public abstract class Post {
 	
-	/**unique ID, invisible to user*/
+	/**Unique ID, invisible to user*/
 	private UUID id; 
 	
 	/**The time at which the question was posted.*/
-	private TeiTime timePosted = new TeiTime();
+	private TeiTime timePosted;
 	
 	/**The description of the post*/
 	private String description;
@@ -44,6 +44,7 @@ public abstract class Post {
 		this.description = description;
 		this.author = author;
 		this.id = id;
+		this.timePosted = new TeiTime();
 		this.timePosted.setTimeInMillis(timePosted.getTime());
 		this.votes = votes;
 		this.currentUserVote = currentUserVote;
@@ -60,8 +61,6 @@ public abstract class Post {
 		this.id = UUID.randomUUID();
 	}
 	
-	
-	
 	/**Returns time when the answer was posted.
 	 * @return time when the answer was posted.
 	 */
@@ -69,6 +68,9 @@ public abstract class Post {
 		return timePosted;
 	}
 	
+	/**Returns the User that created this post.
+	 * @return The User that created this post.
+	 */
 	public User getAuthor() {
 		return author;
 	}
@@ -87,30 +89,52 @@ public abstract class Post {
 		return description;
 	}
 	
+	/**Sets the description of the post.
+	 * @param The new description of the post.
+	 */
 	public void setDescription(String description) {
 		this.description = description;
 	}
 	
+	/**Returns this post current vote count all added together.<br>
+	 * Example: 3 upvotes and 2 downvotes will return a vote of 1.
+	 * @param This post's current vote count.
+	 */
 	public int getVotes() {
 		return votes;
 	}
 	
+	/**Returns the vote on this post of the user that is logged in. Possible return values: -1, 0, 1
+	 * @return The vote the vote on this post of the user that is logged in.
+	 */
 	public int getCurrentUserVote() {
 		return currentUserVote;
 	}
 	
+	/**Sets the current user's vote on this post.
+	 * @param newCurrentUserVote The current user's new vote on the post.
+	 */
 	public void setCurrentUserVote(VoteType newCurrentUserVote) {
 		currentUserVote = newCurrentUserVote.getValue();
 	}
 	
+	/**Whether or not this <code>Post</code> is a <code>Question</code>.
+	 * @return <code>true</code> if is a <code>Question</code>, <code>false</code> if not.
+	 */
 	public boolean isQuestion() {
 		return getClass().equals(Question.class);
 	}
 	
+	/**Whether or not this <code>Post</code> is an <code>Answer</code>.
+	 * @return <code>true</code> if is an <code>Answer</code>, <code>false</code> if not.
+	 */
 	public boolean isAnswer() {
 		return getClass().equals(Answer.class);
 	}
 	
+	/**Return a string of the subclass's name.
+	 * @return "Question" if this post is a <code>Question</code>, "Answer" if this post is an <code>Answer</code>.
+	 */
 	public String getPostType() {
 		return getClass().getSimpleName();
 	}

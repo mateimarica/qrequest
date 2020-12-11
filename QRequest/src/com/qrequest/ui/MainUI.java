@@ -1,7 +1,5 @@
 package com.qrequest.ui;
 import com.qrequest.control.LoginControl;
-import com.qrequest.control.PreferenceManager;
-import com.qrequest.control.ThemeHelper;
 import com.qrequest.exceptions.DatabaseConnectionException;
 import com.qrequest.objects.Credentials;
 
@@ -13,11 +11,10 @@ import javafx.stage.Stage;
  */
 public class MainUI extends Application {
 	
-	
+	/**The URL of the application's icon. Used in every popup window.*/
 	final static String ICON_URL = "/com/qrequest/resources/images/icon.png";
 	
-	/**Starts the JavaFX instance.
-	  */
+	/**Starts the JavaFX instance.*/
 	void begin(String[] args) {
 		launch(args);
 	}
@@ -34,7 +31,7 @@ public class MainUI extends Application {
 		if(creds != null) {
 			
 			try {
-				if(LoginControl.processLogin(creds)) {
+				if(new LoginControl().processLogin(creds)) {
 					new ForumUI().startScene(stage);
 				} else {
 					Credentials.removeCredentials();
@@ -74,8 +71,7 @@ public class MainUI extends Application {
 		return stage;
 	}
 	
-	/**Called when the close is closed.
-	 */
+	/**Called when the close is closed.*/
 	private static void closeProgram(Stage stage) {
 		//This method is called when the user tries to close the program.
 		//This could have some kind of saving functionality if needed.

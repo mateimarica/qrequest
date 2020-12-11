@@ -1,8 +1,13 @@
-package com.qrequest.control;
+package com.qrequest.helpers;
 
 /**This class sets and retrieves the current set theme. Also provides shortcuts to the themes.
+ * Class is final because it shouldn't be extended.
 */
-public class ThemeHelper {
+public final class ThemeHelper {
+	
+	/**Private constructor to prevent instantiation.*/
+	private ThemeHelper() {}
+	
 	/**Relative URL for the theme within the project.
 	*/
 	private final static String lightThemeFileURL = "/com/qrequest/resources/css/light-theme.css",

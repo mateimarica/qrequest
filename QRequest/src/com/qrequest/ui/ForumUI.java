@@ -6,24 +6,11 @@ import java.util.ArrayList;
 import com.qrequest.control.GetAnswerControl;
 import com.qrequest.control.GetQuestionControl;
 import com.qrequest.control.LoginControl;
-import com.qrequest.control.MarkSolvedControl;
-import com.qrequest.control.PinQuestionControl;
-import com.qrequest.control.ReportPostControl;
-import com.qrequest.control.SearchQuestionControl;
-import com.qrequest.control.CreateAnswerControl;
-import com.qrequest.control.CreateQuestionControl;
-import com.qrequest.control.DeletePostControl;
-import com.qrequest.control.EditPostControl;
-import com.qrequest.control.ThemeHelper;
-import com.qrequest.control.VoteControl;
+import com.qrequest.helpers.ThemeHelper;
 import com.qrequest.objects.Answer;
 import com.qrequest.objects.Credentials;
 import com.qrequest.objects.Post;
 import com.qrequest.objects.Question;
-import com.qrequest.objects.QuestionSearchFilters;
-import com.qrequest.objects.Report;
-import com.qrequest.objects.Vote;
-import com.qrequest.objects.Vote.VoteType;
 
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -31,7 +18,6 @@ import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckMenuItem;
 import javafx.scene.control.Label;
-import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuBar;
@@ -44,6 +30,7 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
+/**The forum UI. This class handles the displaying of questions and answers.*/
 public class ForumUI {
 	
 	/**The ListView that listed the front page questions or the individual question + answers.*/
@@ -58,9 +45,7 @@ public class ForumUI {
 		FRONT_PAGE, 
 		
 		/**Represents the state where the program is viewing an individual question & all of its answers.*/
-		QUESTION_VIEWER,
-		
-		SEARCH_PAGE
+		QUESTION_VIEWER
 	};
 	
 	/**The current mode that the forum is in. Front page is default.*/
@@ -72,23 +57,12 @@ public class ForumUI {
 	/**The toolbar are at the bottom of the window containing buttons like "Ask Question" and "Refresh"*/
 	private ToolBar bottomBar;
 	
-	/**Button to ask a question*/
-	private Button askQuestionBtn;
-	
-	/**Button to search for users*/
-	private Button searchUsersBtn;
-	
-	/**Button to search for users*/
-	private Button searchQuestionsBtn;
-	
 	/**Button to refresh the current post list*/
 	private Button refreshBtn;
 	
 	/**The root pane, i.e. what every JavaFX control is placed on*/
 	private BorderPane root;
-	
-	private Button messagingBtn;
-	
+		
 	/**The stage*/
 	private Stage stage;
 	
@@ -113,11 +87,10 @@ public class ForumUI {
 		
 		postList = new ListView<>();
 		postList.setFocusTraversable(false);
+		root.setCenter(postList);
 		
 		populateMenuBar();
 		
-		root.setCenter(postList);
-
 		refresh();
 		
 		bottomBar = new ToolBar();
@@ -129,7 +102,6 @@ public class ForumUI {
 		
 		stage.setScene(scene);
 		stage.show();	
-		
 		stage.setResizable(true);
 		stage.setMinHeight(300);
 		stage.setMinWidth(800);
@@ -145,15 +117,6 @@ public class ForumUI {
 		accountMenu.getItems().add(logoutItem);
 		
 		Menu optionsMenu = new Menu("Options");
-		
-		/*Menu sortOptionItem = new Menu("Sort");
-		MenuItem sortByTagItem = new MenuItem("By tag");
-		MenuItem sortByTitleItem = new MenuItem("By title");
-		MenuItem sortByVotesItem = new MenuItem("By votes");
-		MenuItem sortByTimeItem = new MenuItem("By time posted");
-		sortOptionItem.getItems().addAll(sortByTagItem, sortByTitleItem, sortByVotesItem, sortByTimeItem);
-		optionsMenu.getItems().addAll(sortOptionItem);*/
-		
 		CheckMenuItem darkModeItem = new CheckMenuItem("Dark mode");
 		darkModeItem.setOnAction(e -> themeChanged(darkModeItem.isSelected()));
 		darkModeItem.setSelected(ThemeHelper.isDarkModeEnabled());
@@ -163,53 +126,27 @@ public class ForumUI {
 		root.setTop(menuBar);
 	}
 
-	/**Called when the Search Users button is pressed. Triggers a pop-up window*/
-	private void searchUsersBtnPress() {
-		PopupUI.displaySearchUsersDialog();
-	}
-	
-
-	private void searchQuestionsBtnPress() {
-		QuestionSearchFilters filters = PopupUI.displaySearchQuestionsDialog();
-		if(filters != null) {
-			currentMode = Mode.SEARCH_PAGE;
-			populateToolbar();
-			createQuestionsList(SearchQuestionControl.searchQuestions(filters));
-		}
-	}
-	
 	/**Populates the bottom toolBar and places at the bottom of the root BorderPane. */
-	private void populateToolbar() {
+	void populateToolbar() {
 		bottomBar.getItems().clear();
 		
-		
 		if(currentMode == Mode.FRONT_PAGE) { //If the app is on the front page, display these buttons on the bottomBar:
-			askQuestionBtn = new Button("\u2795 Ask a question");
-			askQuestionBtn.setOnAction(e -> processAskQuestionButtonPress());
-			
-			messagingBtn = new Button("\u2709 Send a Message");
-			messagingBtn.setOnAction(e -> messagingBtnPress());
-			
-			searchUsersBtn = new Button("\uD83D\uDC64 Search Users");
-			searchUsersBtn.setOnAction(e -> searchUsersBtnPress());
-			
-			searchQuestionsBtn = new Button("\uD83D\uDD0D Search Questions");
-			searchQuestionsBtn.setOnAction(e -> searchQuestionsBtnPress());
+			Button askQuestionBtn = new AskQuestionUI(this).getAskQuestionButton();
+			Button messagingBtn = new MessagingUI().getMessagingButton();
+			Button searchUsersBtn = new SearchUsersUI().getSearchUsersButton();
+			Button searchQuestionsBtn = new SearchQuestionsUI(this).getSearchQuestionsButton();
 			
 			bottomBar.getItems().addAll(askQuestionBtn, searchUsersBtn, searchQuestionsBtn, messagingBtn);
 			
-			
 		} else {//If the app is in the question viewer, display these buttons on the bottomBar:
 			Button backBtn = new Button("\u25C0 Go back");
-			backBtn.setOnAction(e -> processBackButtonPress());
+			backBtn.setOnAction(e -> backButtonPress());
 			bottomBar.getItems().add(backBtn);
 			
 			if(currentMode == Mode.QUESTION_VIEWER) {
-				Button postAnswerBtn = new Button("\u2795 Answer question");
-				postAnswerBtn.setOnAction(e -> processPostAnswerButtonPress());
+				Button postAnswerBtn = new PostAnswerUI(currentQuestion, this).getPostAnswerButton();
 				
-				
-				bottomBar.getItems().addAll(postAnswerBtn, searchQuestionsBtn);
+				bottomBar.getItems().addAll(postAnswerBtn);
 			}
 			
 		}
@@ -219,41 +156,6 @@ public class ForumUI {
 		bottomBar.getItems().add(refreshBtn);
 		
 		root.setBottom(bottomBar); //Put the bottomBar on the bottom of the root pane
-	}
-	
-	/**Called when the back button is pressed. Sets current question to null.*/
-	private void processBackButtonPress() {
-		currentQuestion = null;
-		backBtnPress();
-	}
-	
-	/**Called when the Ask Question button is clicked.<br>
-	 * Triggers a pop-up window where the user can create a question.
-	 * If the user doesn't cancel, the question is created in the database and displayed on the UI.
-	 */
-	private void processAskQuestionButtonPress() {
-		Question newQuestion = PopupUI.displayAskQuestionDialog();
-		if(newQuestion != null) {
-			CreateQuestionControl.processPostQuestion(newQuestion);
-			refresh();
-		}
-	}
-	
-	/**Called when the Ask Answer button is clicked.<br>
-	 * Triggers a pop-up window where the user can create a answer.
-	 * If the user doesn't cancel, the answer is created in the database and displayed on the UI.
-	 */
-	private void processPostAnswerButtonPress() {
-		Answer newAnswer = PopupUI.displayPostAnswerDialog(currentQuestion);
-		if(newAnswer != null) {
-			CreateAnswerControl.processPostAnswer(newAnswer);
-			refresh();
-		}
-	}
-	
-	/**Called when the Send Message button is pressed. Triggers a pop-up window*/
-	private void messagingBtnPress() {
-		PopupUI.displayMessageDialog();
 	}
 	
 	
@@ -270,9 +172,9 @@ public class ForumUI {
 	/**Refreshes the current window, usually to display updated objects.
 	 * If a question was in view when this method was called, the question will be reopened.
 	 */
-	private void refresh() {
+	void refresh() {
 		if(currentMode == Mode.FRONT_PAGE) {
-			createQuestionsList(GetQuestionControl.getAllQuestions());
+			createQuestionsList(new GetQuestionControl().getAllQuestions());
 		} else if(currentMode == Mode.QUESTION_VIEWER) {
 			blowupQuestion(currentQuestion);
 		}
@@ -288,7 +190,7 @@ public class ForumUI {
 	}
 	
 	/**Displays a list of questions in the postList.*/
-	private void createQuestionsList(ArrayList<Question> questionList) {
+	void createQuestionsList(ArrayList<Question> questionList) {
 		postList.getItems().clear();
 		
         if(questionList.size() == 0) {
@@ -308,7 +210,7 @@ public class ForumUI {
 		populateToolbar();
 		
 		//Refreshes the question in case something changed between the question retrieval and this method call.
-		GetQuestionControl.refreshQuestion(question); 
+		new GetQuestionControl().refreshQuestion(question); 
 		
 		populateQuestion(question);
 	}
@@ -320,7 +222,7 @@ public class ForumUI {
 		postList.getItems().clear();
 		postList.getItems().add(buildPostPane(question));
 		
-		ArrayList<Answer> answerList = GetAnswerControl.getAllAnswers(question);
+		ArrayList<Answer> answerList = new GetAnswerControl().getAllAnswers(question);
 		
 		for(int i = 0; i < answerList.size(); i++) {
 			postList.getItems().add(buildPostPane(answerList.get(i)));
@@ -328,8 +230,8 @@ public class ForumUI {
 	}
 	
 	/**Called when the back button is pressed*/
-	private void backBtnPress() {
-		
+	void backButtonPress() {
+		currentQuestion = null;
 		postList.getItems().clear();
 		currentMode = Mode.FRONT_PAGE;
 		populateToolbar();
@@ -343,18 +245,10 @@ public class ForumUI {
 	private BorderPane buildQuestionPane(Question question) {
 		
 		BorderPane questionPane = new BorderPane();
+		questionPane.setPadding(new Insets(2, 2, 2, 2));
 		
 		if(LoginControl.getUser().isAdmin()) {
-		
-			ToggleButton pinButton = new ToggleButton();
-			pinButton.setPrefSize(30, 30);
-			pinButton.setSelected(question.isPinned());
-			pinButton.setId("pinButton");
-			pinButton.setTooltip(new Tooltip("Pin Question"));
-			pinButton.setOnAction(e -> {
-				PinQuestionControl.pinQuestion(question);
-				refresh();
-			});
+			ToggleButton pinButton = new PinUI(question, this).getPinButton();
 			
 			VBox pinButtonsPane = new VBox(pinButton);
 			pinButtonsPane.setSpacing(5);
@@ -362,38 +256,20 @@ public class ForumUI {
 			pinButtonsPane.setAlignment(Pos.CENTER);
 			
 			questionPane.setRight(pinButtonsPane);
-		
 		}
 		
-		questionPane.setPadding(new Insets(2, 2, 2, 2));
-	
+				
+		VoteUI voteUI = new VoteUI(question); 
 		
-		Insets insets = new Insets(30);
-		
-		Label votesLabel = new Label(question.getVotes() + "");
-		formatVotesLabel(votesLabel, 0);
-		
-		if(question.getVotes() == 0) {
-			votesLabel.setId("votesTickerZero");
-		} else if (question.getVotes() > 0) {
-			votesLabel.setId("votesTickerPositive");
-		} else {
-			votesLabel.setId("votesTickerNegative");
-		}
-		
+		Label votesLabel = voteUI.getVotesLabel();
+		ToggleButton upvoteBtn = voteUI.getUpvoteButton();
+		ToggleButton downvoteBtn = voteUI.getDownvoteButton();
+				
 		VBox votesPane = new VBox(votesLabel);
 		votesPane.setAlignment(Pos.CENTER);
-		//top, right, bottom, left
-		votesPane.setPadding(new Insets(25, 10, 25, 10));
-		questionPane.setLeft(votesPane);
-
+		votesPane.setPadding(new Insets(25, 10, 25, 10)); //top, right, bottom, left
+		questionPane.setLeft(votesPane);		
 		
-		ToggleButton upvoteBtn = new ToggleButton("\u25B2");
-		upvoteBtn.setId("upvoteButton");
-		
-		ToggleButton downvoteBtn = new ToggleButton("\u25BC");
-		downvoteBtn.setId("downvoteButton");
-	
 		VBox voteButtonsPane = new VBox(upvoteBtn, downvoteBtn);
 		voteButtonsPane.setSpacing(5);
 		voteButtonsPane.setAlignment(Pos.CENTER);
@@ -401,75 +277,9 @@ public class ForumUI {
 		BorderPane innerPostPane = new BorderPane();
 		innerPostPane.setLeft(voteButtonsPane);
 		questionPane.setCenter(innerPostPane);
-		
-		
-		if(question.getCurrentUserVote() == 1) {
-			upvoteBtn.setSelected(true);
-		} else if (question.getCurrentUserVote() == -1) {
-			downvoteBtn.setSelected(true);
-		}
-		
-		upvoteBtn.setOnAction(e -> {
-			if(upvoteBtn.isSelected()) {
-				if(downvoteBtn.isSelected()) {
-					downvoteBtn.setSelected(false);
-					formatVotesLabel(votesLabel, +2);
-				} else {
-					formatVotesLabel(votesLabel, +1);
-				}
 				
-				
-				VoteControl.addVote(new Vote(question, LoginControl.getUser(), VoteType.UPVOTE));
-				question.setCurrentUserVote(VoteType.UPVOTE);
-			} else {
-				
-				formatVotesLabel(votesLabel, -1);
-				VoteControl.addVote(new Vote(question, LoginControl.getUser(), VoteType.RESET_VOTE));
-				question.setCurrentUserVote(VoteType.RESET_VOTE);
-			}
-			
-			int votes = getVoteCount(votesLabel);
-			if(votes == 0) {
-				votesLabel.setId("votesTickerZero");
-			} else if (votes > 0) {
-				votesLabel.setId("votesTickerPositive");
-			} else {
-				votesLabel.setId("votesTickerNegative");
-			}
-		});
-		
-		downvoteBtn.setOnAction(e -> {
-			if(downvoteBtn.isSelected()) {
-				if(upvoteBtn.isSelected()) {
-					upvoteBtn.setSelected(false);
-					formatVotesLabel(votesLabel, -2);
-				} else {
-					formatVotesLabel(votesLabel, -1);
-				}
-				
-				
-				VoteControl.addVote(new Vote(question, LoginControl.getUser(), VoteType.DOWNVOTE));
-				question.setCurrentUserVote(VoteType.DOWNVOTE);
-			} else {
-				
-				formatVotesLabel(votesLabel, +1);
-				VoteControl.addVote(new Vote(question, LoginControl.getUser(), VoteType.RESET_VOTE));
-				question.setCurrentUserVote(VoteType.RESET_VOTE);
-			}
-			
-			int votes = getVoteCount(votesLabel);
-			if(votes == 0) {
-				votesLabel.setId("votesTickerZero");
-			} else if (votes > 0) {
-				votesLabel.setId("votesTickerPositive");
-			} else {
-				votesLabel.setId("votesTickerNegative");
-			}
-		});
-		
 		GridPane innerInnerPostPane = new GridPane();
 		innerInnerPostPane.setPadding(new Insets(5, 10, 10, 10)); //top, right, bottom, left
-		//innerInnerPostPane.setGridLinesVisible(true);
 		innerPostPane.setCenter(innerInnerPostPane);
 		
 		Label tagLabel = new Label(question.getTag().getSymbol());
@@ -486,7 +296,6 @@ public class ForumUI {
 		questionTitleLabel.setMinWidth(WINDOW_WIDTH * 0.65);
 		questionTitleLabel.setWrapText(true);
 		GridPane.setConstraints(questionTitleLabel, 1, 0);
-		
 		questionTitleLabel.setOnMouseClicked(e -> {
 			currentQuestion = question;
 			blowupQuestion(question);
@@ -494,7 +303,6 @@ public class ForumUI {
 		
 		Label authorLabel = new Label("Posted " + question.getTimePosted() + " by " + question.getAuthor().getUsername());
 		authorLabel.setPadding(new Insets(10, 0, 10, 20));
-		//authorLabel.setMinWidth(WINDOW_WIDTH * 0.45);
 		authorLabel.setMaxWidth(WINDOW_WIDTH * 0.45);
 		authorLabel.setWrapText(true);
 		GridPane.setConstraints(authorLabel, 1, 1);
@@ -507,38 +315,13 @@ public class ForumUI {
 		GridPane.setConstraints(answersCountLabel, 1, 2);
 		
 		if(question.hasSolvedAnswer()) {
-			Label markedSolvedLabel = new Label("\u2714");
-			markedSolvedLabel.setId("markedSolvedLabel");
-			markedSolvedLabel.setTooltip(new Tooltip("This question has been answered"));
-			markedSolvedLabel.setPadding(new Insets(0, 0, 0, 10));
-			markedSolvedLabel.setMaxHeight(1);
-			
+			Label markedSolvedLabel = new MarkSolvedUI().getMarkedSolvedOnQuestionLabel();			
 			innerInnerPostPane.add(markedSolvedLabel, 0, 1);
 		}
 		
-		
 		innerInnerPostPane.getChildren().addAll(tagLabel, questionTitleLabel, authorLabel, answersCountLabel);
 		
-		
-		
 		return questionPane;
-	}
-	
-	/**Edits the vote count label for post to display a user's vote immediately.
-	 * @param label The vote count Label object.
-	 * @param offset How much the vote count changed by.<br>(Example: neutral -> positive = +1)
-	 */
-	private void formatVotesLabel(Label label, int offset) {
-		int labelAsInt = getVoteCount(label);
-		label.setText(labelAsInt + offset + ((labelAsInt + offset) < 0 ? "" : " "));
-	}
-	
-	/**Gets the votes down of a vote Label.
-	 * @param label The label whose vote count is being gotten.
-	 * @return The votes count.
-	 */
-	private int getVoteCount(Label label) {
-		return Integer.parseInt(label.getText().trim());
 	}
 	
 	
@@ -547,40 +330,24 @@ public class ForumUI {
 	 * @return The constructed postPane.
 	 */
 	private BorderPane buildPostPane(Post post) {
-		
-		String postType = post.getPostType();
-		
+				
 		boolean isQuestion = post.isQuestion();
 		
 		BorderPane postPane = new BorderPane();
-		
 		postPane.setPadding(new Insets(2, 2, 2, 2));
+		
+		VoteUI voteUI = new VoteUI(post); 
 	
-		
-		Label votesLabel = new Label(post.getVotes() + "");
-		formatVotesLabel(votesLabel, 0);
-		
-		if(post.getVotes() == 0) {
-			votesLabel.setId("votesTickerZero");
-		} else if (post.getVotes() > 0) {
-			votesLabel.setId("votesTickerPositive");
-		} else {
-			votesLabel.setId("votesTickerNegative");
-		}
+		Label votesLabel = voteUI.getVotesLabel();
 		
 		VBox votesPane = new VBox(votesLabel);
 		votesPane.setAlignment(Pos.TOP_CENTER);
-		//top, right, bottom, left
+		votesPane.setPadding(new Insets(30, 10, 25, isQuestion ? 10 : 40)); //top, right, bottom, left
 		
-		votesPane.setPadding(new Insets(30, 10, 25, isQuestion ? 10 : 40));
 		postPane.setLeft(votesPane);
 
-		
-		ToggleButton upvoteBtn = new ToggleButton("\u25B2");
-		upvoteBtn.setId("upvoteButton");
-		
-		ToggleButton downvoteBtn = new ToggleButton("\u25BC");
-		downvoteBtn.setId("downvoteButton");
+		ToggleButton upvoteBtn = voteUI.getUpvoteButton();
+		ToggleButton downvoteBtn = voteUI.getDownvoteButton();
 	
 		VBox voteButtonsPane = new VBox(upvoteBtn, downvoteBtn);
 		voteButtonsPane.setSpacing(5);
@@ -591,77 +358,10 @@ public class ForumUI {
 		innerPostPane.setLeft(voteButtonsPane);
 		postPane.setCenter(innerPostPane);
 		
-		
-		if(post.getCurrentUserVote() == 1) {
-			upvoteBtn.setSelected(true);
-		} else if (post.getCurrentUserVote() == -1) {
-			downvoteBtn.setSelected(true);
-		}
-		
-		upvoteBtn.setOnAction(e -> {
-			if(upvoteBtn.isSelected()) {
-				if(downvoteBtn.isSelected()) {
-					downvoteBtn.setSelected(false);
-					formatVotesLabel(votesLabel, +2);
-				} else {
-					formatVotesLabel(votesLabel, +1);
-				}
-				
-				
-				VoteControl.addVote(new Vote(post, LoginControl.getUser(), VoteType.UPVOTE));
-				post.setCurrentUserVote(VoteType.UPVOTE);
-			} else {
-				
-				formatVotesLabel(votesLabel, -1);
-				VoteControl.addVote(new Vote(post, LoginControl.getUser(), VoteType.RESET_VOTE));
-				post.setCurrentUserVote(VoteType.RESET_VOTE);
-			}
-			
-			int votes = getVoteCount(votesLabel);
-			if(votes == 0) {
-				votesLabel.setId("votesTickerZero");
-			} else if (votes > 0) {
-				votesLabel.setId("votesTickerPositive");
-			} else {
-				votesLabel.setId("votesTickerNegative");
-			}
-		});
-		
-		downvoteBtn.setOnAction(e -> {
-			if(downvoteBtn.isSelected()) {
-				if(upvoteBtn.isSelected()) {
-					upvoteBtn.setSelected(false);
-					formatVotesLabel(votesLabel, -2);
-				} else {
-					formatVotesLabel(votesLabel, -1);
-				}
-				
-				
-				VoteControl.addVote(new Vote(post, LoginControl.getUser(), VoteType.DOWNVOTE));
-				post.setCurrentUserVote(VoteType.DOWNVOTE);
-			} else {
-				
-				formatVotesLabel(votesLabel, +1);
-				VoteControl.addVote(new Vote(post, LoginControl.getUser(), VoteType.RESET_VOTE));
-				post.setCurrentUserVote(VoteType.RESET_VOTE);
-			}
-			
-			int votes = getVoteCount(votesLabel);
-			if(votes == 0) {
-				votesLabel.setId("votesTickerZero");
-			} else if (votes > 0) {
-				votesLabel.setId("votesTickerPositive");
-			} else {
-				votesLabel.setId("votesTickerNegative");
-			}
-		});
-		
-		
 		GridPane innerInnerPostPane = new GridPane();
 		innerInnerPostPane.setVgap(5);
 		innerInnerPostPane.setPadding(new Insets(5, 10, 10, 10)); //top, right, bottom, left
 		innerPostPane.setCenter(innerInnerPostPane);
-		
 		
 		if(isQuestion) {
 			Label tagLabel = new Label(((Question)post).getTag().getSymbol());
@@ -686,7 +386,6 @@ public class ForumUI {
 			innerInnerPostPane.getChildren().addAll(tagLabel, questionTitleLabel);
 		}
 	
-		
 		Label authorLabel = new Label("Posted " + post.getTimePosted() + " by " + post.getAuthor().getUsername());
 		authorLabel.setPadding(new Insets(0, 0, 0, 20));
 		authorLabel.setMinWidth(WINDOW_WIDTH * 0.45);
@@ -694,7 +393,6 @@ public class ForumUI {
 		authorLabel.setWrapText(true);
 		GridPane.setConstraints(authorLabel, 0, 1);
 
-		
 		Label descriptionLabel = new Label(post.getDescription());
 		descriptionLabel.setPadding(new Insets(0, 0, 0, 20));
 		descriptionLabel.setId("descriptionLabel");
@@ -705,106 +403,40 @@ public class ForumUI {
 		
 		innerInnerPostPane.getChildren().addAll(authorLabel, descriptionLabel);
 		
-		Label markedSolvedLabel = new Label();
-		if(post.isAnswer()) {
-			Answer solvedAnswer = ((Answer)post).getQuestion().getSolvedAnswer();		
-			if(solvedAnswer != null && solvedAnswer.getID().equals(post.getID())) {
-				markedSolvedLabel.setText("\u2714");
-				markedSolvedLabel.setId("markedSolvedLabel");
-				markedSolvedLabel.setTooltip(new Tooltip("This answer is what the asker was looking for"));
-				//markedSolvedLabel.setPadding(new Insets(0, 0, 0, 10));
-				//markedSolvedLabel.setMinWidth(WINDOW_WIDTH * 0.18);
-				markedSolvedLabel.setWrapText(true);
-				VBox symbolsBox = new VBox(markedSolvedLabel);
-				symbolsBox.setPadding(new Insets(0, 20, 0, 0));
-				symbolsBox.setAlignment(Pos.CENTER);
-				innerPostPane.setRight(symbolsBox);
-			}
+		MarkSolvedUI markSolvedUI = new MarkSolvedUI(post, this);
+		
+		Label markedSolvedLabel = markSolvedUI.getMarkedSolvedOnAnswerLabel();
+		if(markedSolvedLabel != null) {
+			VBox symbolsBox = new VBox(markedSolvedLabel);
+			symbolsBox.setPadding(new Insets(0, 20, 0, 0));
+			symbolsBox.setAlignment(Pos.CENTER);
+			innerPostPane.setRight(symbolsBox);
 		}
 		
 		VBox buttonPane = new VBox(10);
 		buttonPane.setPadding(new Insets(5, 5, 5, 5));
+		
 		if(LoginControl.getUser().getUsername().equals(post.getAuthor().getUsername())) {
-			Button editButton = new Button();
-			editButton.setPrefSize(30, 30);
-			editButton.setId("editButton");
-			editButton.setTooltip(new Tooltip("Edit " + postType));
-			editButton.setOnAction(e -> {
-				if(PopupUI.displayEditPostDialog(post)) {
-					EditPostControl.processEditPost(post);
-					refresh();
-				}
-			});
-
-			Button deleteButton = new Button();
-			deleteButton.setPrefSize(30, 30);
-			deleteButton.setId("deleteButton");
-			deleteButton.setTooltip(new Tooltip("Delete " + postType));	
-			deleteButton.setOnAction(e -> {
-				if(PopupUI.displayConfirmationDialog("Confirm Deletion", 
-						"Are you sure you want to delete this " + postType + "? This cannot be undone!")) {
-					DeletePostControl.processDeletePost(post);
-					if(isQuestion) {
-						currentQuestion = null;
-						backBtnPress();
-					} else {
-						refresh();
-					}
-				}
-			});
-
+			Button editButton = new EditPostUI(post, this).getEditButton();
+			Button deleteButton = new DeletePostUI(post, this).getDeleteButton();
 			buttonPane.getChildren().addAll(editButton, deleteButton);
-			
 		} else {
-			
-			
-			
-			if(post.isAnswer() //If the post is an answer
-					&& ((Answer)post).getQuestion().getAuthor().getUsername().equals(LoginControl.getUser().getUsername()) //AND the answer's question is yours
-					&& !post.getAuthor().getUsername().equals(LoginControl.getUser().getUsername())) { //and the answer isn't yours
-				
-				ToggleButton markSolvedButton = new ToggleButton();
-				Answer solvedAnswer = ((Answer)post).getQuestion().getSolvedAnswer();
-				if(solvedAnswer != null && solvedAnswer.getID().equals(post.getID())) {
-					markSolvedButton.setSelected(true);
-				}
-				markSolvedButton.setPrefSize(30, 30);
-				markSolvedButton.setId("markSolvedButton");
-				markSolvedButton.setTooltip(new Tooltip("Mark as solved"));
-				markSolvedButton.setOnAction(e -> {
-					if(markSolvedButton.isSelected()) {
-						MarkSolvedControl.markSolved(((Answer)post).getQuestion(), (Answer)post);
-						refresh();
-					} else {
-						MarkSolvedControl.markSolved(((Answer)post).getQuestion(), null);
-						markedSolvedLabel.setVisible(false);
-					}						
-					
-				});
-				
+			ToggleButton markSolvedButton = markSolvedUI.getMarkSolvedButton();
+			if(markSolvedButton != null) {
 				buttonPane.getChildren().add(markSolvedButton);
-			}		
-			
-			
-			Button reportButton = new Button();
-			reportButton.setPrefSize(30, 30);
-			reportButton.setId("reportButton");
-			reportButton.setTooltip(new Tooltip("Report " + postType));
-			reportButton.setOnAction(e -> {
-				Report report = PopupUI.displayReportPostDialog(post);
-				if(report != null) {
-					ReportPostControl.reportPost(report);
-					PopupUI.displayInfoDialog("Report Sent", "Thank you for helping keep our platform safe!");
-				}
-			});
-			
+			}
+								
+			Button reportButton = new ReportUI(post).getReportButton();
 			buttonPane.getChildren().addAll(reportButton);
 		}
-		postPane.setRight(buttonPane);
 		
+		postPane.setRight(buttonPane);
 		return postPane;
 	}
 	
+	/**Creates an empty pane for when a user's search yields no results.
+	 * @return An empty post pane containing a funky message.
+	 */
 	private BorderPane buildEmptyPane() {
 		
 		BorderPane emptyPane = new BorderPane();

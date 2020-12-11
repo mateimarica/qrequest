@@ -1,4 +1,4 @@
-	package com.qrequest.objects;
+package com.qrequest.objects;
 
 import java.util.Date;
 import java.util.UUID;
@@ -9,6 +9,9 @@ public class Answer extends Post{
 	/**The question that this answer is posted to.*/
 	private Question question;
 	
+	/**Create a question with only an ID.
+	 * @param id The unique UUID.
+	 */
 	public Answer(UUID id) {
 		super(id);
 	}

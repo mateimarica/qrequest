@@ -3,10 +3,11 @@ package com.qrequest.control;
 import com.qrequest.exceptions.DatabaseConnectionException;
 import com.qrequest.objects.Credentials;
 import com.qrequest.objects.User;
+import com.qrequest.ui.PopupUI;
 
 /**Class for processing the login
  */
-public abstract class LoginControl {
+public class LoginControl {
 	
 	/**The current logged-in user.<br><b>null</b> if no user logged-in.
 	 */
@@ -14,13 +15,12 @@ public abstract class LoginControl {
 	
 	/**Sends the username & password to the DataManager to try to log in. 
 	 * If successful, saves the newly logged-in user in the <code>user</code> object.
-	 * @param username The username.
-	 * @param password The password.
+	 * @param creds The login credentials.
 	 * @return <code>True</code> if successfully logged in, <code>false</code> if failed.
 	 * @throws DatabaseConnectionException If the database cannot be connected to.
 	 */
-	public static boolean processLogin(Credentials creds) throws DatabaseConnectionException {
-		user = DataManager.getAccount(creds);
+	public boolean processLogin(Credentials creds) throws DatabaseConnectionException {
+		user = new DataManager().getAccount(creds);
 		return (user != null);
 	}
 	
@@ -28,8 +28,8 @@ public abstract class LoginControl {
 	 * @param password The password to be hashed.
 	 * @return The hashed password.
 	 */
-	public static String hashPassword(String password) throws DatabaseConnectionException {
-		return DataManager.hashPassword(password);
+	public String hashPassword(String password) throws DatabaseConnectionException {
+		return new DataManager().hashPassword(password);
 	}
 	
 	/**Returns the logged-in user.

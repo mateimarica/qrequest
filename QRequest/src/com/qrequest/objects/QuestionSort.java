@@ -1,5 +1,6 @@
 package com.qrequest.objects;
 
+/**Unused class.*/
 public enum QuestionSort {
 	TAG,
 	TITLE,

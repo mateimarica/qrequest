@@ -1,19 +1,20 @@
-package com.qrequest.control;
+package com.qrequest.helpers;
 
 import java.util.prefs.BackingStoreException;
 import java.util.prefs.Preferences;
 
 /**Class for simple getting/saving/clearing preferences.
  * Preferences are saved as strings.
+ * Class is final because it shouldn't be extended.
  */
 public final class PreferenceManager {
 	
-	//Do not instantiate this class
+	/**Private constructor to prevent instantiation.*/
 	private PreferenceManager() {}
 	
 	/**Preferences instance.
 	*/
-	private final static Preferences PREFS = Preferences.userNodeForPackage(com.qrequest.control.PreferenceManager.class);
+	private final static Preferences PREFS = Preferences.userNodeForPackage(com.qrequest.helpers.PreferenceManager.class);
 	
 	/**Returns the value associated with the given preference key.
 	 * @param key The preference's key

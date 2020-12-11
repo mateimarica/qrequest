@@ -26,23 +26,22 @@ import javafx.collections.ObservableList;
 import com.qrequest.objects.TeiTime;
 import com.qrequest.objects.Message;
 
-//class is abstract so no instances can be made - all references are to be STATIC
-//default access modifiers so ONLY control classes can access the DataManager
-/**Database manager. Only this class should connect to and access the database.
- * All access modifiers are default or private so that <b>ONLY</b> control classes can access the DataManager.
+
+/**Database manager. Only this class should connect to and access the database.<br>
+ * All access modifiers are default or private so that <b>ONLY</b> control classes can access the DataManager.<br>
+ * Default access modifiers so ONLY control classes can access the DataManager
  */
-abstract class DataManager {
+class DataManager {
 	
-	/**The connection to the database.
-	 */
-	private static Connection connection = initializeConnection();
+	/**The connection to the database.*/
+	private Connection connection;
 	
-	/**For the initial attempt to create a connection to the database.<br>
-	 * @return The connection object. Will be <code>null</code> if connection failed.
+	/**Creates a connection to database.<br>
+	 * The connection object will be <code>null</code> if connection failed.
+	 * @throws DatabaseConnectionException 
 	 */
-	private static Connection initializeConnection() {
-		
-		 try {
+	DataManager() throws DatabaseConnectionException {
+		try {
 	         Class.forName("com.mysql.jdbc.Driver").newInstance();
 	     } catch (Exception e) {
 	      System.err.println(e.toString());
@@ -54,11 +53,12 @@ abstract class DataManager {
 			Properties properties = new Properties();
 			properties.setProperty("user", "***REMOVED***");
 			properties.setProperty("password", "***REMOVED***");
-			return DriverManager.getConnection(url, properties);
+			connection = DriverManager.getConnection(url, properties);
 		} catch (SQLException e) {
-			return null;
+			connection = null;
+			throw new DatabaseConnectionException("Could not connect to database.");
 		} 
-	}	
+	}
 	
 	
 	/**Returns a user's account if there is an account associated with the given username & password.
@@ -67,8 +67,7 @@ abstract class DataManager {
 	 * @return The associated user. <code>null</code> if no user found.
 	 * @throws DatabaseConnectionException If there is no connection to the database.
 	 */
-	static User getAccount(Credentials creds) throws DatabaseConnectionException {
-		checkConnection();
+	User getAccount(Credentials creds) throws DatabaseConnectionException {
 		
 		//create query string
 		String sqlQuery = "SELECT * FROM Users WHERE "
@@ -100,13 +99,12 @@ abstract class DataManager {
 	 * @return <code>true</code> if account is created, <code>false</code> if an account with that username already exists.
 	 * @throws DatabaseConnectionException If there is no connection to the database.
 	 */
-	static boolean createAccount(Credentials creds) throws DatabaseConnectionException {
+	boolean createAccount(Credentials creds) throws DatabaseConnectionException {
 		
 		if(accountExists(creds.getUsername())) {
 			return false;
 		}
 		
-	
 		executeUpdateQuery("INSERT INTO Users VALUES('%s', SHA1('%s'), 0);",
 				creds.getUsername(), creds.getPassword());
 		
@@ -116,7 +114,7 @@ abstract class DataManager {
 	/**Saves a question into the database from a question object.
 	 * @param question The question being saved.
 	 */
-	static void createQuestion(Question question) {
+	void createQuestion(Question question) {
 		
 		//Must escape all apostrophes with another apostrophe so MySQL recognizes that they aren't quotes
 		String title = question.getTitle().replaceAll("'", "''");
@@ -126,11 +124,10 @@ abstract class DataManager {
 				title, desc, question.getAuthor(), question.getID(), question.getTag().name());
 	}
 	
-	
 	/**Syncs a question object with its instance in the database.
 	 * @param question The question being updated/refresh
 	 */
-	static void refreshQuestion(Question question) {
+	void refreshQuestion(Question question) {
 		ResultSetWrapper rs = executeRetrieveQuery("SELECT * FROM Questions WHERE Id = '" + question.getID() + "';");
 		
 		//updates Question object
@@ -147,9 +144,7 @@ abstract class DataManager {
 	 * @return <code>True</code> if the account exists, <code>false</code> if not.
 	 * @throws DatabaseConnectionException If there is no connection to the database.
 	 */
-	static boolean accountExists(String username) throws DatabaseConnectionException {
-		checkConnection();
-		
+	boolean accountExists(String username) throws DatabaseConnectionException {		
 		ResultSetWrapper rs = executeRetrieveQuery("SELECT COUNT(1) AS UserExists FROM Users WHERE UPPER(Username) = UPPER('" + username + "');");
 			
 		while(rs.next()) {
@@ -160,11 +155,10 @@ abstract class DataManager {
 		return false;
 	}
 	
-	
 	/**Post an answer.
 	 * @param answer The <code>Answer</code> object.
 	 */
-	static void postAnswer(Answer answer) {
+	void postAnswer(Answer answer) {
 			
 		//Must escape all apostrophes with another apostrophe so MySQL recognizes that they aren't quotes
 		String answerText = answer.getDescription().replaceAll("'", "''");
@@ -177,7 +171,7 @@ abstract class DataManager {
 	/**Wrapper method to retrieve all the questions from the database.
 	 * @return <code>ArrayList&ltQuestion&gt</code>
 	 */
-	static ArrayList<Question> getAllQuestions() {
+	ArrayList<Question> getAllQuestions() {
 		ArrayList<Post> postList = getAllPosts(null, null);
 		ArrayList<Question> questionList = new ArrayList<>();
 		for(int i = 0; i < postList.size(); i++) {
@@ -187,7 +181,11 @@ abstract class DataManager {
 		return questionList;
 	}
 	
-	static ArrayList<Question> getFilteredQuestions(QuestionSearchFilters filters) {
+	/**Get a list of questions using a list of filters specified by the user. 
+	 * @param filters The <code>QuestionSearchFilters</code> object.
+	 * @return An <code>ArrayList<code> of questions.
+	 */
+	ArrayList<Question> getFilteredQuestions(QuestionSearchFilters filters) {
 		ArrayList<Post> postList = getAllPosts(null, filters);
 		ArrayList<Question> questionList = new ArrayList<>();
 		for(int i = 0; i < postList.size(); i++) {
@@ -201,7 +199,7 @@ abstract class DataManager {
 	 * @param question The <code>Question</code> object.
 	 * @return<code>ArrayList&ltAnswer&gt</code>
 	 */
-	static ArrayList<Answer> getAllAnswers(Question question) {
+	ArrayList<Answer> getAllAnswers(Question question) {
 		ArrayList<Post> postList = getAllPosts(question, null);
 		ArrayList<Answer> answerList = new ArrayList<>();
 		for(int i = 0; i < postList.size(); i++) {
@@ -218,9 +216,10 @@ abstract class DataManager {
 	 * <b>Case 2:</b> <code>Question</code> argument is <bold>not</bold> <code>null</code><br>
 	 * - Retrieves all the answers to the question.
 	 * @param question The <code>Question</code> argument.
+	 * @param filters The question filters. If <code>null</code>, no filters will be used.
 	 * @return <code>ArrayList&ltPost&gt</code>
 	 */
-	private static ArrayList<Post> getAllPosts(Question question, QuestionSearchFilters filters) {
+	private ArrayList<Post> getAllPosts(Question question, QuestionSearchFilters filters) {
 		boolean isQuestionMode = question == null;
 		
 		ArrayList<Post> answerList = new ArrayList<>();
@@ -318,7 +317,7 @@ abstract class DataManager {
 	 * @param username A string that will be matched to usernames in the database.
 	 * @return <code>ArrayList&ltUser&gt</code>
 	 */
-	static ArrayList<User> getUsers(String username) {
+	ArrayList<User> getUsers(String username) {
 		ArrayList<User> userList = new ArrayList<>();
 		
 		// Order by TimePosted DESCENDING so that newer posts are at the top
@@ -336,7 +335,7 @@ abstract class DataManager {
 	 * @param password The password to be hashed.
 	 * @return The hashed password.
 	 */
-	static String hashPassword(String password) {
+	String hashPassword(String password) {
 			ResultSetWrapper rs =  executeRetrieveQuery("SELECT SHA1('" + password +"');");
 			rs.next();
 			return rs.getString(1);	
@@ -345,7 +344,7 @@ abstract class DataManager {
 	/**Add a vote the database. Note: a <code>Vote</code> object contains the <code>Post</code> that it was voted on.
 	 * @param vote The vote to be added.
 	 */
-	static void addVote(Vote vote) {
+	void addVote(Vote vote) {
 			if(vote.getVote().getValue() == 0) {
 				executeUpdateQuery("DELETE FROM Votes "
 								 + "WHERE PostId = '" + vote.getPost().getID() + "' "
@@ -359,7 +358,10 @@ abstract class DataManager {
 			}
 	}
 	
-	static void pinQuestion(Question question) {
+	/**Pin a question
+	 * @param question The <code>Question</code> to be pinned.
+	 */
+	void pinQuestion(Question question) {
 		executeUpdateQuery("UPDATE Questions SET IsPinned = IsPinned * -1"
 				+ " WHERE Id = '" + question.getID() +"';");
 	}
@@ -367,7 +369,7 @@ abstract class DataManager {
 	/**Updated a post's description in the database.
 	 * @param post The <code>Post</code> object with the updated description.
 	 */
-	static void editPost(Post post) {
+	void editPost(Post post) {
 		String desc = post.getDescription().replaceAll("'", "''");
 
 		if(post.isQuestion()) {
@@ -383,7 +385,7 @@ abstract class DataManager {
 	/**Deletes a question from the database.
 	 * @param question The question being deleted.
 	 */
-	static void deletePost(Post post) {
+	void deletePost(Post post) {
 			if(post.isQuestion()) { //If the post if a Question:
 				executeUpdateQuery("DELETE FROM Questions WHERE Id = '" + post.getID() + "';");
 				executeUpdateQuery("DELETE FROM Answers WHERE QuestionId = '" + post.getID() + "';");
@@ -392,7 +394,10 @@ abstract class DataManager {
 			}
 	}
 	
-	static void reportPost(Report report) {
+	/**Send a report.
+	 * @param report Send a <code>Report</code> to the database.
+	 */
+	void reportPost(Report report) {
 		executeUpdateQuery(
 				"INSERT INTO Reports VALUES('%s', '%s', CURRENT_TIMESTAMP, '%s', '%s', '%s');",
 				
@@ -405,7 +410,11 @@ abstract class DataManager {
 		);
 	}
 	
-	static void markSolved(Question question, Answer answer) {
+	/**Mark an answer as having solved a question.
+	 * @param question The <code>Question</code> in question
+	 * @param answer The <code>Answer</code> that solved/answered the <code>Question</code>.
+	 */
+	void markSolved(Question question, Answer answer) {
 		executeUpdateQuery("UPDATE Questions SET SolvedAnswerId = %s WHERE Id = '%s';",
 				answer == null ? "NULL" : "'" + answer.getID() + "'", question.getID());
 	}
@@ -413,7 +422,7 @@ abstract class DataManager {
 	/**Saves a question into the database from a question object.
 	 * @param question The question being saved.
 	 */
-	static void createMessage(Message message) {
+	void createMessage(Message message) {
 		//Must escape all apostrophes with another apostrophe so MySQL recognizes that they aren't quotes
 		String recip = message.getReceiver().replaceAll("'", "''");
 		String body = message.getText().replaceAll("'", "''");
@@ -427,13 +436,14 @@ abstract class DataManager {
 	/**Populates arraylist of message contents filtered by the provided username
 	 * @param userID the username to filter by 
 	 * @return ArrayList<String> the list of filtered messages
+	 * @param args The optional arguments if format specifiers are used in the query.
 	 */
-	static ArrayList<Message> getAllFilteredMessages(String userID) {
+	ArrayList<Message> getAllFilteredMessages(String userID) {
 		ArrayList<Message> messageList = new ArrayList<>();
 		String self = LoginControl.getUser().getUsername();
 		
 		String query = ("SELECT * FROM Messages WHERE ((Receiver = '" + userID 
-				+ "' AND Sender = '" + self + "') OR ( Receiver = '"
+				+ "' AND Sender = '" + self + "') OR (Receiver = '"
 				+ self + "' AND Sender = '" + userID + "'));");
 		
 		
@@ -447,13 +457,13 @@ abstract class DataManager {
 		return messageList;
 	}
 	
-	
-	
+
 	/**Execute an update-query with no return value.<br>
 	 * Example queries: <code> INSERT INTO, UPDATE, DELETE FROM, ...</code>
 	 * @param query The SQL query to be executed.
+	 * @param args The optional arguments if format specifiers are used in the query.
 	 */
-	private static void executeUpdateQuery(String query, Object ...args) {
+	private void executeUpdateQuery(String query, Object ...args) {
 		if(args.length != 0) {
 			query = String.format(query, args);
 		}
@@ -478,7 +488,7 @@ abstract class DataManager {
 	 * @param query The SQL query to be executed.
 	 * @return The <code>ResultSetWrapper</code> that contains the query's results. Functions the same as a <code>ResultSet</code>.
 	 */
-	private static ResultSetWrapper executeRetrieveQuery(String query, Object ...args) {
+	private ResultSetWrapper executeRetrieveQuery(String query, Object ...args) {
 		if(args.length != 0) {
 			query = String.format(query, args);
 		}
@@ -495,20 +505,5 @@ abstract class DataManager {
 		}
 		return null;
 	}
-
-	/**Checks the connection to the database. If connection is not <code>null</code>, no further action is taken.
-	 * @throws DatabaseConnectionException If there is no connection to the database.
-	 */
-	private static void checkConnection() throws DatabaseConnectionException {
-		if(connection == null) {
-			connection = initializeConnection();
-			if(connection == null) {
-				throw new DatabaseConnectionException("Could not connect to database.");
-			}
-		}
-	}
-	
-
-
 
 }

@@ -1,8 +1,8 @@
 package com.qrequest.objects;
 
 import com.qrequest.control.LoginControl;
-import com.qrequest.control.PreferenceManager;
 import com.qrequest.exceptions.DatabaseConnectionException;
+import com.qrequest.helpers.PreferenceManager;
 
 /**Represents a username and password pair.*/
 public class Credentials {
@@ -55,7 +55,7 @@ public class Credentials {
 	 * @throws DatabaseConnectionException If the database cannot be connected to.
 	 */
 	public void hashPassword() throws DatabaseConnectionException {
-		password = LoginControl.hashPassword(password);
+		password = new LoginControl().hashPassword(password);
 	}
 
 	/**Returns whether or not the password is hashed.

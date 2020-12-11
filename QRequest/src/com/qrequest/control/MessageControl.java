@@ -2,24 +2,35 @@ package com.qrequest.control;
 
 import java.util.ArrayList;
 
+import com.qrequest.exceptions.DatabaseConnectionException;
 import com.qrequest.objects.Message;
+import com.qrequest.ui.PopupUI;
 
 /**Class for processing the messaging functionality
  */
-public abstract class MessageControl {
+public class MessageControl {
 	
 	/**Sends the message object to the DataManager to try to log in. 
 	 * If successful, saves the new message information in the <code>Message</code> object.
 	 * @param message The message object
 	 */
-	public static void processSendMessage(Message message) {
-		DataManager.createMessage(message);
+	public void processSendMessage(Message message) {
+		try {
+			new DataManager().createMessage(message);
+		} catch (DatabaseConnectionException e) {
+			PopupUI.displayDatabaseConnectionErrorDialog();
+		}
 	}
 	
 	/**Sends the Recipient's username to DataManager to filter messagaes
-	 * @param ArrayList<String> the complete returned list of filtered Messages
+	 * @param userID <code>ArrayList&lt;String&gt;</code> the complete returned list of filtered Messages
 	 */
-	public static ArrayList<Message> processAllFilteredMessages(String userID) {
-		 return DataManager.getAllFilteredMessages(userID);
+	public ArrayList<Message> processAllFilteredMessages(String userID) {
+		try {
+			return new DataManager().getAllFilteredMessages(userID);
+		} catch (DatabaseConnectionException e) {
+			PopupUI.displayDatabaseConnectionErrorDialog();
+		}
+		return null;
 	}
 }

@@ -16,12 +16,19 @@ public class Vote {
 		/**A vote that represents the value -1*/
 		DOWNVOTE(-1);
 		
+		/**The VoteType's value.*/
 		private final int value;
 		
+		/**Creates a VoteType
+		 * @param value The value of the vote.
+		 */
 		private VoteType(int value) {
 			this.value = value;
 		}
 		
+		/**Returns the VoteType's value. Possible values: -1, 0, 1
+		 * @return The VoteType's value.
+		 */
 		public int getValue() {
 			return value;
 		}

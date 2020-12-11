@@ -1,13 +1,21 @@
 package com.qrequest.control;
 
+import com.qrequest.exceptions.DatabaseConnectionException;
 import com.qrequest.objects.Report;
+import com.qrequest.ui.PopupUI;
 
-public abstract class ReportPostControl {
+/**Send a report.*/
+public class ReportPostControl {
 	
-	/**Pins a selected question.
+	/**Sends a report to the database.
+	 * @param report The report.
 	 */
-	public static void reportPost(Report report) {
-		DataManager.reportPost(report);
+	public void reportPost(Report report) {
+		try {
+			new DataManager().reportPost(report);
+		} catch (DatabaseConnectionException e) {
+			PopupUI.displayDatabaseConnectionErrorDialog();
+		}
 	}
 	
 }

@@ -13,12 +13,15 @@ public class Question extends Post {
 	/**The number of answers this question has.*/
 	private int answerCount;
 	
-	/**True if question is pinned, false if not.
-	 */
+	/**True if question is pinned, false if not.*/
 	private boolean isPinned;
 	
+	/**This question's <code>Tag</code>.*/
 	private Tag tag;
 	
+	/**The answer of this question that is marked as having solved it.<br>
+	 * <code>null</code> if no answer has been marked as solved.
+	 */
 	private Answer solvedAnswer;
 	
 	/**Builds a Question object without a date for putting into the database, which assigns the time posted.
@@ -73,26 +76,45 @@ public class Question extends Post {
 		return title;
 	}
 	
+	/**Whether or not this question is pinned.
+	 * @return <code>true</code> if pinned, <code>false</code> if not.
+	 */
 	public boolean isPinned() {
 		return isPinned;
 	}
 	
+	/**Returns this question's tag.
+	 * @return This question's tag.
+	 */
 	public Tag getTag() {
 		return tag;
 	}
 	
+	/**Set this question's tag.
+	 * @param tag This question's new tag.
+	 */
 	public void setTag(Tag tag) {
 		this.tag = tag;
 	}
 	
+	/**Get the answer of this question that is marked as solved.
+	 * @return The answer of this question that is marked as having solved it.<br>
+	 * <code>null</code> if no answer has been marked as solved.
+	 */
 	public Answer getSolvedAnswer() {
 		return solvedAnswer;
 	}
 	
+	/**Whether or not this question has a solved answer.
+	 * @return <code>true</code> if this question has a solved answer, <code>false</code> if it doesn't.
+	 */
 	public boolean hasSolvedAnswer() {
 		return solvedAnswer != null;
 	}
 	
+	/**Set the answer of this question that is marked as solved.
+	 * @param solvedAnswer The answer of this question that is to be set to having solved this question..
+	 */
 	public void setSolvedAnswer(Answer solvedAnswer) {
 		this.solvedAnswer = solvedAnswer;
 	}
