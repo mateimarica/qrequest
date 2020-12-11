@@ -1,4 +1,4 @@
-<img style="float: right;" src="https://i.imgur.com/NJ5J5qM.png">
+<img align="right" src="https://i.imgur.com/NJ5J5qM.png">
 
 Have you ever had an inquiry about something but don't have a single soul to ask? 
 
