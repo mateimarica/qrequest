@@ -58,8 +58,8 @@ public class MessagingUI {
 		gridPane.setPadding(new Insets(20, 10, 10, 10));
 		
 		ListView<BorderPane> allMessages = new ListView<>();
-		allMessages.setMinSize(200, 200);
-		allMessages.setMaxSize(400, 400);
+		allMessages.setPrefHeight(200);
+		//allMessages.setMaxSize(400, 400);
 		
 		TextField searchField = new TextField();
 		searchField.setOnKeyReleased(e-> {
@@ -94,15 +94,17 @@ public class MessagingUI {
 		
 		Button sendMessageBtn = new Button("Send Message");
 		sendMessageBtn.addEventFilter(ActionEvent.ACTION, event -> {
-			Message message = new Message(LoginControl.getUser().getUsername(), searchField.getText(), composeField.getText());
-			new MessageControl().processSendMessage(message);
-			Label newLabel = new Label(message.getText());
-			BorderPane box = new BorderPane();
-			box.setRight(newLabel);
-			
-			allMessages.getItems().add(box);
-			
-			composeField.setText("");
+			if(!composeField.getText().isEmpty()) {
+				Message message = new Message(LoginControl.getUser().getUsername(), searchField.getText(), composeField.getText());
+				new MessageControl().processSendMessage(message);
+				Label newLabel = new Label(message.getText());
+				BorderPane box = new BorderPane();
+				box.setRight(newLabel);
+				
+				allMessages.getItems().add(box);
+				
+				composeField.setText("");
+			}
 		});
 		composeBox.setRight(sendMessageBtn);
 		
@@ -145,4 +147,6 @@ public class MessagingUI {
 		 		
 		 	} 	
 	}
+	
+	
 }
