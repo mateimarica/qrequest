@@ -6,7 +6,7 @@ import com.qrequest.ui.PopupUI;
 
 /**Class for posting questions to the database.
  */
-public class CreateQuestionControl {
+public class AskQuestionControl {
 	
 	/**Saves a question into the database from a question object.
 	 * @param question The question being saved.

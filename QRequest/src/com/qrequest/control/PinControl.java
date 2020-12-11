@@ -5,7 +5,7 @@ import com.qrequest.objects.Question;
 import com.qrequest.ui.PopupUI;
 
 /**Pin a question*/
-public class PinQuestionControl {
+public class PinControl {
 	
 	/**Pins a selected question.
 	 * @param question The question being pinned.

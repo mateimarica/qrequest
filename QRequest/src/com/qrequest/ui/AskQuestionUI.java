@@ -1,6 +1,6 @@
 package com.qrequest.ui;
 
-import com.qrequest.control.CreateQuestionControl;
+import com.qrequest.control.AskQuestionControl;
 import com.qrequest.control.LoginControl;
 import com.qrequest.objects.Question;
 import com.qrequest.objects.Tag;
@@ -50,7 +50,7 @@ public class AskQuestionUI {
 	private void askQuestionButtonPress() {
 		Question newQuestion = displayAskQuestionDialog();
 		if(newQuestion != null) {
-			new CreateQuestionControl().processPostQuestion(newQuestion);
+			new AskQuestionControl().processPostQuestion(newQuestion);
 			forumUI.refresh();
 		}
 	}

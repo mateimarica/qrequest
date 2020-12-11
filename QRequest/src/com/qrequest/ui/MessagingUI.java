@@ -3,7 +3,7 @@ package com.qrequest.ui;
 import java.util.ArrayList;
 
 import com.qrequest.control.LoginControl;
-import com.qrequest.control.MessageControl;
+import com.qrequest.control.MessagingControl;
 import com.qrequest.control.SearchUsersControl;
 import com.qrequest.objects.Message;
 import com.qrequest.objects.User;
@@ -96,7 +96,7 @@ public class MessagingUI {
 		sendMessageBtn.addEventFilter(ActionEvent.ACTION, event -> {
 			if(!composeField.getText().isEmpty()) {
 				Message message = new Message(LoginControl.getUser().getUsername(), searchField.getText(), composeField.getText());
-				new MessageControl().processSendMessage(message);
+				new MessagingControl().processSendMessage(message);
 				Label newLabel = new Label(message.getText());
 				BorderPane box = new BorderPane();
 				box.setRight(newLabel);
@@ -130,7 +130,7 @@ public class MessagingUI {
 	 */
 	private void refreshMessaging(ListView<BorderPane> allMessages, TextField searchField) {
 		allMessages.getItems().clear();
-		ArrayList<Message> messageList = new MessageControl().processAllFilteredMessages(searchField.getText());
+		ArrayList<Message> messageList = new MessagingControl().processAllFilteredMessages(searchField.getText());
 		
 		 	for (int i = 0; i < messageList.size(); i++) {
 		 		

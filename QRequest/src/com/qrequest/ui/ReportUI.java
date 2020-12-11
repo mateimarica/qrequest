@@ -1,7 +1,7 @@
 package com.qrequest.ui;
 
 import com.qrequest.control.LoginControl;
-import com.qrequest.control.ReportPostControl;
+import com.qrequest.control.ReportControl;
 import com.qrequest.objects.Post;
 import com.qrequest.objects.Report;
 
@@ -43,7 +43,7 @@ public class ReportUI {
 	private void reportButtonPress() {
 		Report report = displayReportPostDialog();
 		if(report != null) {
-			new ReportPostControl().reportPost(report);
+			new ReportControl().reportPost(report);
 			PopupUI.displayInfoDialog("Report Sent", "Thank you for helping keep our platform safe!");
 		}
 	}

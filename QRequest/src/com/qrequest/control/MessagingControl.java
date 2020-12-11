@@ -8,7 +8,7 @@ import com.qrequest.ui.PopupUI;
 
 /**Class for processing the messaging functionality
  */
-public class MessageControl {
+public class MessagingControl {
 	
 	/**Sends the message object to the DataManager to try to log in. 
 	 * If successful, saves the new message information in the <code>Message</code> object.

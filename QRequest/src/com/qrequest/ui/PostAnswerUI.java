@@ -1,6 +1,6 @@
 package com.qrequest.ui;
 
-import com.qrequest.control.CreateAnswerControl;
+import com.qrequest.control.PostAnswerControl;
 import com.qrequest.control.LoginControl;
 import com.qrequest.objects.Answer;
 import com.qrequest.objects.Question;
@@ -53,7 +53,7 @@ public class PostAnswerUI {
 	private void processPostAnswerButtonPress() {
 		Answer newAnswer = displayPostAnswerDialog();
 		if(newAnswer != null) {
-			new CreateAnswerControl().processPostAnswer(newAnswer);
+			new PostAnswerControl().processPostAnswer(newAnswer);
 			forumUI.refresh();
 		}
 	}

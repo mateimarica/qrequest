@@ -9,7 +9,7 @@ import com.qrequest.objects.Report;
 import com.qrequest.ui.PopupUI;
 
 /**Search for questions.*/
-public class SearchQuestionControl {
+public class SearchQuestionsControl {
 	
 	/**Get a list of questions using a list of filters specified by the user. 
 	 * @param filters The <code>QuestionSearchFilters</code> object.

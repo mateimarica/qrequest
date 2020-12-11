@@ -1,6 +1,6 @@
 package com.qrequest.ui;
 
-import com.qrequest.control.PinQuestionControl;
+import com.qrequest.control.PinControl;
 import com.qrequest.objects.Question;
 
 import javafx.scene.control.ToggleButton;
@@ -43,7 +43,7 @@ public class PinUI {
 	
 	/**Triggered when the pin button is clicked. Pins the question and refreshes the forum.*/
 	private void pinButtonPress() {
-		new PinQuestionControl().pinQuestion(question);
+		new PinControl().pinQuestion(question);
 		forumUI.refresh();
 	}
 }

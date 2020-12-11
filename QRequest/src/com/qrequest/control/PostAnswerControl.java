@@ -5,7 +5,7 @@ import com.qrequest.objects.Answer;
 import com.qrequest.ui.PopupUI;
 
 /**Class for putting an answer into the database*/
-public class CreateAnswerControl {
+public class PostAnswerControl {
 		
 	/**Posts an answer into the answer.
 	 * @param answer The <code>Answer</code> that is to be added into the database.

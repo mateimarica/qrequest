@@ -1,6 +1,6 @@
 package com.qrequest.ui;
 
-import com.qrequest.control.SearchQuestionControl;
+import com.qrequest.control.SearchQuestionsControl;
 import com.qrequest.objects.QuestionSearchFilters;
 import com.qrequest.objects.Tag;
 
@@ -46,7 +46,7 @@ public class SearchQuestionsUI {
 		QuestionSearchFilters filters = displaySearchQuestionsDialog();
 		if(filters != null) {
 			forumUI.populateToolbar();
-			forumUI.createQuestionsList(new SearchQuestionControl().searchQuestions(filters));
+			forumUI.createQuestionsList(new SearchQuestionsControl().searchQuestions(filters));
 		}
 	}
 	
