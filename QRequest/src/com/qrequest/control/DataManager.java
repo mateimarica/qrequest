@@ -163,7 +163,7 @@ class DataManager {
 		//Must escape all apostrophes with another apostrophe so MySQL recognizes that they aren't quotes
 		String answerText = answer.getDescription().replaceAll("'", "''");
 
-		executeUpdateQuery("Insert INTO Answers VALUES('%s', '%s', '%s', '%s', CURRENT_TIMESTAMP);",
+		executeUpdateQuery("INSERT INTO Answers VALUES('%s', '%s', '%s', '%s', CURRENT_TIMESTAMP);",
 				answerText, answer.getAuthor(), answer.getID(), answer.getQuestion().getID());
 		
 	}	
@@ -239,9 +239,6 @@ class DataManager {
 						hasSolvedAns == null ? "" : "AND SolvedAnswerId IS" + (hasSolvedAns ? " NOT" : "") + " NULL"); //yeah I know this garbage is hard to read
 			}			
 		} else {
-			/*query = "SELECT * FROM Answers "
-					+ "WHERE QuestionId = '" + question.getID() + "'"
-					+ " ORDER BY TimePosted DESC;";*/
 			
 			query = String.format("SELECT * FROM Answers "
 					+ "WHERE QuestionId = '%s' "
@@ -405,7 +402,7 @@ class DataManager {
 				report.getDesc().replaceAll("'", "''"), 
 				report.getReporter(), 
 				report.getReportedPost().getID(),
-				report.getID(), 1
+				report.getID()
 				
 		);
 	}

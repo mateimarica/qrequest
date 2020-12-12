@@ -3,8 +3,7 @@ package com.qrequest.objects;
 import java.util.Date;
 import java.util.UUID;
 
-/**Represents a question.
- */
+/**Represents a question.*/
 public class Question extends Post {
 	
 	/**The question or the question's title.*/
