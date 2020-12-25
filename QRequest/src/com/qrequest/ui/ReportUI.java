@@ -1,7 +1,10 @@
 package com.qrequest.ui;
 
+import java.util.ResourceBundle;
+
 import com.qrequest.control.LoginControl;
 import com.qrequest.control.ReportControl;
+import com.qrequest.helpers.LanguageManager;
 import com.qrequest.objects.Post;
 import com.qrequest.objects.Report;
 
@@ -31,11 +34,12 @@ public class ReportUI {
 	 */
 	public ReportUI(Post post){
 		this.post = post;
+	
 		
 		reportButton = new Button();
 		reportButton.setPrefSize(30, 30);
 		reportButton.setId("reportButton");
-		reportButton.setTooltip(new Tooltip("Report " + post.getPostType()));
+		reportButton.setTooltip(new Tooltip(LanguageManager.getLangBundle().getString("reportButtonTooltip")));
 		reportButton.setOnAction(e -> reportButtonPress());
 	}
 	
@@ -44,7 +48,8 @@ public class ReportUI {
 		Report report = displayReportPostDialog();
 		if(report != null) {
 			new ReportControl().reportPost(report);
-			PopupUI.displayInfoDialog("Report Sent", "Thank you for helping keep our platform safe!");
+			ResourceBundle langBundle = LanguageManager.getLangBundle();
+			PopupUI.displayInfoDialog(langBundle.getString("reportSentTitle"), langBundle.getString("reportSent"));
 		}
 	}
 	
@@ -63,12 +68,14 @@ public class ReportUI {
 
 		Report report = new Report(LoginControl.getUser(), post);
 		
-		String postType = post.getPostType();
+		ResourceBundle langBundle = LanguageManager.getLangBundle();
 		
 		// Create the custom dialog.
 		Dialog dialog = new Dialog();
-		dialog.setTitle("Report " + postType);
+		dialog.setTitle(langBundle.getString("reportPopupTitle"));
 
+		
+		
 		PopupUI.setupDialogStyling(dialog);
 		
 		GridPane gridPane = new GridPane();
@@ -78,7 +85,7 @@ public class ReportUI {
 		gridPane.setPadding(new Insets(20, 10, 10, 10));
 		
 		ComboBox<String> reportTypeBox = new ComboBox<>();	
-		reportTypeBox.setPromptText("Reason for report");
+		reportTypeBox.setPromptText(langBundle.getString("reportTypeMenuPrompt"));
 		GridPane.setConstraints(reportTypeBox, 0, 0);
 		String[] reportTypes = report.getReportTypes();
 		for(int i = 0; i < reportTypes.length; i++) {
@@ -86,7 +93,7 @@ public class ReportUI {
 		}
 		
 		TextArea reportField = new TextArea();
-		reportField.setPromptText("Detailed report (Optional)");
+		reportField.setPromptText(langBundle.getString("reportDescPrompt"));
 		reportField.setMaxSize(300, 200);
 		reportField.setWrapText(true);
 		GridPane.setConstraints(reportField, 0, 1);
@@ -94,20 +101,20 @@ public class ReportUI {
 		gridPane.getChildren().addAll(reportTypeBox, reportField);
 
 		// Set the button types.
-		ButtonType confirmBtnType = new ButtonType("Send Report", ButtonData.RIGHT);
+		ButtonType confirmBtnType = new ButtonType(langBundle.getString("sendReportButton"), ButtonData.RIGHT);
 		dialog.getDialogPane().getButtonTypes().addAll(confirmBtnType, ButtonType.CANCEL);
 
 		final Button confirmBtn = (Button)dialog.getDialogPane().lookupButton(confirmBtnType);
 		confirmBtn.addEventFilter(ActionEvent.ACTION, event -> {
 
 			if (reportField.getText().length() > 1000) {
-			   PopupUI.displayWarningDialog("Error Reporting " + postType, "Report is too long.");
+			   PopupUI.displayWarningDialog(langBundle.getString("errorReportingPostTitle"), langBundle.getString("reportTooLongError"));
 			   event.consume(); //make it so the dialog does not close
 			   return;
 			}
 			
 			if(reportTypeBox.getSelectionModel().isEmpty()) {
-				PopupUI.displayWarningDialog("Error Reporting " + postType, "Must select reason for report.");
+				PopupUI.displayWarningDialog(langBundle.getString("errorReportingPostTitle"), langBundle.getString("reportTypeUnselectedError"));
 				event.consume(); //make it so the dialog does not close
 				return;
 			}

@@ -2,6 +2,7 @@ package com.qrequest.ui;
 
 import java.util.NoSuchElementException;
 
+import com.qrequest.helpers.LanguageManager;
 import com.qrequest.helpers.ThemeHelper;
 
 import javafx.scene.Scene;
@@ -17,8 +18,22 @@ import javafx.stage.Stage;
  * This is an appropriate use of the static keyword.*/
 public class PopupUI {
 	
+	static final int MIN_ANSWER_DESC_LENGTH = 1;
+	
 	static final int MAX_DESC_LENGTH = 65535;
+	
+	static final int MIN_NAME_LENGTH = 3;
 	static final int MAX_NAME_LENGTH = 10;
+	
+	static final int MIN_PASSWORD_LENGTH = 3;
+	static final int MAX_PASSWORD_LENGTH = 40;
+	
+	static final int MIN_QUESTION_LENGTH = 8;
+	static final int MAX_QUESTION_LENGTH = 200;
+	
+	
+	
+	
 
 	/**Displays a warning dialog.
 	 * @param title The title of the pop-up window.
@@ -88,8 +103,7 @@ public class PopupUI {
 	 * @return <code>true</code> if the <b>OK</b> button is clicked, <code>false</code> if any other button is clicked.
 	 */
 	public static boolean displayDatabaseConnectionErrorDialog() {
-		return displayErrorDialog("Database Connection Error", 
-				"Could not create a connection to the database. Are you connected to the UNB VPN?");
+		return displayErrorDialog(LanguageManager.getLangBundle().getString("connectionErrorTitle"), LanguageManager.getLangBundle().getString("connectionError"));
 	}
 	
 	static void setupDialogStyling(Dialog dialog) {

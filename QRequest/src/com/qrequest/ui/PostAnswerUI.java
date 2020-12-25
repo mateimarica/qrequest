@@ -1,6 +1,10 @@
 package com.qrequest.ui;
 
 import com.qrequest.control.PostAnswerControl;
+import com.qrequest.helpers.LanguageManager;
+
+import java.util.ResourceBundle;
+
 import com.qrequest.control.LoginControl;
 import com.qrequest.objects.Answer;
 import com.qrequest.objects.Question;
@@ -35,7 +39,7 @@ public class PostAnswerUI {
 		this.question = question;
 		this.forumUI = forumUI;
 		
-		postAnswerBtn = new Button("\u2795 Answer question");
+		postAnswerBtn = new Button("\u2795 " + LanguageManager.getLangBundle().getString("answerQuestionButton"));
 		postAnswerBtn.setOnAction(e -> processPostAnswerButtonPress());
 	}
 	
@@ -63,8 +67,11 @@ public class PostAnswerUI {
 	 * @return The created <code>Answer</code> object, or <code>null</code> if the user canceled.
 	 */
 	private Answer displayPostAnswerDialog() {
+		
+			ResourceBundle langBundle = LanguageManager.getLangBundle();
+		
 			Dialog dialog = new Dialog();
-			dialog.setTitle("Post an Answer");
+			dialog.setTitle(langBundle.getString("postAnswerTitle"));
 			
 			PopupUI.setupDialogStyling(dialog);
 
@@ -75,13 +82,13 @@ public class PostAnswerUI {
 			gridPane.setPadding(new Insets(20, 10, 10, 10));
 			
 			TextArea answerField = new TextArea();
-			answerField.setPromptText("Your answer");
+			answerField.setPromptText(langBundle.getString("answerPrompt"));
 			answerField.setMaxSize(400, 400);
 			answerField.setWrapText(true);
 			gridPane.add(answerField, 0, 0);
 			
 			// Set the button types.
-			ButtonType postAnswerBtnType = new ButtonType("Post Answer", ButtonData.RIGHT);
+			ButtonType postAnswerBtnType = new ButtonType(langBundle.getString("confirmPostAnswerButton"), ButtonData.RIGHT);
 			dialog.getDialogPane().getButtonTypes().addAll(postAnswerBtnType, ButtonType.CANCEL);
 			
 			final Button postAnswerBtn = (Button)dialog.getDialogPane().lookupButton(postAnswerBtnType);
@@ -89,9 +96,16 @@ public class PostAnswerUI {
 				int answerFieldLength = answerField.getText().length();
 				
 				if (answerFieldLength < 1 || answerFieldLength > PopupUI.MAX_DESC_LENGTH) {
-				   PopupUI.displayWarningDialog("Did not post answer", "Answer must be 1 to " + PopupUI.MAX_DESC_LENGTH +  " characters in length.");
-				   event.consume(); //make it so the dialog does not close
-				   return;
+					  
+					PopupUI.displayWarningDialog(
+								langBundle.getString("badAnswerLengthErrorTitle"), 
+								String.format(
+										langBundle.getString("badAnswerLengthError"), PopupUI.MIN_ANSWER_DESC_LENGTH, PopupUI.MAX_DESC_LENGTH
+								)
+					);
+					
+					event.consume(); //make it so the dialog does not close
+					return;
 				}
 			});
 			

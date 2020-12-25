@@ -23,6 +23,7 @@ public class QuestionSearchFilters {
 		this.keywords = keywords;
 		this.tag = tag;
 		
+		//Bug if you use other language... Yes/No/Either will be something else. String hasSolvedAnswer is a bad implemenation... should fix
 		if(hasSolvedAnswer == null) {
 			this.hasSolvedAnswer = null;
 		} else {
@@ -34,6 +35,7 @@ public class QuestionSearchFilters {
 					this.hasSolvedAnswer = false;
 					break;
 				case "Either":
+				default:
 					this.hasSolvedAnswer = null;
 			}
 		}

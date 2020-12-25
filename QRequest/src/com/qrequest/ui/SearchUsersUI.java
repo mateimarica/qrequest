@@ -1,8 +1,10 @@
 package com.qrequest.ui;
 
 import java.util.ArrayList;
+import java.util.ResourceBundle;
 
 import com.qrequest.control.SearchUsersControl;
+import com.qrequest.helpers.LanguageManager;
 import com.qrequest.objects.User;
 
 import javafx.geometry.HPos;
@@ -23,7 +25,7 @@ public class SearchUsersUI {
 	
 	/**Create a SearchUsersUI. This creates a searchUsersBtn.*/
 	public SearchUsersUI() {
-		searchUsersBtn = new Button("\uD83D\uDC64 Search Users");
+		searchUsersBtn = new Button("\uD83D\uDC64 " + LanguageManager.getLangBundle().getString("searchUsersToolbarButton"));
 		searchUsersBtn.setOnAction(e -> searchUsersBtnPress());
 	}
 	
@@ -44,10 +46,13 @@ public class SearchUsersUI {
 	 * Example: <i><b>ate</b></i> will display <i><b>mAtEi</b></i>
 	 */
 	private void displaySearchUsersDialog() {
-
+		
+		ResourceBundle langBundle = LanguageManager.getLangBundle();
+		
 		// Create the custom dialog.
 		Dialog dialog = new Dialog();
-		dialog.setTitle("Search Users");
+		dialog.setTitle(langBundle.getString("searchUsersPopupTitle"));
+		
 		
 		PopupUI.setupDialogStyling(dialog);		
 
@@ -61,11 +66,11 @@ public class SearchUsersUI {
 		
 		TextField searchField = new TextField();
 		searchField.setOnAction(e->searchButtonPress(usersView, searchField));
-		searchField.setPromptText("Search Users");
+		searchField.setPromptText(langBundle.getString("searchUsersFieldPrompt"));
 		searchField.setMinWidth(190);
 		searchField.setMaxWidth(190);
 		
-		Button searchUsersBtn = new Button("Search");
+		Button searchUsersBtn = new Button(langBundle.getString("searchUsersButton"));
 		searchUsersBtn.setOnAction(e->searchButtonPress(usersView, searchField));
 		usersView.setOnMouseClicked(event -> {
 		    	if(event.getClickCount() == 2){

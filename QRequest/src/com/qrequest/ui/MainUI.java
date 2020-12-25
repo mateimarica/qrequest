@@ -1,6 +1,9 @@
 package com.qrequest.ui;
+import java.util.ResourceBundle;
+
 import com.qrequest.control.LoginControl;
 import com.qrequest.exceptions.DatabaseConnectionException;
+import com.qrequest.helpers.LanguageManager;
 import com.qrequest.objects.Credentials;
 
 import javafx.application.Application;
@@ -14,6 +17,8 @@ public class MainUI extends Application {
 	/**The URL of the application's icon. Used in every popup window.*/
 	final static String ICON_URL = "/com/qrequest/resources/images/icon.png";
 	
+	
+	
 	/**Starts the JavaFX instance.*/
 	void begin(String[] args) {
 		launch(args);
@@ -24,9 +29,11 @@ public class MainUI extends Application {
 	public void start(Stage stage) throws Exception {
 		setUpStage(stage);
 		
+		LanguageManager.loadSavedLanguage();
+		
 		//Checks the saved credentials (if there are any)
 		Credentials creds = Credentials.getSavedCredentials();
-		
+
 		//if the credentials DO exist
 		if(creds != null) {
 			
@@ -35,16 +42,16 @@ public class MainUI extends Application {
 					new ForumUI().startScene(stage);
 				} else {
 					Credentials.removeCredentials();
+					System.out.println("Cleared");
 					new LoginUI().startScene(stage);
-					PopupUI.displayErrorDialog("Login Error", 
-							"Couldn't automatically log in with your saved credentials. Perhaps the database was reset?");
+					PopupUI.displayErrorDialog(LanguageManager.getLangBundle().getString("loginFailedTitle"), 
+											   LanguageManager.getLangBundle().getString("autoLoginFailed"));
 				}
 				
 			} catch (DatabaseConnectionException e) {
 				
 				new LoginUI().startScene(stage);
-				PopupUI.displayErrorDialog("Connection Error", "Couldn't connect to the database. "
-						+ "Make sure you're connected to the UNB VPN.");
+				PopupUI.displayDatabaseConnectionErrorDialog();
 			}			
 			
 		} else {

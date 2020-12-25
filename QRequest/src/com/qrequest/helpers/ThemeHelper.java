@@ -19,7 +19,7 @@ public final class ThemeHelper {
 	private final static String DARK_MODE_ENABLED_PREF = "darkModeEnabled";
 	
 	public static boolean isDarkModeEnabled() {
-		String value = PreferenceManager.getPreference((DARK_MODE_ENABLED_PREF));
+		String value = PreferenceManager.getPreference(DARK_MODE_ENABLED_PREF);
 		return (value.equals("true") ? true : false);
 	}
 	
@@ -27,7 +27,7 @@ public final class ThemeHelper {
 	 * @return The relative URL of the currently set theme.
 	 */
 	public static String getCurrentThemeURL() {
-		String value = PreferenceManager.getPreference((DARK_MODE_ENABLED_PREF));
+		String value = PreferenceManager.getPreference(DARK_MODE_ENABLED_PREF);
 		return (value.equals("true") ? darkThemeFileURL  : lightThemeFileURL);
 	}
 	

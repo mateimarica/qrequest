@@ -85,10 +85,10 @@ public class Credentials {
 		String password = "";
 		
 		username = PreferenceManager.getPreference(SAVED_USERNAME_PREF);
-		if(!username.equals("")) {
+		if(username != null) {
 			password = PreferenceManager.getPreference(SAVED_PASSWORD_PREF);
 			
-			if(!password.equals("")) {
+			if(password != null) {
 				return (new Credentials(username, password, true));
 			}
 		}

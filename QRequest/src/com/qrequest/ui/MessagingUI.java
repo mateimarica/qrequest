@@ -1,10 +1,12 @@
 package com.qrequest.ui;
 
 import java.util.ArrayList;
+import java.util.ResourceBundle;
 
 import com.qrequest.control.LoginControl;
 import com.qrequest.control.MessagingControl;
 import com.qrequest.control.SearchUsersControl;
+import com.qrequest.helpers.LanguageManager;
 import com.qrequest.objects.Message;
 import com.qrequest.objects.User;
 
@@ -27,9 +29,13 @@ public class MessagingUI {
 	/**The button for displaying the messaging window.*/
 	private Button messagingBtn;
 	
+	private TextField composeField;
+	private TextField searchField;
+	private ListView<BorderPane> allMessages;
+	
 	/**Create a MessagingUI. Creates a messagingBtn.*/
 	public MessagingUI() {
-		messagingBtn = new Button("\u2709 Send a Message");
+		messagingBtn = new Button("\u2709 " + LanguageManager.getLangBundle().getString("messagingButton"));
 		messagingBtn.setOnAction(e -> messagingBtnPress());
 	}
 	
@@ -47,8 +53,10 @@ public class MessagingUI {
 	
 	/**The dialog for sending/receiving message.*/
 	private void displayMessageDialog() {
+		ResourceBundle langBundle = LanguageManager.getLangBundle();
+		
 		Dialog dialog = new Dialog();
-		dialog.setTitle("Private Messaging");
+		dialog.setTitle(langBundle.getString("messagingTitle"));
 		
 		PopupUI.setupDialogStyling(dialog);
 		
@@ -61,8 +69,8 @@ public class MessagingUI {
 		allMessages.setPrefHeight(200);
 		//allMessages.setMaxSize(400, 400);
 		
-		TextField searchField = new TextField();
-		searchField.setOnKeyReleased(e-> {
+		searchField = new TextField();
+		searchField.setOnKeyReleased(e -> {
 			
 			String key = e.getCode().toString();
 			
@@ -80,40 +88,28 @@ public class MessagingUI {
 			
 			
 		});
-		searchField.setOnAction(e-> refreshMessaging(allMessages, searchField));		
-		searchField.setPromptText("Search Users");
+		searchField.setOnAction(e -> refreshMessaging());		
+		searchField.setPromptText(langBundle.getString("searchUsersPrompt"));
 		searchField.setMinWidth(190);
 		searchField.setMaxWidth(190);BorderPane composeBox = new BorderPane();
 		
-		TextField composeField = new TextField();
-		composeField.setOnAction(e->{});
-		composeField.setPromptText("Compose Message:");
+		composeField = new TextField();
+		composeField.setOnAction(e -> sendMessage());
+		composeField.setPromptText(langBundle.getString("composeMessagePrompt"));
 		composeField.setMinWidth(150);
 		
 		composeBox.setLeft(composeField);
 		
-		Button sendMessageBtn = new Button("Send Message");
-		sendMessageBtn.addEventFilter(ActionEvent.ACTION, event -> {
-			if(!composeField.getText().isEmpty()) {
-				Message message = new Message(LoginControl.getUser().getUsername(), searchField.getText(), composeField.getText());
-				new MessagingControl().processSendMessage(message);
-				Label newLabel = new Label(message.getText());
-				BorderPane box = new BorderPane();
-				box.setRight(newLabel);
-				
-				allMessages.getItems().add(box);
-				
-				composeField.setText("");
-			}
-		});
+		Button sendMessageBtn = new Button(langBundle.getString("sendMessageButton"));
+		sendMessageBtn.setOnAction(e -> sendMessage());
 		composeBox.setRight(sendMessageBtn);
 		
 		gridPane.add(searchField, 0, 0);
 		gridPane.add(allMessages, 0, 1);
 		gridPane.add(composeBox, 0, 2);
 		
-		Button refreshbtn = new Button("\uD83D\uDDD8 Refresh");
-		refreshbtn.setOnAction(e -> refreshMessaging(allMessages, searchField));
+		Button refreshbtn = new Button("\uD83D\uDDD8 " + langBundle.getString("refreshButton"));
+		refreshbtn.setOnAction(e -> refreshMessaging());
 		gridPane.add(refreshbtn, 0, 3);
 		
 		dialog.getDialogPane().getButtonTypes().addAll(ButtonType.CLOSE);
@@ -128,7 +124,7 @@ public class MessagingUI {
 	 * @param allMessages The ListView where all the messages are displays.
 	 * @param searchField The searchField containing the name of the person you're sending the messages to.
 	 */
-	private void refreshMessaging(ListView<BorderPane> allMessages, TextField searchField) {
+	private void refreshMessaging() {
 		allMessages.getItems().clear();
 		ArrayList<Message> messageList = new MessagingControl().processAllFilteredMessages(searchField.getText());
 		
@@ -146,6 +142,20 @@ public class MessagingUI {
 		 		allMessages.getItems().add(box);
 		 		
 		 	} 	
+	}
+	
+	private void sendMessage() {
+		if(!composeField.getText().isEmpty()) {
+			Message message = new Message(LoginControl.getUser().getUsername(), searchField.getText(), composeField.getText());
+			new MessagingControl().processSendMessage(message);
+			Label newLabel = new Label(message.getText());
+			BorderPane box = new BorderPane();
+			box.setRight(newLabel);
+			
+			allMessages.getItems().add(box);
+			
+			composeField.setText("");
+		}
 	}
 	
 	

@@ -1,19 +1,25 @@
 package com.qrequest.ui;
 
 import java.io.IOException;
+import java.util.ResourceBundle;
 
 import com.qrequest.control.CreateAccountControl;
 import com.qrequest.control.LoginControl;
 import com.qrequest.exceptions.DatabaseConnectionException;
+import com.qrequest.helpers.LanguageManager;
 import com.qrequest.helpers.ThemeHelper;
 import com.qrequest.objects.Credentials;
+import com.qrequest.objects.Language;
 
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
+import javafx.scene.control.CheckMenuItem;
+import javafx.scene.control.ContextMenu;
 import javafx.scene.control.Label;
+import javafx.scene.control.MenuItem;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
 import javafx.scene.input.KeyEvent;
@@ -31,6 +37,8 @@ public class LoginUI {
 
 	/**The current mode that the login is in. Login is default, can switch to Create Account.*/
 	private Mode currentMode = Mode.LOGIN;
+	
+	@FXML private Button languageButton;
 	
 	/**The username field.*/
 	@FXML private TextField usernameField;
@@ -55,18 +63,21 @@ public class LoginUI {
 	
 	/**If this checkbox is ticked when the Login action is triggered, the user's credentials will be saved.*/
 	@FXML private CheckBox saveCredentialsCheckBox;	
+
 	
 	private static Stage stage;
 	/**The login menu is created and shown by this method. Called by the MainUI class.
 	 * @param stage Where all the controls are created, put into the grid layout pane, put in the scene, then the stage, then shown.
 	 */
+	@SuppressWarnings("static-access")
 	public void startScene(Stage stage) {	
 		try {
 			stage.setResizable(false);
 			LoginUI.stage = stage;
-			GridPane root = FXMLLoader.load(getClass().getResource("/com/qrequest/resources/fxml/LoginUI.fxml"));
+					
+			GridPane root = FXMLLoader.load(getClass().getResource("/com/qrequest/resources/fxml/LoginUI.fxml"), LanguageManager.getLangBundle());
 			Scene loginScene = new Scene(root, WINDOW_WIDTH, WINDOW_HEIGHT);
-				
+			
 			loginScene.getStylesheets().add(ThemeHelper.getCurrentThemeURL());
 					
 			stage.setScene(loginScene);
@@ -108,11 +119,10 @@ public class LoginUI {
 					
 					new ForumUI().startScene(LoginUI.stage);
 				} else {
-					PopupUI.displayErrorDialog("Login Failed", "Username or password is incorrect.");
+					PopupUI.displayErrorDialog(LanguageManager.getLangBundle().getString("loginFailedTitle"), LanguageManager.getLangBundle().getString("loginFailed"));
 				}
 			} catch (DatabaseConnectionException e) {
-				PopupUI.displayErrorDialog("Connection Error", "Couldn't connect to the database. "
-						+ "Make sure you're connected to the UNB VPN.");
+				PopupUI.displayDatabaseConnectionErrorDialog();
 			}
 
 			
@@ -123,13 +133,12 @@ public class LoginUI {
 			
 			try {
 					if(!new CreateAccountControl().processCreateAccount(new Credentials(username, password))) {
-						PopupUI.displayErrorDialog("Error Creating Account", "An account with that username already exists.");
+						PopupUI.displayErrorDialog(LanguageManager.getLangBundle().getString("accountAlreadyExistsTitle"), LanguageManager.getLangBundle().getString("accountAlreadyExists"));
 						return;
 					}				
 			} catch (DatabaseConnectionException e) {
-				PopupUI.displayErrorDialog("Connection Error", "Couldn't connect to the database. "
-						+ "Make sure you're connected to the UNB VPN.");
-					return;
+				PopupUI.displayDatabaseConnectionErrorDialog();
+				return;
 			}			
 			
 			currentMode = Mode.LOGIN;
@@ -146,20 +155,35 @@ public class LoginUI {
 	private boolean areCredentialsValid() {
 		String username = usernameField.getText();
 		
+		
+		
 		if (username.length() < 3 || username.length() > 10) {
-			PopupUI.displayWarningDialog("Invalid Username", "Username length must be between 3 and 10.");
+			PopupUI.displayWarningDialog(
+					LanguageManager.getString("invalidUsernameTitle"), 
+					String.format(
+						LanguageManager.getString("usernameBadLength"), PopupUI.MIN_NAME_LENGTH, PopupUI.MAX_NAME_LENGTH
+					)
+			);
+			
 			return false;
 		}
 
 		if (!username.matches("[A-Za-z0-9]+")) {
-			PopupUI.displayWarningDialog("Invalid Username", "Username must be alphanumeric.");
+			PopupUI.displayWarningDialog(LanguageManager.getString("invalidUsernameTitle"), LanguageManager.getString("usernameNotAlphanumeric"));
+			
 			return false;
 		}
 		
 		String password = passwordField.getText();
 		
 		if(password.length() < 3 || password.length() > 40) {
-			PopupUI.displayWarningDialog("Invalid Password", "Passwords must be between 3 and 40 characters");
+
+			PopupUI.displayWarningDialog(
+					LanguageManager.getString("invalidPasswordTitle"), 
+					String.format(
+						LanguageManager.getString("passwordBadLength"), PopupUI.MIN_PASSWORD_LENGTH, PopupUI.MAX_PASSWORD_LENGTH
+					)
+			);
 			return false;
 		}
 
@@ -179,16 +203,20 @@ public class LoginUI {
 	 */
 	@FXML
 	private void changeModeButtonPress() {
+		
+		ResourceBundle langBundle = LanguageManager.getLangBundle();
+		
 		if (currentMode == Mode.LOGIN) {
 			currentMode = Mode.CREATE_ACCOUNT;
-			loginButton.setText("Create Account");
-			newAccountLabel.setText("Already have an account?");
-			changeModeButton.setText("Log in instead");
+			
+			loginButton.setText(langBundle.getString("createAccButton"));
+			newAccountLabel.setText(langBundle.getString("switchToLoginText"));
+			changeModeButton.setText(langBundle.getString("switchToLoginButton"));
 		} else {
 			currentMode = Mode.LOGIN;
-			loginButton.setText("Login");
-			newAccountLabel.setText("Don't have an account?");
-			changeModeButton.setText("Create an account");
+			loginButton.setText(langBundle.getString("loginButton"));
+			newAccountLabel.setText(langBundle.getString("switchToCreateAccText"));
+			changeModeButton.setText(langBundle.getString("switchToCreateAccButton"));
 
 		}
 
@@ -267,5 +295,34 @@ public class LoginUI {
 				passwordField.selectEnd();
 			}
 		}
+	}
+	
+	@FXML
+	private void languageButtonPress() {
+		
+		languageButton.setOnMouseClicked(e -> {
+			ContextMenu contextMenu = new ContextMenu();
+						
+			Language savedLang = LanguageManager.getSavedLanguage();
+			
+			for(Language lang : Language.values()) {
+				CheckMenuItem langItem = new CheckMenuItem(lang.getName());
+				langItem.setOnAction(l -> {
+					if(langItem.isSelected()) {
+						LanguageManager.setLanguage(lang);
+						startScene(LoginUI.stage); 
+					}
+				}); 
+				
+				if(lang == savedLang) {
+					langItem.setSelected(true);
+				}
+				
+				contextMenu.getItems().add(langItem);
+			}
+			
+			  
+			contextMenu.show(stage, e.getScreenX() + 1, e.getScreenY() + 15);
+		});
 	}
 }

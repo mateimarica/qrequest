@@ -1,6 +1,9 @@
 package com.qrequest.ui;
 
+import java.util.ResourceBundle;
+
 import com.qrequest.control.DeletePostControl;
+import com.qrequest.helpers.LanguageManager;
 import com.qrequest.objects.Post;
 
 import javafx.scene.control.Button;
@@ -29,7 +32,11 @@ public class DeletePostUI {
 		deleteButton = new Button();
 		deleteButton.setPrefSize(30, 30);
 		deleteButton.setId("deleteButton");
-		deleteButton.setTooltip(new Tooltip("Delete " + post.getPostType()));	
+		if(post.isQuestion()) {
+			deleteButton.setTooltip(new Tooltip(LanguageManager.getString("deleteQuestionButtonTooltip")));
+		} else {
+			deleteButton.setTooltip(new Tooltip(LanguageManager.getString("deleteAnswerButtonTooltip")));
+		}
 		deleteButton.setOnAction(e -> deleteButtonPress());
 	}
 	
@@ -44,7 +51,14 @@ public class DeletePostUI {
 	 * The post is only deleted if the user clicks "OK".
 	 */
 	private void deleteButtonPress() {
-		if(PopupUI.displayConfirmationDialog("Confirm Deletion", "Are you sure you want to delete this " + post.getPostType() + "? This cannot be undone!")) {
+		ResourceBundle langBundle = LanguageManager.getLangBundle();
+		if(PopupUI.displayConfirmationDialog(
+				langBundle.getString("confirmDeleteTitle"), 
+				String.format(
+					(post.isQuestion() ? langBundle.getString("confirmDeleteQuestion") : langBundle.getString("confirmDeleteAnswer")), 
+					post.getPostType()
+				)
+		)) {
 			new DeletePostControl().processDeletePost(post);
 			if(post.isQuestion()) {
 				forumUI.backButtonPress();

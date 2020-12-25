@@ -1,6 +1,9 @@
 package com.qrequest.ui;
 
+import java.util.ResourceBundle;
+
 import com.qrequest.control.SearchQuestionsControl;
+import com.qrequest.helpers.LanguageManager;
 import com.qrequest.objects.QuestionSearchFilters;
 import com.qrequest.objects.Tag;
 
@@ -30,7 +33,7 @@ public class SearchQuestionsUI {
 	public SearchQuestionsUI(ForumUI forumUI) {
 		this.forumUI = forumUI;
 		
-		searchQuestionsBtn = new Button("\uD83D\uDD0D Search Questions");
+		searchQuestionsBtn = new Button("\uD83D\uDD0D " + LanguageManager.getLangBundle().getString("searchQuestionsButton"));
 		searchQuestionsBtn.setOnAction(e -> searchQuestionsBtnPress());
 	}
 	
@@ -54,8 +57,11 @@ public class SearchQuestionsUI {
 	 * @return A <code>QuestionSearchFilters</code> containg the specified filters. <code>null</code> if the user exited out.
 	 */
 	private QuestionSearchFilters displaySearchQuestionsDialog() {
+		
+		ResourceBundle langBundle = LanguageManager.getLangBundle();
+		
 		Dialog dialog = new Dialog();
-		dialog.setTitle("Search Questions");
+		dialog.setTitle(langBundle.getString("searchQuestionsPopupTitle"));
 
 		PopupUI.setupDialogStyling(dialog);
 
@@ -65,12 +71,12 @@ public class SearchQuestionsUI {
 		gridPane.setPadding(new Insets(20, 10, 10, 10)); // top, right, bottom, left padding
 
 		TextField titleField = new TextField();
-		titleField.setPromptText("Keywords");
+		titleField.setPromptText(langBundle.getString("searchQuestionsFieldPrompt"));
 		titleField.setPrefWidth(300);
 		gridPane.add(titleField, 0, 0);
 		
 		ComboBox<Tag> tagTypeBox = new ComboBox<>();	
-		tagTypeBox.setPromptText("Tag...");
+		tagTypeBox.setPromptText(langBundle.getString("searchQuestionsTagPrompt"));
 		Tag[] tagTypes = Tag.values();
 		for(int i = 0; i < tagTypes.length; i++) {
 			tagTypeBox.getItems().add(tagTypes[i]);
@@ -78,21 +84,28 @@ public class SearchQuestionsUI {
 		gridPane.add(tagTypeBox, 0, 1);
 		
 		ComboBox<String> hasBeenAnsweredBox = new ComboBox<>();
-		hasBeenAnsweredBox.setPromptText("Has been answered?");
-		hasBeenAnsweredBox.getItems().addAll("Either", "Yes", "No");
+		hasBeenAnsweredBox.setPromptText(langBundle.getString("searchQuestionsHasAnswerPrompt"));
+		hasBeenAnsweredBox.getItems().addAll(
+				langBundle.getString("searchQuestionsHasAnswerEither"), 
+				langBundle.getString("yes"), 
+				langBundle.getString("no")
+		);
 		gridPane.add(hasBeenAnsweredBox, 0, 2);
 
 		// Set the button types.
-		ButtonType searchBtnType = new ButtonType("Search Questions", ButtonData.RIGHT);
+		ButtonType searchBtnType = new ButtonType(langBundle.getString("searchQuestionsButton"), ButtonData.RIGHT);
 		dialog.getDialogPane().getButtonTypes().addAll(searchBtnType, ButtonType.CANCEL);
 
 		final Button searchBtn = (Button)dialog.getDialogPane().lookupButton(searchBtnType);
 		searchBtn.addEventFilter(ActionEvent.ACTION, event -> {
 
 			if (titleField.getText().length() == 0 && tagTypeBox.getSelectionModel().isEmpty() && hasBeenAnsweredBox.getSelectionModel().isEmpty()) {
-			   PopupUI.displayErrorDialog("Error Searching", "Must enter title or select a tag.");
-			   event.consume(); //make it so the dialog does not close
-			   return;
+				PopupUI.displayErrorDialog(
+					   langBundle.getString("searchQuestionErrorTitle"), 
+					   langBundle.getString("searchQuestionUnselectedItemError")
+				);
+				event.consume(); //make it so the dialog does not close
+				return;
 		   }
 		});
 

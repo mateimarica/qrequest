@@ -1,20 +1,23 @@
 package com.qrequest.objects;
 
+import com.qrequest.helpers.LanguageManager;
+
 /**Represents a tag on a Question.*/
+
 public enum Tag {
-	SCIENCE("Science", "\u269B"),
-	COMPUTER_SCIENCE("Computer Science", "\uD83D\uDCBB"),
-	LITERATURE("Literature", "\uD83D\uDD6E"),
-	SPORTS("Sports", "\u26BD"),
-	MUSIC("Music", "\uD834\uDD60"),
-	FITNESS("Fitness", "\uD83D\uDCAA"),
-	ANATOMY("Human Anatomy", "\u267F"),
-	FOOD("Food", "\uD83C\uDF4C"),
-	VIDEO_GAMES("Video Games", "\uD83C\uDFAE"),
-	NO_TAG("No tag", "");
 	
-	/**The tag's description.*/
-	private String description;
+	
+	SCIENCE("\u269B"),
+	COMPUTER_SCIENCE("\uD83D\uDCBB"),
+	LITERATURE("\uD83D\uDD6E"),
+	SPORTS("\u26BD"),
+	MUSIC("\uD834\uDD60"),
+	FITNESS("\uD83D\uDCAA"),
+	ANATOMY("\u267F"),
+	FOOD("\uD83C\uDF4C"),
+	VIDEO_GAMES("\uD83C\uDFAE"),
+	NO_TAG("");
+	
 	
 	/**The tag's symbol.*/
 	private String symbol;
@@ -23,16 +26,9 @@ public enum Tag {
 	 * @param description The tag's description.
 	 * @param symbol The tag's symbol.
 	 */
-	private Tag(String description, String symbol) {
-		this.description = description;
+	private Tag(String symbol) {
 		this.symbol = symbol;
-	}
-	
-	/**Returns the tag's description.
-	 * @return The tag's description.
-	 */
-	public String getDescription() {
-		return description;
+		
 	}
 	
 	/**Returns the tag's symbol.
@@ -45,7 +41,7 @@ public enum Tag {
 	@Override
 	public String toString() {	
 
-		return symbol + " " + description;
+		return symbol + " " + LanguageManager.getLangBundle().getString(name());
 	}
 	
 	/**Returns the Tag corresponding to the input string.

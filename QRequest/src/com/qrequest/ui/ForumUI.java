@@ -1,14 +1,16 @@
 package com.qrequest.ui;
 
 import java.util.ArrayList;
-
+import java.util.ResourceBundle;
 
 import com.qrequest.control.GetAnswerControl;
 import com.qrequest.control.GetQuestionControl;
 import com.qrequest.control.LoginControl;
+import com.qrequest.helpers.LanguageManager;
 import com.qrequest.helpers.ThemeHelper;
 import com.qrequest.objects.Answer;
 import com.qrequest.objects.Credentials;
+import com.qrequest.objects.Language;
 import com.qrequest.objects.Post;
 import com.qrequest.objects.Question;
 
@@ -109,20 +111,42 @@ public class ForumUI {
 
 	/**Populates the menuBar and places it at the top of the root BorderPane.*/
 	private void populateMenuBar() {
-		MenuBar menuBar = new MenuBar();
+		ResourceBundle langBundle = LanguageManager.getLangBundle();
 		
-		Menu accountMenu = new Menu("Logged in as: " + LoginControl.getUser().getUsername());
-		MenuItem logoutItem = new MenuItem("Log out");
+		MenuBar menuBar = new MenuBar();
+		Menu accountMenu = new Menu(String.format(langBundle.getString("loggedInAsButton"), LoginControl.getUser().getUsername()));
+		MenuItem logoutItem = new MenuItem(langBundle.getString("logoutButton"));
 		logoutItem.setOnAction(e -> logout());
 		accountMenu.getItems().add(logoutItem);
 		
-		Menu optionsMenu = new Menu("Options");
-		CheckMenuItem darkModeItem = new CheckMenuItem("Dark mode");
+		Menu optionsMenu = new Menu(langBundle.getString("optionsButton"));
+		CheckMenuItem darkModeItem = new CheckMenuItem(langBundle.getString("darkModeButton"));
 		darkModeItem.setOnAction(e -> themeChanged(darkModeItem.isSelected()));
 		darkModeItem.setSelected(ThemeHelper.isDarkModeEnabled());
 		optionsMenu.getItems().addAll(darkModeItem);
 		
-		menuBar.getMenus().addAll(accountMenu, optionsMenu);
+		Menu languageMenu = new Menu(langBundle.getString("languageButton"));
+		
+		Language savedLang = LanguageManager.getSavedLanguage();
+		
+		for(Language lang : Language.values()) {
+			CheckMenuItem langItem = new CheckMenuItem(lang.getName());
+			langItem.setOnAction(l -> {
+				if(langItem.isSelected()) {
+					LanguageManager.setLanguage(lang);
+					startScene(stage, currentQuestion);
+				}
+			}); 
+			
+			if(lang == savedLang) {
+				langItem.setSelected(true);
+			}
+			
+			languageMenu.getItems().add(langItem);
+		}
+		
+		
+		menuBar.getMenus().addAll(accountMenu, optionsMenu, languageMenu);
 		root.setTop(menuBar);
 	}
 
@@ -139,7 +163,7 @@ public class ForumUI {
 			bottomBar.getItems().addAll(askQuestionBtn, searchUsersBtn, searchQuestionsBtn, messagingBtn);
 			
 		} else {//If the app is in the question viewer, display these buttons on the bottomBar:
-			Button backBtn = new Button("\u25C0 Go back");
+			Button backBtn = new Button("\u25C0 " + LanguageManager.getString("backButton"));
 			backBtn.setOnAction(e -> backButtonPress());
 			bottomBar.getItems().add(backBtn);
 			
@@ -151,7 +175,7 @@ public class ForumUI {
 			
 		}
 		//Always display this button on the bottomBar:
-		refreshBtn = new Button("\uD83D\uDDD8 Refresh");
+		refreshBtn = new Button("\uD83D\uDDD8 " +  LanguageManager.getString("refreshButton"));
 		refreshBtn.setOnAction(e -> refresh());
 		bottomBar.getItems().add(refreshBtn);
 		
@@ -244,6 +268,8 @@ public class ForumUI {
 	 */
 	private BorderPane buildQuestionPane(Question question) {
 		
+		ResourceBundle langBundle = LanguageManager.getLangBundle();
+		
 		BorderPane questionPane = new BorderPane();
 		questionPane.setPadding(new Insets(2, 2, 2, 2));
 		
@@ -283,7 +309,7 @@ public class ForumUI {
 		innerPostPane.setCenter(innerInnerPostPane);
 		
 		Label tagLabel = new Label(question.getTag().getSymbol());
-		tagLabel.setTooltip(new Tooltip(question.getTag().getDescription()));
+		tagLabel.setTooltip(new Tooltip(langBundle.getString(question.getTag().name())));
 		tagLabel.setId("tagLabel");
 		tagLabel.setMinWidth(WINDOW_WIDTH * 0.03);
 		tagLabel.setPadding(new Insets(0, 0, 0, 10));
@@ -300,14 +326,13 @@ public class ForumUI {
 			currentQuestion = question;
 			blowupQuestion(question);
 		});
-		
-		Label authorLabel = new Label("Posted " + question.getTimePosted() + " by " + question.getAuthor().getUsername());
+		Label authorLabel = new Label(String.format(langBundle.getString("datePosted"), question.getTimePosted(), question.getAuthor().getUsername()));
 		authorLabel.setPadding(new Insets(10, 0, 10, 20));
 		authorLabel.setMaxWidth(WINDOW_WIDTH * 0.45);
 		authorLabel.setWrapText(true);
 		GridPane.setConstraints(authorLabel, 1, 1);
 		
-		Label answersCountLabel = new Label(question.getAnswerCount() + " responses");
+		Label answersCountLabel = new Label(String.format(langBundle.getString("numberOfResponses"), question.getAnswerCount()));
 		answersCountLabel.setPadding(new Insets(0, 0, 0, 20));
 		answersCountLabel.setMinWidth(WINDOW_WIDTH * 0.18);
 		answersCountLabel.setMaxWidth(WINDOW_WIDTH * 0.18);
@@ -330,7 +355,9 @@ public class ForumUI {
 	 * @return The constructed postPane.
 	 */
 	private BorderPane buildPostPane(Post post) {
-				
+		
+		ResourceBundle langBundle = LanguageManager.getLangBundle();
+		
 		boolean isQuestion = post.isQuestion();
 		
 		BorderPane postPane = new BorderPane();
@@ -365,7 +392,7 @@ public class ForumUI {
 		
 		if(isQuestion) {
 			Label tagLabel = new Label(((Question)post).getTag().getSymbol());
-			tagLabel.setTooltip(new Tooltip(((Question)post).getTag().getDescription()));
+			tagLabel.setTooltip(new Tooltip(langBundle.getString(((Question)post).getTag().name())));
 			tagLabel.setId("tagLabel");
 			tagLabel.setMinWidth(WINDOW_WIDTH * 0.03);
 			tagLabel.setPadding(new Insets(0, 0, 0, 10));
@@ -386,7 +413,7 @@ public class ForumUI {
 			innerInnerPostPane.getChildren().addAll(tagLabel, questionTitleLabel);
 		}
 	
-		Label authorLabel = new Label("Posted " + post.getTimePosted() + " by " + post.getAuthor().getUsername());
+		Label authorLabel = new Label(String.format(langBundle.getString("datePosted"), post.getTimePosted(), post.getAuthor().getUsername()));
 		authorLabel.setPadding(new Insets(0, 0, 0, 20));
 		authorLabel.setMinWidth(WINDOW_WIDTH * 0.45);
 		authorLabel.setMaxWidth(WINDOW_WIDTH * 0.45);
@@ -440,12 +467,11 @@ public class ForumUI {
 	private BorderPane buildEmptyPane() {
 		
 		BorderPane emptyPane = new BorderPane();
+		final int NUMBER_OF_RESULT_MSGS = 3;
 		
-		String[] noResultsMsg = {"Hmm... There's nothing here.", 
-								"No results.", 
-								"You've stumbled upon a dead end."};
 
-		Label label = new Label(noResultsMsg[(int)(Math.random() * noResultsMsg.length)]);
+		Label label = new Label(LanguageManager.getString("noResultsMsg" + 
+				(int)(Math.random() * NUMBER_OF_RESULT_MSGS)));
 		label.setId("noResultsLabel");
 		label.setMouseTransparent(true);
 		label.setPadding(new Insets(30, 0, 30, 30));

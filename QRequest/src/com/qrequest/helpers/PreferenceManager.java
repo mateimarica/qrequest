@@ -18,10 +18,19 @@ public final class PreferenceManager {
 	
 	/**Returns the value associated with the given preference key.
 	 * @param key The preference's key
+	 * @param def The value to be return if the preference can't be retrieved.
 	 * @return The saved preference as a <code>String</code>
 	 */
+	public static String getPreference(String key, String def) {
+		return PREFS.get(key, def);
+	}
+	
+	/**Returns the value associated with the given preference key.
+	 * @param key The preference's key
+	 * @return The saved preference as a <code>String</code>, or <code>null</code> if the preference can't be retrieved.
+	 */
 	public static String getPreference(String key) {
-		return PREFS.get(key, "");
+		return PREFS.get(key, null);
 	}
 	
 	/**Save a preference into the database. If no preference exists with the given key, one is created automatically.

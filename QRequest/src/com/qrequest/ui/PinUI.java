@@ -1,6 +1,7 @@
 package com.qrequest.ui;
 
 import com.qrequest.control.PinControl;
+import com.qrequest.helpers.LanguageManager;
 import com.qrequest.objects.Question;
 
 import javafx.scene.control.ToggleButton;
@@ -30,7 +31,7 @@ public class PinUI {
 		pinButton.setPrefSize(30, 30);
 		pinButton.setSelected(question.isPinned());
 		pinButton.setId("pinButton");
-		pinButton.setTooltip(new Tooltip("Pin Question"));
+		pinButton.setTooltip(new Tooltip(LanguageManager.getLangBundle().getString("pinQuestionButton")));
 		pinButton.setOnAction(e -> pinButtonPress());
 	}
 	

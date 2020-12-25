@@ -1,6 +1,9 @@
 package com.qrequest.ui;
 
+import java.util.ResourceBundle;
+
 import com.qrequest.control.EditPostControl;
+import com.qrequest.helpers.LanguageManager;
 import com.qrequest.objects.Post;
 import com.qrequest.objects.Question;
 import com.qrequest.objects.Tag;
@@ -40,7 +43,13 @@ public class EditPostUI {
 		editButton = new Button();
 		editButton.setPrefSize(30, 30);
 		editButton.setId("editButton");
-		editButton.setTooltip(new Tooltip("Edit " + post.getPostType()));
+		if(post.isQuestion()) {
+			editButton.setTooltip(new Tooltip(LanguageManager.getString("editQuestionButton")));
+		} else {
+			editButton.setTooltip(new Tooltip(LanguageManager.getString("editAnswerButton")));
+
+		}
+		
 		editButton.setOnAction(e -> editButtonPress());
 	}
 	
@@ -62,12 +71,19 @@ public class EditPostUI {
 	 */
 	private boolean displayEditPostDialog() {
 
-		String postType = post.getPostType();
-
+		boolean isQuestion = post.isQuestion();
+		ResourceBundle langBundle = LanguageManager.getLangBundle();
+		
+		
 		// Create the custom dialog.
 		Dialog dialog = new Dialog();
-		dialog.setTitle("Edit " + postType);
-
+		
+		if(isQuestion) {
+			dialog.setTitle(langBundle.getString("editQuestionButton"));
+		} else {
+			dialog.setTitle(langBundle.getString("editAnswerButton"));
+		}
+		
 		PopupUI.setupDialogStyling(dialog);
 
 		GridPane gridPane = new GridPane();
@@ -83,7 +99,7 @@ public class EditPostUI {
 		gridPane.add(descField, 0, 0);
 		
 		ComboBox<Tag> tagTypeBox = null;
-		if(post.isQuestion()) {
+		if(isQuestion) {
 			tagTypeBox = new ComboBox<>();	
 			tagTypeBox.getSelectionModel().select(((Question)post).getTag());
 			Tag[] tagTypes = Tag.values();
@@ -95,16 +111,18 @@ public class EditPostUI {
 
 
 		// Set the button types.
-		ButtonType confirmBtnType = new ButtonType("Confirm", ButtonData.RIGHT);
+		ButtonType confirmBtnType = new ButtonType(LanguageManager.getString("confirm"), ButtonData.RIGHT);
 		dialog.getDialogPane().getButtonTypes().addAll(confirmBtnType, ButtonType.CANCEL);
 
 		final Button confirmBtn = (Button)dialog.getDialogPane().lookupButton(confirmBtnType);
 		confirmBtn.addEventFilter(ActionEvent.ACTION, event -> {
 
 			if (descField.getText().length() > PopupUI.MAX_DESC_LENGTH) {
-			   PopupUI.displayWarningDialog("Error Editing " + postType, "Description is too long.");
-			   event.consume(); //make it so the dialog does not close
-			   return;
+			   
+				PopupUI.displayWarningDialog(langBundle.getString("editQuestionErrorTitle"), langBundle.getString("descTooLongError"));
+					
+				event.consume(); //make it so the dialog does not close
+				return;
 		   }
 		});
 
@@ -114,7 +132,7 @@ public class EditPostUI {
 		if(dialog.showAndWait().get().equals(confirmBtnType)) {
 			post.setDescription(descField.getText());
 			
-			if(post.isQuestion()) {
+			if(isQuestion) {
 				((Question)post).setTag(tagTypeBox.getValue());
 			}
 			

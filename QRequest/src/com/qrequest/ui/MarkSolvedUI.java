@@ -2,6 +2,7 @@ package com.qrequest.ui;
 
 import com.qrequest.control.LoginControl;
 import com.qrequest.control.MarkSolvedControl;
+import com.qrequest.helpers.LanguageManager;
 import com.qrequest.objects.Answer;
 import com.qrequest.objects.Post;
 
@@ -32,7 +33,7 @@ public class MarkSolvedUI {
 	public MarkSolvedUI() {
 		markedSolvedOnQuestionLabel = new Label("\u2714");
 		markedSolvedOnQuestionLabel.setId("markedSolvedLabel");
-		markedSolvedOnQuestionLabel.setTooltip(new Tooltip("This question has been answered"));
+		markedSolvedOnQuestionLabel.setTooltip(new Tooltip(LanguageManager.getLangBundle().getString("questionPaneMarkedSolvedTooltip")));
 		markedSolvedOnQuestionLabel.setPadding(new Insets(0, 0, 0, 10));
 		markedSolvedOnQuestionLabel.setMaxHeight(1);
 	}
@@ -62,7 +63,7 @@ public class MarkSolvedUI {
 				markedSolvedOnAnswerLabel = new Label();
 				markedSolvedOnAnswerLabel.setText("\u2714");
 				markedSolvedOnAnswerLabel.setId("markedSolvedLabel");
-				markedSolvedOnAnswerLabel.setTooltip(new Tooltip("This answer is what the asker was looking for"));
+				markedSolvedOnAnswerLabel.setTooltip(new Tooltip(LanguageManager.getLangBundle().getString("answerPaneMarkedSolvedTooltip")));
 				markedSolvedOnAnswerLabel.setWrapText(true);
 			}
 		
@@ -77,7 +78,7 @@ public class MarkSolvedUI {
 				}
 				markSolvedButton.setPrefSize(30, 30);
 				markSolvedButton.setId("markSolvedButton");
-				markSolvedButton.setTooltip(new Tooltip("Mark as solved"));
+				markSolvedButton.setTooltip(new Tooltip(LanguageManager.getLangBundle().getString("markAsSolvedTooltip")));
 				markSolvedButton.setOnAction(e -> markSolvedButtonPress());
 			}	
 		}

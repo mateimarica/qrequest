@@ -1,7 +1,10 @@
 package com.qrequest.ui;
 
+import java.util.ResourceBundle;
+
 import com.qrequest.control.AskQuestionControl;
 import com.qrequest.control.LoginControl;
+import com.qrequest.helpers.LanguageManager;
 import com.qrequest.objects.Question;
 import com.qrequest.objects.Tag;
 
@@ -32,7 +35,7 @@ public class AskQuestionUI {
 	public AskQuestionUI(ForumUI forumUI) {
 		this.forumUI = forumUI;
 		
-		askQuestionBtn = new Button("\u2795 Ask a question");
+		askQuestionBtn = new Button("\u2795 " + LanguageManager.getString("askQuestionButton"));
 		askQuestionBtn.setOnAction(e -> askQuestionButtonPress());
 	}
 	
@@ -60,10 +63,12 @@ public class AskQuestionUI {
 	 * @return The created <code>Question</code> object, or <code>null</code> if the user canceled.
 	 */
 	public Question displayAskQuestionDialog() {
-
+		
+		ResourceBundle langBundle = LanguageManager.getLangBundle();
+		
 		// Create the custom dialog.
 		Dialog dialog = new Dialog();
-		dialog.setTitle("Post a Question");
+		dialog.setTitle(langBundle.getString("askQuestionPopupTitle"));
 		
 		PopupUI.setupDialogStyling(dialog);		
 
@@ -74,19 +79,19 @@ public class AskQuestionUI {
 		gridPane.setPadding(new Insets(20, 10, 10, 10));
 		
 		TextField titleField = new TextField();
-		titleField.setPromptText("Question");
+		titleField.setPromptText(langBundle.getString("questionFieldPrompt"));
 		titleField.setMinWidth(300);
 		titleField.setMaxWidth(300);
 		gridPane.add(titleField, 0, 0);
 
 		TextArea descField = new TextArea();
-		descField.setPromptText("Description (Optional)");
+		descField.setPromptText(langBundle.getString("descFieldPrompt"));
 		descField.setMaxSize(300, 200);
 		descField.setWrapText(true);
 		gridPane.add(descField, 0, 1);
 		
 		ComboBox<Tag> tagTypeBox = new ComboBox<>();	
-		tagTypeBox.setPromptText("Select a tag for your question");
+		tagTypeBox.setPromptText(langBundle.getString("tagMenuPrompt"));
 		Tag[] tagTypes = Tag.values();
 		for(int i = 0; i < tagTypes.length; i++) {
 			tagTypeBox.getItems().add(tagTypes[i]);
@@ -94,7 +99,7 @@ public class AskQuestionUI {
 		gridPane.add(tagTypeBox, 0, 2);
 		
 		// Set the button types.
-		ButtonType postQuestionBtnType = new ButtonType("Post Question", ButtonData.RIGHT);
+		ButtonType postQuestionBtnType = new ButtonType(langBundle.getString("confirmQuestionPostButton"), ButtonData.RIGHT);
 		dialog.getDialogPane().getButtonTypes().addAll(postQuestionBtnType, ButtonType.CANCEL);
 		
 		final Button postQuestionBtn = (Button)dialog.getDialogPane().lookupButton(postQuestionBtnType);
@@ -103,19 +108,38 @@ public class AskQuestionUI {
 			int titleFieldLength = titleField.getText().length();
 			
 			if (titleFieldLength < 8 || titleFieldLength > 250) {
-				PopupUI.displayWarningDialog("Error Posting Question", "Questions must be 8 to 200 characters in length.");
+					
+				PopupUI.displayWarningDialog(
+						langBundle.getString("errorPostingQuestionTitle"), 
+						String.format(
+							langBundle.getString("badTitleLength"), PopupUI.MIN_QUESTION_LENGTH, PopupUI.MAX_QUESTION_LENGTH
+						)
+				);
+				
 				event.consume(); //make it so the dialog does not close
 				return;
 			}
 			
 			if (descField.getText().length() > PopupUI.MAX_DESC_LENGTH) {
-				PopupUI.displayWarningDialog("Error Posting Question", "Questions must be " + PopupUI.MAX_DESC_LENGTH + " characters or fewer.");
+
+				PopupUI.displayWarningDialog(
+						langBundle.getString("errorPostingQuestionTitle"), 
+						String.format(
+							langBundle.getString("badDescLength"), PopupUI.MAX_DESC_LENGTH
+						)
+				);
+				
 				event.consume(); //make it so the dialog does not close
 				return;
 		   }
 			
 			if(tagTypeBox.getSelectionModel().isEmpty()) {
-				PopupUI.displayWarningDialog("Error Posting Question", "Must select a tag.");
+				
+				PopupUI.displayWarningDialog(
+						langBundle.getString("errorPostingQuestionTitle"), 
+						langBundle.getString("mustSelectTag")
+				);
+				
 				event.consume(); //make it so the dialog does not close
 				return;
 			}
