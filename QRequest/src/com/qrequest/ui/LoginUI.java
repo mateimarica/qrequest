@@ -7,7 +7,7 @@ import com.qrequest.control.CreateAccountControl;
 import com.qrequest.control.LoginControl;
 import com.qrequest.exceptions.DatabaseConnectionException;
 import com.qrequest.helpers.LanguageManager;
-import com.qrequest.helpers.ThemeHelper;
+import com.qrequest.helpers.ThemeManager;
 import com.qrequest.objects.Credentials;
 import com.qrequest.objects.Language;
 
@@ -78,7 +78,7 @@ public class LoginUI {
 			GridPane root = FXMLLoader.load(getClass().getResource("/com/qrequest/resources/fxml/LoginUI.fxml"), LanguageManager.getLangBundle());
 			Scene loginScene = new Scene(root, WINDOW_WIDTH, WINDOW_HEIGHT);
 			
-			loginScene.getStylesheets().add(ThemeHelper.getCurrentThemeURL());
+			loginScene.getStylesheets().add(ThemeManager.getCurrentThemeURL());
 					
 			stage.setScene(loginScene);
 			stage.show();

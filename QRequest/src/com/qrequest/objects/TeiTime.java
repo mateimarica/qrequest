@@ -21,7 +21,7 @@ public class TeiTime extends GregorianCalendar {
 	public String toString() {
 		Calendar currentTime = Calendar.getInstance();
 		long minutesPassed = (currentTime.getTimeInMillis() - this.getTimeInMillis()) / 1000 / 60;
-		minutesPassed = 999999999;
+
 		switch(LanguageManager.getSavedLanguage()) {
 			case ROMANIAN:
 				// If less than a minute has passed, print seconds

@@ -48,7 +48,7 @@ public class SearchQuestionsUI {
 	private void searchQuestionsBtnPress() {
 		QuestionSearchFilters filters = displaySearchQuestionsDialog();
 		if(filters != null) {
-			forumUI.populateToolbar();
+			forumUI.bottomBarUI.repopulateBottomBar();
 			forumUI.createQuestionsList(new SearchQuestionsControl().searchQuestions(filters));
 		}
 	}

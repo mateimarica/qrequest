@@ -7,7 +7,7 @@ import com.qrequest.control.GetAnswerControl;
 import com.qrequest.control.GetQuestionControl;
 import com.qrequest.control.LoginControl;
 import com.qrequest.helpers.LanguageManager;
-import com.qrequest.helpers.ThemeHelper;
+import com.qrequest.helpers.ThemeManager;
 import com.qrequest.objects.Answer;
 import com.qrequest.objects.Credentials;
 import com.qrequest.objects.Language;
@@ -42,7 +42,7 @@ public class ForumUI {
 	private final int WINDOW_HEIGHT = 700, WINDOW_WIDTH = 800; 
 	
 	/**Enumerator defining which "mode" the forum is in.*/
-	private enum Mode {
+	enum Mode {
 		/**Represents the state where the the program is on the front page.*/
 		FRONT_PAGE, 
 		
@@ -56,17 +56,17 @@ public class ForumUI {
 	/**Reference to the current question that is being interacted with*/
 	private Question currentQuestion;
 	
-	/**The toolbar are at the bottom of the window containing buttons like "Ask Question" and "Refresh"*/
-	private ToolBar bottomBar;
-	
-	/**Button to refresh the current post list*/
-	private Button refreshBtn;
+	BottomBarUI bottomBarUI;
 	
 	/**The root pane, i.e. what every JavaFX control is placed on*/
 	private BorderPane root;
 		
 	/**The stage*/
 	private Stage stage;
+	
+	void restartScene() {
+		startScene(stage, currentQuestion);
+	}
 	
 	/**Called by LoginUI to start the scene*/
 	void startScene(Stage stage) {
@@ -91,16 +91,17 @@ public class ForumUI {
 		postList.setFocusTraversable(false);
 		root.setCenter(postList);
 		
-		populateMenuBar();
+		root.setTop(new MenuBarUI(this).getMenuBar());
 		
 		refresh();
 		
-		bottomBar = new ToolBar();
-		populateToolbar();		
+		
+		bottomBarUI = new BottomBarUI(this, currentQuestion);
+		root.setBottom(bottomBarUI.getBottomBar());	
 		
 		Scene scene = new Scene(root, WINDOW_WIDTH, WINDOW_HEIGHT);
 		
-		scene.getStylesheets().add(ThemeHelper.getCurrentThemeURL());
+		scene.getStylesheets().add(ThemeManager.getCurrentThemeURL());
 		
 		stage.setScene(scene);
 		stage.show();	
@@ -109,84 +110,18 @@ public class ForumUI {
 		stage.setMinWidth(800);
 	}
 
-	/**Populates the menuBar and places it at the top of the root BorderPane.*/
-	private void populateMenuBar() {
-		ResourceBundle langBundle = LanguageManager.getLangBundle();
-		
-		MenuBar menuBar = new MenuBar();
-		Menu accountMenu = new Menu(String.format(langBundle.getString("loggedInAsButton"), LoginControl.getUser().getUsername()));
-		MenuItem logoutItem = new MenuItem(langBundle.getString("logoutButton"));
-		logoutItem.setOnAction(e -> logout());
-		accountMenu.getItems().add(logoutItem);
-		
-		Menu optionsMenu = new Menu(langBundle.getString("optionsButton"));
-		CheckMenuItem darkModeItem = new CheckMenuItem(langBundle.getString("darkModeButton"));
-		darkModeItem.setOnAction(e -> themeChanged(darkModeItem.isSelected()));
-		darkModeItem.setSelected(ThemeHelper.isDarkModeEnabled());
-		optionsMenu.getItems().addAll(darkModeItem);
-		
-		Menu languageMenu = new Menu(langBundle.getString("languageButton"));
-		
-		Language savedLang = LanguageManager.getSavedLanguage();
-		
-		for(Language lang : Language.values()) {
-			CheckMenuItem langItem = new CheckMenuItem(lang.getName());
-			langItem.setOnAction(l -> {
-				if(langItem.isSelected()) {
-					LanguageManager.setLanguage(lang);
-					startScene(stage, currentQuestion);
-				}
-			}); 
-			
-			if(lang == savedLang) {
-				langItem.setSelected(true);
-			}
-			
-			languageMenu.getItems().add(langItem);
-		}
-		
-		
-		menuBar.getMenus().addAll(accountMenu, optionsMenu, languageMenu);
-		root.setTop(menuBar);
-	}
-
-	/**Populates the bottom toolBar and places at the bottom of the root BorderPane. */
-	void populateToolbar() {
-		bottomBar.getItems().clear();
-		
-		if(currentMode == Mode.FRONT_PAGE) { //If the app is on the front page, display these buttons on the bottomBar:
-			Button askQuestionBtn = new AskQuestionUI(this).getAskQuestionButton();
-			Button messagingBtn = new MessagingUI().getMessagingButton();
-			Button searchUsersBtn = new SearchUsersUI().getSearchUsersButton();
-			Button searchQuestionsBtn = new SearchQuestionsUI(this).getSearchQuestionsButton();
-			
-			bottomBar.getItems().addAll(askQuestionBtn, searchUsersBtn, searchQuestionsBtn, messagingBtn);
-			
-		} else {//If the app is in the question viewer, display these buttons on the bottomBar:
-			Button backBtn = new Button("\u25C0 " + LanguageManager.getString("backButton"));
-			backBtn.setOnAction(e -> backButtonPress());
-			bottomBar.getItems().add(backBtn);
-			
-			if(currentMode == Mode.QUESTION_VIEWER) {
-				Button postAnswerBtn = new PostAnswerUI(currentQuestion, this).getPostAnswerButton();
-				
-				bottomBar.getItems().addAll(postAnswerBtn);
-			}
-			
-		}
-		//Always display this button on the bottomBar:
-		refreshBtn = new Button("\uD83D\uDDD8 " +  LanguageManager.getString("refreshButton"));
-		refreshBtn.setOnAction(e -> refresh());
-		bottomBar.getItems().add(refreshBtn);
-		
-		root.setBottom(bottomBar); //Put the bottomBar on the bottom of the root pane
+	Mode getMode() {
+		return currentMode;
 	}
 	
+	void setMode(Mode newMode) {
+		currentMode = newMode;
+	}
 	
 	/**Called when the user clicks "Log out" in the menu bar.<br>
 	 * Clears the saved credentials and user object, and starts the LoginUI scene.
 	 */
-	private void logout() {
+	void logout() {
 		stage.close();
 		Credentials.removeCredentials();
 		LoginControl.resetUser();
@@ -204,14 +139,7 @@ public class ForumUI {
 		}
 	}
 	
-	/**Called when the <b>Dark mode</b> button is clicked.<br>
-	 * Saves the theme and restarts the scene to apply the new theme.
-	 * @param darkThemeEnabled The result of <code>isSelected()</code> on the darkModeItem CheckBoxItem.
-	 */
-	private void themeChanged(boolean darkThemeEnabled) {
-		ThemeHelper.saveTheme(darkThemeEnabled);
-		startScene(stage, currentQuestion);
-	}
+	
 	
 	/**Displays a list of questions in the postList.*/
 	void createQuestionsList(ArrayList<Question> questionList) {
@@ -231,7 +159,7 @@ public class ForumUI {
 	*/
 	private void blowupQuestion(Question question) {
 		currentMode = Mode.QUESTION_VIEWER;
-		populateToolbar();
+		bottomBarUI.repopulateBottomBar();
 		
 		//Refreshes the question in case something changed between the question retrieval and this method call.
 		new GetQuestionControl().refreshQuestion(question); 
@@ -258,7 +186,6 @@ public class ForumUI {
 		currentQuestion = null;
 		postList.getItems().clear();
 		currentMode = Mode.FRONT_PAGE;
-		populateToolbar();
 		refresh();
 	}
 	

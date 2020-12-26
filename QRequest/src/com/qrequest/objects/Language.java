@@ -17,6 +17,7 @@ public enum Language {
 		this.acronym = acronym;
 		this.name = name;
 		this.locale = new Locale(acronym);
+		
 	}
 	
 	public Locale getLocale() {
@@ -30,4 +31,6 @@ public enum Language {
 	public String getName() {
 		return name;
 	}	
+	
+	
 }

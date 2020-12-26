@@ -3,7 +3,7 @@ package com.qrequest.ui;
 import java.util.NoSuchElementException;
 
 import com.qrequest.helpers.LanguageManager;
-import com.qrequest.helpers.ThemeHelper;
+import com.qrequest.helpers.ThemeManager;
 
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
@@ -84,7 +84,7 @@ public class PopupUI {
 		
 		//set dark theme for pop-up
 		Scene scene = dialog.getDialogPane().getScene();
-		scene.getStylesheets().add(ThemeHelper.getCurrentThemeURL());			
+		scene.getStylesheets().add(ThemeManager.getCurrentThemeURL());			
 		
 		//Set the icon for the popup
 		Stage stage = (Stage) scene.getWindow();
@@ -113,7 +113,7 @@ public class PopupUI {
 		    new Image(new PopupUI().getClass().getResource(MainUI.ICON_URL).toString()));
 		
 		//sets the theme
-		dialog.getDialogPane().getStylesheets().add(ThemeHelper.getCurrentThemeURL());
+		dialog.getDialogPane().getStylesheets().add(ThemeManager.getCurrentThemeURL());
 	}
 	
 }

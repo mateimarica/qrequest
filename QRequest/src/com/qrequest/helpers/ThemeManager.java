@@ -3,10 +3,10 @@ package com.qrequest.helpers;
 /**This class sets and retrieves the current set theme. Also provides shortcuts to the themes.
  * Class is final because it shouldn't be extended.
 */
-public final class ThemeHelper {
+public final class ThemeManager {
 	
 	/**Private constructor to prevent instantiation.*/
-	private ThemeHelper() {}
+	private ThemeManager() {}
 	
 	/**Relative URL for the theme within the project.
 	*/
