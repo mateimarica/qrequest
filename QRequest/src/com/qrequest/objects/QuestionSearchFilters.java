@@ -1,5 +1,7 @@
 package com.qrequest.objects;
 
+import com.qrequest.ui.SearchQuestionsUI.HasAnswerOption;
+
 /**Represents a set of filters chosen by the user when searching for questions.*/
 public class QuestionSearchFilters {
 	
@@ -11,7 +13,7 @@ public class QuestionSearchFilters {
 	
 	/**<code>true</code> if the user selected a preferences for having a solved answer, <code>false</code> if not.<br>
 	 * <code>null</code> if no keywords entered.*/
-	private Boolean hasSolvedAnswer;
+	private HasAnswerOption hasAnswerOption;
 	
 	/**Create a set of filters for a question search.
 	 * @param keywords The keywords of the search. <code>null</code> if no keywords entered.
@@ -19,26 +21,10 @@ public class QuestionSearchFilters {
 	 * @param hasSolvedAnswer <code>true</code> if the user selected a preferences for having a solved answer, <code>false</code> if not.
 	 * <code>null</code> if no keywords entered.
 	 */
-	public QuestionSearchFilters(String keywords, Tag tag, String hasSolvedAnswer) {
+	public QuestionSearchFilters(String keywords, Tag tag, HasAnswerOption hasAnswerOption) {
 		this.keywords = keywords;
 		this.tag = tag;
-		
-		//Bug if you use other language... Yes/No/Either will be something else. String hasSolvedAnswer is a bad implemenation... should fix
-		if(hasSolvedAnswer == null) {
-			this.hasSolvedAnswer = null;
-		} else {
-			switch(hasSolvedAnswer) {
-				case "Yes":
-					this.hasSolvedAnswer = true;
-					break;
-				case "No":
-					this.hasSolvedAnswer = false;
-					break;
-				case "Either":
-				default:
-					this.hasSolvedAnswer = null;
-			}
-		}
+		this.hasAnswerOption = hasAnswerOption;
 	}
 	
 	/**Returns the search filter's keywords. 
@@ -56,10 +42,10 @@ public class QuestionSearchFilters {
 	}
 	
 	/**Returns the state of the user having selected a preference for a solved answer in a search.
-	 * @return <code>true</code> if the user selected a preferences for having a solved answer, <code>false</code> if not.
-	 * <code>null</code> if no keywords entered.
+	 * @return <code>HasAnswerOption.YES</code> if the user selected a preferences for having a solved answer, <code>HasAnswerOption.NO</code> if not.
+	 * <code>HasAnswerOption.EITHER</code> if no option selected or if user selected EITHER.
 	 */
-	public Boolean hasSolvedAnswer() {
-		return hasSolvedAnswer;
+	public HasAnswerOption hasSolvedAnswer() {
+		return (hasAnswerOption != null ? hasAnswerOption : HasAnswerOption.EITHER);
 	}
 }

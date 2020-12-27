@@ -83,13 +83,9 @@ public class SearchQuestionsUI {
 		}
 		gridPane.add(tagTypeBox, 0, 1);
 		
-		ComboBox<String> hasBeenAnsweredBox = new ComboBox<>();
+		ComboBox<HasAnswerOption> hasBeenAnsweredBox = new ComboBox<>();
 		hasBeenAnsweredBox.setPromptText(langBundle.getString("searchQuestionsHasAnswerPrompt"));
-		hasBeenAnsweredBox.getItems().addAll(
-				langBundle.getString("searchQuestionsHasAnswerEither"), 
-				langBundle.getString("yes"), 
-				langBundle.getString("no")
-		);
+		hasBeenAnsweredBox.getItems().addAll(HasAnswerOption.values());
 		gridPane.add(hasBeenAnsweredBox, 0, 2);
 
 		// Set the button types.
@@ -97,14 +93,13 @@ public class SearchQuestionsUI {
 		dialog.getDialogPane().getButtonTypes().addAll(searchBtnType, ButtonType.CANCEL);
 
 		final Button searchBtn = (Button)dialog.getDialogPane().lookupButton(searchBtnType);
-		searchBtn.addEventFilter(ActionEvent.ACTION, event -> {
-
-			if (titleField.getText().length() == 0 && tagTypeBox.getSelectionModel().isEmpty() && hasBeenAnsweredBox.getSelectionModel().isEmpty()) {
+		searchBtn.addEventFilter(ActionEvent.ACTION, e -> {
+			if(titleField.getText().length() == 0 && tagTypeBox.getSelectionModel().isEmpty() && hasBeenAnsweredBox.getSelectionModel().isEmpty()) {
 				PopupUI.displayErrorDialog(
-					   langBundle.getString("searchQuestionErrorTitle"), 
-					   langBundle.getString("searchQuestionUnselectedItemError")
+						langBundle.getString("searchQuestionErrorTitle"), 
+						langBundle.getString("searchQuestionUnselectedItemError")
 				);
-				event.consume(); //make it so the dialog does not close
+				e.consume(); //make it so the dialog does not close
 				return;
 		   }
 		});
@@ -116,6 +111,27 @@ public class SearchQuestionsUI {
 			return new QuestionSearchFilters(titleField.getText(), tagTypeBox.getValue(), hasBeenAnsweredBox.getValue());
 		}
 		return null;
+	}
+	
+	public enum HasAnswerOption {
+		EITHER("searchQuestionsHasAnswerEither"),
+		YES("yes"),
+		NO("no");
+		
+		private String propertyName;
+		
+		private HasAnswerOption(String propertyName) {
+			this.propertyName = propertyName;
+		}
+		
+		public String getPropertyName() {
+			return propertyName;
+		}
+		
+		@Override
+		public String toString() {
+			return LanguageManager.getString(propertyName);
+		}
 	}
 	
 }

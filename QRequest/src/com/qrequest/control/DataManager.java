@@ -20,6 +20,7 @@ import com.qrequest.objects.ResultSetWrapper;
 import com.qrequest.objects.Tag;
 import com.qrequest.objects.User;
 import com.qrequest.objects.Vote;
+import com.qrequest.ui.SearchQuestionsUI.HasAnswerOption;
 
 import javafx.collections.ObservableList;
 
@@ -232,11 +233,12 @@ class DataManager {
 			} else {
 				String keywords = filters.getKeywords();
 				Tag tag = filters.getTag();
-				Boolean hasSolvedAns = filters.hasSolvedAnswer();
+				HasAnswerOption hasSolvedAns = filters.hasSolvedAnswer();
+				System.out.println(hasSolvedAns.name());
 				query = String.format("SELECT * FROM Questions WHERE (Title LIKE '%%%s%%' OR Description LIKE '%%%s%%') %s %s ORDER BY Title DESC;",
 						keywords, keywords,
 						(tag != null) ? ("AND Tag = '" + tag.name() + "'") : "",
-						hasSolvedAns == null ? "" : "AND SolvedAnswerId IS" + (hasSolvedAns ? " NOT" : "") + " NULL"); //yeah I know this garbage is hard to read
+						hasSolvedAns == HasAnswerOption.EITHER ? "" : "AND SolvedAnswerId IS" + (hasSolvedAns == HasAnswerOption.YES ? " NOT" : "") + " NULL"); //yeah I know this garbage is hard to read
 			}			
 		} else {
 			
