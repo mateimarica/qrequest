@@ -7,6 +7,7 @@ import com.qrequest.control.ReportControl;
 import com.qrequest.helpers.LanguageManager;
 import com.qrequest.objects.Post;
 import com.qrequest.objects.Report;
+import com.qrequest.objects.Report.ReportType;
 
 import javafx.event.ActionEvent;
 import javafx.geometry.Insets;
@@ -84,10 +85,10 @@ public class ReportUI {
 		// top, right, bottom, left padding
 		gridPane.setPadding(new Insets(20, 10, 10, 10));
 		
-		ComboBox<String> reportTypeBox = new ComboBox<>();	
+		ComboBox<ReportType> reportTypeBox = new ComboBox<>();	
 		reportTypeBox.setPromptText(langBundle.getString("reportTypeMenuPrompt"));
 		GridPane.setConstraints(reportTypeBox, 0, 0);
-		String[] reportTypes = report.getReportTypes();
+		ReportType[] reportTypes = ReportType.values();
 		for(int i = 0; i < reportTypes.length; i++) {
 			reportTypeBox.getItems().add(reportTypes[i]);
 		}

@@ -398,7 +398,7 @@ class DataManager {
 		executeUpdateQuery(
 				"INSERT INTO Reports VALUES('%s', '%s', CURRENT_TIMESTAMP, '%s', '%s', '%s');",
 				
-				report.getReportType().replaceAll("'", "''"), 
+				report.getReportType().name(), 
 				report.getDesc().replaceAll("'", "''"), 
 				report.getReporter(), 
 				report.getReportedPost().getID(),
