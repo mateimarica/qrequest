@@ -56,7 +56,7 @@ class DataManager {
 			properties.setProperty("password", "***REMOVED***");
 			connection = DriverManager.getConnection(url, properties);
 		} catch (SQLException e) {
-			connection = null;
+			connection = null; 
 			throw new DatabaseConnectionException("Could not connect to database.");
 		} 
 	}
