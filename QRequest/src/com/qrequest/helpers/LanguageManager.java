@@ -1,12 +1,11 @@
 package com.qrequest.helpers;
 
 
-import java.util.Locale;
 import java.util.ResourceBundle;
 
 import com.qrequest.objects.Language;
-import com.qrequest.ui.MainUI;
 
+/**Manages the changing of languages.*/
 public final class LanguageManager {
 	
 	private LanguageManager() {}
