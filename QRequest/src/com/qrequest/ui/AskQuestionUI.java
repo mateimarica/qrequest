@@ -24,7 +24,7 @@ import javafx.scene.layout.GridPane;
 public class AskQuestionUI {
 	
 	/**A reference to the main forum UI.*/
-	private ForumUI forumUI;
+	private ForumUI forumUI; 
 	
 	/**Button to ask a question*/
 	private Button askQuestionBtn;
