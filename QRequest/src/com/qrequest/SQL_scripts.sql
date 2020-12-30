@@ -33,6 +33,7 @@ CREATE TABLE `Questions` (
   `TimePosted` datetime DEFAULT NULL,
   `Tag` varchar(255) DEFAULT NULL,
   `IsPinned` int(11) DEFAULT '-1',
+  `SolvedAnswerId` varchar(36) DEFAULT NULL,
   PRIMARY KEY (`Id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 

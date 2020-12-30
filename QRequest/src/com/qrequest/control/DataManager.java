@@ -49,13 +49,16 @@ class DataManager {
 	     }
 		
 		String url = "***REMOVED***";
-	
+
+
 		try {
 			Properties properties = new Properties();
 			properties.setProperty("user", "***REMOVED***");
 			properties.setProperty("password", "***REMOVED***");
+			
 			connection = DriverManager.getConnection(url, properties);
 		} catch (SQLException e) {
+			System.out.println("Database connection failed: Error code [" + e.getErrorCode() + "] " + e.getMessage());
 			connection = null; 
 			throw new DatabaseConnectionException("Could not connect to database.");
 		} 
@@ -462,7 +465,7 @@ class DataManager {
 	 * @param query The SQL query to be executed.
 	 * @param args The optional arguments if format specifiers are used in the query.
 	 */
-	private void executeUpdateQuery(String query, Object ...args) {
+	void executeUpdateQuery(String query, Object ...args) {
 		if(args.length != 0) {
 			query = String.format(query, args);
 		}
@@ -487,7 +490,7 @@ class DataManager {
 	 * @param query The SQL query to be executed.
 	 * @return The <code>ResultSetWrapper</code> that contains the query's results. Functions the same as a <code>ResultSet</code>.
 	 */
-	private ResultSetWrapper executeRetrieveQuery(String query, Object ...args) {
+	ResultSetWrapper executeRetrieveQuery(String query, Object ...args) {
 		if(args.length != 0) {
 			query = String.format(query, args);
 		}

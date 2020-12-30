@@ -7,6 +7,6 @@ public final class UIStarter {
 	private UIStarter() {}
 	
 	public static void main(String[] args) {
-		  new MainUI().begin(args);
+		new MainUI().begin(args);
 	}
 }

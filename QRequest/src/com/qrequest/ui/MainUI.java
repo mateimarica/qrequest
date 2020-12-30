@@ -1,9 +1,9 @@
 package com.qrequest.ui;
-import java.util.ResourceBundle;
 
 import com.qrequest.control.LoginControl;
 import com.qrequest.exceptions.DatabaseConnectionException;
 import com.qrequest.helpers.LanguageManager;
+import com.qrequest.helpers.ThemeManager;
 import com.qrequest.objects.Credentials;
 
 import javafx.application.Application;
@@ -42,8 +42,9 @@ public class MainUI extends Application {
 					new ForumUI().startScene(stage);
 				} else {
 					Credentials.removeCredentials();
-					System.out.println("Cleared");
+					
 					new LoginUI().startScene(stage);
+					
 					PopupUI.displayErrorDialog(LanguageManager.getLangBundle().getString("loginFailedTitle"), 
 											   LanguageManager.getLangBundle().getString("autoLoginFailed"));
 				}
