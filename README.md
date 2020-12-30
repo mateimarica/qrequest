@@ -15,13 +15,18 @@ QRequest is an application that allows you to interact with others, build your k
 <br/>  
 
 ## Requirements
-* Java
-* Must be connected to the UNB VPN
+* Java 8 or higher
+
+<br>
+
+## Dependencies
+* [JavaFX 11.0.2](https://openjfx.io/)
+* [JDBC Driver for MySQL (Connector/J) 5.1.49](https://dev.mysql.com/downloads/connector/j/5.1.html)
 
 <br>
 
 ## About
-* QRequest is a database-centric application built with JavaFX 11.0.2.
+* QRequest is a database-centric application.
 
 <br>
 
