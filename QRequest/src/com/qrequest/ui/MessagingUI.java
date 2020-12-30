@@ -65,7 +65,7 @@ public class MessagingUI {
 		gridPane.setVgap(10);
 		gridPane.setPadding(new Insets(20, 10, 10, 10));
 		
-		ListView<BorderPane> allMessages = new ListView<>();
+		allMessages = new ListView<>();
 		allMessages.setPrefHeight(200);
 		//allMessages.setMaxSize(400, 400);
 		

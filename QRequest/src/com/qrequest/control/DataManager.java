@@ -56,6 +56,7 @@ class DataManager {
 			properties.setProperty("user", "***REMOVED***");
 			properties.setProperty("password", "***REMOVED***");
 			
+			
 			connection = DriverManager.getConnection(url, properties);
 		} catch (SQLException e) {
 			System.out.println("Database connection failed: Error code [" + e.getErrorCode() + "] " + e.getMessage());
@@ -465,7 +466,7 @@ class DataManager {
 	 * @param query The SQL query to be executed.
 	 * @param args The optional arguments if format specifiers are used in the query.
 	 */
-	void executeUpdateQuery(String query, Object ...args) {
+	private void executeUpdateQuery(String query, Object ...args) {
 		if(args.length != 0) {
 			query = String.format(query, args);
 		}
@@ -490,7 +491,7 @@ class DataManager {
 	 * @param query The SQL query to be executed.
 	 * @return The <code>ResultSetWrapper</code> that contains the query's results. Functions the same as a <code>ResultSet</code>.
 	 */
-	ResultSetWrapper executeRetrieveQuery(String query, Object ...args) {
+	private ResultSetWrapper executeRetrieveQuery(String query, Object ...args) {
 		if(args.length != 0) {
 			query = String.format(query, args);
 		}

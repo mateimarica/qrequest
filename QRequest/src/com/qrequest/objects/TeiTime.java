@@ -28,7 +28,6 @@ public class TeiTime extends GregorianCalendar {
 
 		Calendar currentTime = Calendar.getInstance();
 
-		System.out.println();
 		long minutesPassed = (currentTime.getTimeInMillis() + Math.abs(currentTime.getTimeZone().getRawOffset()) - this.getTimeInMillis()) / MILLI_PER_MIN;
 
 		switch(LanguageManager.getSavedLanguage()) {
