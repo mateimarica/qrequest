@@ -67,7 +67,7 @@ public class PostAnswerUI {
 	 * @return The created <code>Answer</code> object, or <code>null</code> if the user canceled.
 	 */
 	private Answer displayPostAnswerDialog() {
-		
+		System.out.println(question);
 			ResourceBundle langBundle = LanguageManager.getLangBundle();
 		
 			Dialog dialog = new Dialog();

@@ -64,13 +64,19 @@ public class ForumUI {
 	/**The stage*/
 	private Stage stage;
 	
+	
+	
 	void restartScene() {
-		startScene(stage, currentQuestion);
+		startScene(stage);
 	}
 	
 	/**Called by LoginUI to start the scene*/
 	void startScene(Stage stage) {
 		startScene(stage, null);
+	}
+	
+	Question getCurrentQuestion() {
+		return currentQuestion;
 	}
 	
 	/**Starts the scene.
@@ -96,7 +102,7 @@ public class ForumUI {
 		refresh();
 		
 		
-		bottomBarUI = new BottomBarUI(this, currentQuestion);
+		bottomBarUI = new BottomBarUI(this);
 		root.setBottom(bottomBarUI.getBottomBar());	
 		
 		Scene scene = new Scene(root, WINDOW_WIDTH, WINDOW_HEIGHT);
@@ -159,6 +165,7 @@ public class ForumUI {
 	*/
 	private void blowupQuestion(Question question) {
 		currentMode = Mode.QUESTION_VIEWER;
+		currentQuestion = question;
 		bottomBarUI.repopulateBottomBar();
 		
 		//Refreshes the question in case something changed between the question retrieval and this method call.

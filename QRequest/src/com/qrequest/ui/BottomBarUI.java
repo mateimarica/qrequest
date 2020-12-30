@@ -12,11 +12,9 @@ public class BottomBarUI {
 	/**The toolbar are at the bottom of the window containing buttons like "Ask Question" and "Refresh"*/
 	private ToolBar bottomBar;
 	private ForumUI forumUI;
-	private Question currentQuestion;
 	
-	public BottomBarUI(ForumUI forumUI, Question currentQuestion) {
+	public BottomBarUI(ForumUI forumUI) {
 		this.forumUI = forumUI;
-		this.currentQuestion = currentQuestion;
 		bottomBar = new ToolBar();
 		repopulateBottomBar();
 	}
@@ -41,7 +39,8 @@ public class BottomBarUI {
 			bottomBar.getItems().add(backBtn);
 			
 			if(currentMode == Mode.QUESTION_VIEWER) {
-				Button postAnswerBtn = new PostAnswerUI(currentQuestion, forumUI).getPostAnswerButton();
+				
+				Button postAnswerBtn = new PostAnswerUI(forumUI.getCurrentQuestion(), forumUI).getPostAnswerButton();
 				
 				bottomBar.getItems().addAll(postAnswerBtn);
 			}
