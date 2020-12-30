@@ -67,54 +67,54 @@ public class PostAnswerUI {
 	 * @return The created <code>Answer</code> object, or <code>null</code> if the user canceled.
 	 */
 	private Answer displayPostAnswerDialog() {
-		System.out.println(question);
-			ResourceBundle langBundle = LanguageManager.getLangBundle();
-		
-			Dialog dialog = new Dialog();
-			dialog.setTitle(langBundle.getString("postAnswerTitle"));
-			
-			PopupUI.setupDialogStyling(dialog);
 
-			GridPane gridPane = new GridPane();
-			gridPane.setHgap(10);
-			gridPane.setVgap(10);
-			// top, right, bottom, left padding
-			gridPane.setPadding(new Insets(20, 10, 10, 10));
-			
-			TextArea answerField = new TextArea();
-			answerField.setPromptText(langBundle.getString("answerPrompt"));
-			answerField.setMaxSize(400, 400);
-			answerField.setWrapText(true);
-			gridPane.add(answerField, 0, 0);
-			
-			// Set the button types.
-			ButtonType postAnswerBtnType = new ButtonType(langBundle.getString("confirmPostAnswerButton"), ButtonData.RIGHT);
-			dialog.getDialogPane().getButtonTypes().addAll(postAnswerBtnType, ButtonType.CANCEL);
-			
-			final Button postAnswerBtn = (Button)dialog.getDialogPane().lookupButton(postAnswerBtnType);
-			postAnswerBtn.addEventFilter(ActionEvent.ACTION, event -> {
-				int answerFieldLength = answerField.getText().length();
-				
-				if (answerFieldLength < 1 || answerFieldLength > PopupUI.MAX_DESC_LENGTH) {
-					  
-					PopupUI.displayWarningDialog(
-								langBundle.getString("badAnswerLengthErrorTitle"), 
-								String.format(
-										langBundle.getString("badAnswerLengthError"), PopupUI.MIN_ANSWER_DESC_LENGTH, PopupUI.MAX_DESC_LENGTH
-								)
-					);
-					
-					event.consume(); //make it so the dialog does not close
-					return;
-				}
-			});
-			
-			DialogPane dialogPane = dialog.getDialogPane();
-			dialogPane.setContent(gridPane);
+		ResourceBundle langBundle = LanguageManager.getLangBundle();
 	
-			if(dialog.showAndWait().get().equals(postAnswerBtnType)) {
-				return new Answer(answerField.getText(), LoginControl.getUser(), question);
+		Dialog dialog = new Dialog();
+		dialog.setTitle(langBundle.getString("postAnswerTitle"));
+		
+		PopupUI.setupDialogStyling(dialog);
+
+		GridPane gridPane = new GridPane();
+		gridPane.setHgap(10);
+		gridPane.setVgap(10);
+		// top, right, bottom, left padding
+		gridPane.setPadding(new Insets(20, 10, 10, 10));
+		
+		TextArea answerField = new TextArea();
+		answerField.setPromptText(langBundle.getString("answerPrompt"));
+		answerField.setMaxSize(400, 400);
+		answerField.setWrapText(true);
+		gridPane.add(answerField, 0, 0);
+		
+		// Set the button types.
+		ButtonType postAnswerBtnType = new ButtonType(langBundle.getString("confirmPostAnswerButton"), ButtonData.RIGHT);
+		dialog.getDialogPane().getButtonTypes().addAll(postAnswerBtnType, ButtonType.CANCEL);
+		
+		final Button postAnswerBtn = (Button)dialog.getDialogPane().lookupButton(postAnswerBtnType);
+		postAnswerBtn.addEventFilter(ActionEvent.ACTION, event -> {
+			int answerFieldLength = answerField.getText().length();
+			
+			if (answerFieldLength < 1 || answerFieldLength > PopupUI.MAX_DESC_LENGTH) {
+				  
+				PopupUI.displayWarningDialog(
+							langBundle.getString("badAnswerLengthErrorTitle"), 
+							String.format(
+									langBundle.getString("badAnswerLengthError"), PopupUI.MIN_ANSWER_DESC_LENGTH, PopupUI.MAX_DESC_LENGTH
+							)
+				);
+				
+				event.consume(); //make it so the dialog does not close
+				return;
 			}
-			return null;
+		});
+		
+		DialogPane dialogPane = dialog.getDialogPane();
+		dialogPane.setContent(gridPane);
+
+		if(dialog.showAndWait().get().equals(postAnswerBtnType)) {
+			return new Answer(answerField.getText(), LoginControl.getUser(), question);
+		}
+		return null;
 	}
 }
