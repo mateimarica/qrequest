@@ -27,8 +27,3 @@ QRequest is an application that allows you to interact with others, build your k
 
 ## About
 * QRequest is a database-centric application.
-
-<br>
-
-## Note
-* If you pull the project and get a bunch of weird errors in Eclipse: Right click on the QRequest Project > Properties > Java Build Path > Select the "JRE System Library (unbound)" and click "Remove" >  Add Library > JRE System Library > Select "Workspace Default" > Finish > Apply and Close
