@@ -66,7 +66,6 @@ public class BottomBarUI {
 	
 	private void backButtonPress() {
 		forumUI.backButtonPress();
-		repopulateBottomBar();
 	}
 	
 }

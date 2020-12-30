@@ -194,6 +194,7 @@ public class ForumUI {
 		postList.getItems().clear();
 		currentMode = Mode.FRONT_PAGE;
 		refresh();
+		bottomBarUI.repopulateBottomBar();
 	}
 	
 	/**Builds an individual question pane for the front page for placing on the postList
