@@ -2,6 +2,8 @@
 
 * No commits should contain any database credentials or URLs. The <code>*\*\*REMOVED\*\*\*</code> keyword should replace any usernames, passwords, or URLs.
 
+* Do not push directly to master. Create your own branch, do your work, then create a pull request to master.
+
 <br>
 
 ## Notes
