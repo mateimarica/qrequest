@@ -48,13 +48,13 @@ class DataManager {
 	      System.err.println(e.toString());
 	     }
 		
-		String url = "***REMOVED***";
+		String url = "**REMOVED**";
 
 
 		try {
 			Properties properties = new Properties();
-			properties.setProperty("user", "***REMOVED***");
-			properties.setProperty("password", "***REMOVED***");
+			properties.setProperty("user", "**REMOVED**");
+			properties.setProperty("password", "**REMOVED**");
 			
 			
 			connection = DriverManager.getConnection(url, properties);
@@ -389,11 +389,25 @@ class DataManager {
 	 * @param question The question being deleted.
 	 */
 	void deletePost(Post post) {
-			if(post.isQuestion()) { //If the post if a Question:
+			if(post.isQuestion()) { //If the post is a Question:
 				executeUpdateQuery("DELETE FROM Questions WHERE Id = '" + post.getID() + "';");
 				executeUpdateQuery("DELETE FROM Answers WHERE QuestionId = '" + post.getID() + "';");
-			} else { //If the post if an Answer:
-				executeUpdateQuery("DELETE FROM Answers WHERE Id = '" + post.getID() + "';");
+			} else { //If the post is an Answer:
+				if(post instanceof Answer) {
+					Answer answer = (Answer) post;
+					if(answer.getQuestion().hasSolvedAnswer()) {
+						if(answer.getID().equals(answer.getQuestion().getSolvedAnswer().getID())) {
+							executeUpdateQuery("UPDATE Answers SET Answerer = '[deleted]' WHERE Id = '" + answer.getID() + "';");
+						}
+						else {
+							executeUpdateQuery("DELETE FROM Answers WHERE Id = '" + post.getID() + "';");
+						}
+					}
+					else {
+						executeUpdateQuery("DELETE FROM Answers WHERE Id = '" + post.getID() + "';");
+					}
+				}
+
 			}
 	}
 	
