@@ -297,6 +297,7 @@ public class LoginUI {
 		}
 	}
 	
+	/**Triggered when the languageButton is clicked. Automatically lists all <code>Language</code>s.*/
 	@FXML
 	private void languageButtonPress() {
 		

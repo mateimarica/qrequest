@@ -48,14 +48,12 @@ class DataManager {
 	      System.err.println(e.toString());
 	     }
 		
-		String url = "**REMOVED**";
-
+		String url = "***REMOVED***";
 
 		try {
 			Properties properties = new Properties();
-			properties.setProperty("user", "**REMOVED**");
-			properties.setProperty("password", "**REMOVED**");
-			
+			properties.setProperty("user", "***REMOVED***");
+			properties.setProperty("password", "***REMOVED***");
 			
 			connection = DriverManager.getConnection(url, properties);
 		} catch (SQLException e) {

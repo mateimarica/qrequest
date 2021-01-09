@@ -18,6 +18,8 @@ import javafx.stage.Stage;
  * This is an appropriate use of the static keyword.*/
 public class PopupUI {
 	
+	//Not Javadocing these variables.. Pretty self-explanatory.
+	
 	static final int MIN_ANSWER_DESC_LENGTH = 1;
 	
 	static final int MAX_DESC_LENGTH = 65535;
@@ -31,10 +33,6 @@ public class PopupUI {
 	static final int MIN_QUESTION_LENGTH = 8;
 	static final int MAX_QUESTION_LENGTH = 200;
 	
-	
-	
-	
-
 	/**Displays a warning dialog.
 	 * @param title The title of the pop-up window.
 	 * @param text The text within the window. Should describe the warning.
@@ -106,6 +104,9 @@ public class PopupUI {
 		return displayErrorDialog(LanguageManager.getLangBundle().getString("connectionErrorTitle"), LanguageManager.getLangBundle().getString("connectionError"));
 	}
 	
+	/**Sets the icon and the theme for the dialog window.
+	 * @param dialog The dialog window.
+	 */
 	static void setupDialogStyling(Dialog dialog) {
 		//Set the icon for the popup
 		Stage stage = (Stage) dialog.getDialogPane().getScene().getWindow();

@@ -55,7 +55,7 @@ fx:controller="com.qrequest.ui.LoginUI" xmlns="http://javafx.com/javafx/8" xmlns
     <Label fx:id="newAccountLabel" text="%switchToCreateAccText"
     GridPane.columnIndex="1" GridPane.rowIndex="11" GridPane.halignment="CENTER"></Label>
     
-    <Label text="Carbon v1.0"
+    <Label text="Carbon v1.1"
     GridPane.columnIndex="2" GridPane.rowIndex="12" GridPane.halignment="RIGHT" GridPane.valignment="BOTTOM"
     ></Label>
     

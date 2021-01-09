@@ -113,6 +113,7 @@ public class SearchQuestionsUI {
 		return null;
 	}
 	
+	/**Represents an "Has answer?" option in the Search Questions menu.*/
 	public enum HasAnswerOption {
 		EITHER("searchQuestionsHasAnswerEither"),
 		YES("yes"),

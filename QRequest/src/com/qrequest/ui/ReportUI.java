@@ -75,8 +75,6 @@ public class ReportUI {
 		Dialog dialog = new Dialog();
 		dialog.setTitle(langBundle.getString("reportPopupTitle"));
 
-		
-		
 		PopupUI.setupDialogStyling(dialog);
 		
 		GridPane gridPane = new GridPane();

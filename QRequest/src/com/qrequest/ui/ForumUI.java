@@ -56,6 +56,7 @@ public class ForumUI {
 	/**Reference to the current question that is being interacted with*/
 	private Question currentQuestion;
 	
+	/**The UI of the bar at the bottom.*/
 	BottomBarUI bottomBarUI;
 	
 	/**The root pane, i.e. what every JavaFX control is placed on*/
@@ -64,8 +65,7 @@ public class ForumUI {
 	/**The stage*/
 	private Stage stage;
 	
-	
-	
+	/**Restarts the scene.*/
 	void restartScene() {
 		startScene(stage);
 	}
@@ -75,6 +75,9 @@ public class ForumUI {
 		startScene(stage, null);
 	}
 	
+	/**Returns the current question that is in view.
+	 * @return The current question that is in view.
+	 */
 	Question getCurrentQuestion() {
 		return currentQuestion;
 	}
@@ -116,10 +119,16 @@ public class ForumUI {
 		stage.setMinWidth(800);
 	}
 
+	/**Returns the current mode (<code>Mode.FRONT_PAGE</code> or <code>Mode.QUESTION_VIEWER</code>)
+	 * @return The current mode
+	 */
 	Mode getMode() {
 		return currentMode;
 	}
 	
+	/**Sets the current mode.
+	 * @param newMode The new mode (<code>Mode.FRONT_PAGE</code> or <code>Mode.QUESTION_VIEWER</code>).
+	 */
 	void setMode(Mode newMode) {
 		currentMode = newMode;
 	}

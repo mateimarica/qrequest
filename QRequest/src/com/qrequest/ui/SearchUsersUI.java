@@ -53,7 +53,6 @@ public class SearchUsersUI {
 		Dialog dialog = new Dialog();
 		dialog.setTitle(langBundle.getString("searchUsersPopupTitle"));
 		
-		
 		PopupUI.setupDialogStyling(dialog);		
 
 		GridPane gridPane = new GridPane();

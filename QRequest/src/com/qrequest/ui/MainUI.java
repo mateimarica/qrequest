@@ -27,6 +27,7 @@ public class MainUI extends Application {
 	
 	@Override
 	public void start(Stage stage) throws Exception {
+		//Sets icon, application title, etc
 		setUpStage(stage);
 		
 		LanguageManager.loadSavedLanguage();

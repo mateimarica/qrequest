@@ -1,8 +1,6 @@
 package com.qrequest.exceptions;
 
-/**Thrown when the application cannot connection to the database.<br>
- * Likely caused by not being connected to the UNB VPN.
- */
+/**Thrown when the application cannot connection to the database.*/
 @SuppressWarnings("serial")
 public class DatabaseConnectionException extends Exception {
 	

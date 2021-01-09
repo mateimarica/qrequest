@@ -29,8 +29,13 @@ public class MessagingUI {
 	/**The button for displaying the messaging window.*/
 	private Button messagingBtn;
 	
+	/**The compose field, where the user types a message.*/
 	private TextField composeField;
+	
+	/**The search field where the user can search for other users.*/
 	private TextField searchField;
+	
+	/**The ListView where the current conversation is displayed.*/
 	private ListView<BorderPane> allMessages;
 	
 	/**Create a MessagingUI. Creates a messagingBtn.*/
@@ -144,6 +149,7 @@ public class MessagingUI {
 		 	} 	
 	}
 	
+	/**Triggered when the Enter key is pressed when in the compose field, or the <i>Send</i> button is clicked.*/
 	private void sendMessage() {
 		if(!composeField.getText().isEmpty()) {
 			Message message = new Message(LoginControl.getUser().getUsername(), searchField.getText(), composeField.getText());
