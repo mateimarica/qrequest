@@ -105,15 +105,15 @@
 }
 
 #editButton {
-	-fx-graphic: url("/com/qrequest/resources/images/edit_dark.png");
+	-fx-graphic: url("/images/edit_dark.png");
 }
 
 #deleteButton {
-	-fx-graphic: url("/com/qrequest/resources/images/delete_dark.png");
+	-fx-graphic: url("/images/delete_dark.png");
 }
 
 #pinButton {
-	-fx-graphic: url("/com/qrequest/resources/images/pin_dark.png");
+	-fx-graphic: url("/images/pin_dark.png");
 }
 
 #markSolvedButton:selected,
@@ -122,11 +122,11 @@
 }
 
 #reportButton {
-	-fx-graphic: url("/com/qrequest/resources/images/report_dark.png");
+	-fx-graphic: url("/images/report_dark.png");
 }
 
 #markSolvedButton {
-	-fx-graphic: url("/com/qrequest/resources/images/marksolved_dark.png");
+	-fx-graphic: url("/images/marksolved_dark.png");
 }
 
 #markedSolvedLabel {
@@ -142,7 +142,7 @@
 }
 
 #langBtn {
-	-fx-graphic: url("/com/qrequest/resources/images/lang_dark.png");
+	-fx-graphic: url("/images/lang_dark.png");
 }
 
 .tooltip {

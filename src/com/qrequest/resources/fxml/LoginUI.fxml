@@ -20,7 +20,7 @@ fx:controller="com.qrequest.ui.LoginUI" xmlns="http://javafx.com/javafx/8" xmlns
     </columnConstraints>
     
     <Label text="QREQUEST" 
-    stylesheets="/com/qrequest/resources/css/title-styling.css" 
+    stylesheets="/css/title-styling.css" 
     GridPane.columnIndex="1" GridPane.rowIndex="0">
     </Label>
     

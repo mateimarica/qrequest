@@ -42,7 +42,7 @@ public final class LanguageManager {
 	 * @return Returns the language bundle associated with the given <code>Language</code>.
 	 */
 	public static ResourceBundle getLanguageBundle(Language lang) {
-		return ResourceBundle.getBundle("com.qrequest.resources.lang.labels", lang.getLocale());
+		return ResourceBundle.getBundle("lang/labels", lang.getLocale());
 	}
 	
 	/**The key that the language preference will be saved under.*/
@@ -72,8 +72,8 @@ public final class LanguageManager {
 	 */
 	public static Language getSavedLanguage() {
 		return Language.valueOf(
-					PreferenceManager.getPreference(LANGUAGE_PREF, "ENGLISH")
-				);
+			PreferenceManager.getPreference(LANGUAGE_PREF, "ENGLISH")
+		);
 	}
 	
 	

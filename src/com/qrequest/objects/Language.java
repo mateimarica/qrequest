@@ -8,11 +8,9 @@ public enum Language {
 	ENGLISH("en", "English"),
 	
 	/**Represents the Romanian language.*/
-	ROMANIAN("ro", "Rom‚n\u0103");
-	
+	ROMANIAN("ro", "Rom√¢n\u0103");
 	
 	//Add new languages here	
-	
 	
 	/**The <code>Language</code>'s locale. 
 	 * Used when retrieving the <code>.properties</code> file for the current <code>Language</code>.
@@ -59,6 +57,4 @@ public enum Language {
 	public String getName() {
 		return name;
 	}	
-	
-	
 }

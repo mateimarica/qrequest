@@ -74,8 +74,7 @@ public class LoginUI {
 		try {
 			stage.setResizable(false);
 			LoginUI.stage = stage;
-					
-			GridPane root = FXMLLoader.load(getClass().getResource("/com/qrequest/resources/fxml/LoginUI.fxml"), LanguageManager.getLangBundle());
+			GridPane root = FXMLLoader.load(getClass().getResource("/fxml/LoginUI.fxml"), LanguageManager.getLangBundle());
 			Scene loginScene = new Scene(root, WINDOW_WIDTH, WINDOW_HEIGHT);
 			
 			loginScene.getStylesheets().add(ThemeManager.getCurrentThemeURL());

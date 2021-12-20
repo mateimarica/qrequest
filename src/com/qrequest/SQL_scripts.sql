@@ -1,153 +1,169 @@
--- Create Users table
-CREATE TABLE `Users` (
-  `Username` varchar(10) NOT NULL DEFAULT '',
-  `Password` varchar(40) DEFAULT NULL,
-  `IsAdmin` int(11) DEFAULT NULL,
-  PRIMARY KEY (`Username`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+-- Create users table (utf8_general_ci means case-insensitive)
+CREATE TABLE `users` (
+  `username` varchar(10) COLLATE utf8_general_ci NOT NULL,
+  `password` varchar(40) NOT NULL,
+  `is_admin` int DEFAULT 0,
+  PRIMARY KEY (`username`)
+);
 
 -- Get account from credentials
-SELECT * FROM Users WHERE Username = 'username' AND Password = SHA1('password');
+SELECT * FROM users WHERE username = 'username' AND password = SHA1('password');
 
 -- Get account from credentials with saved hashed password
-SELECT * FROM Users WHERE Username = 'username' AND Password = 'password';
+SELECT * FROM users WHERE username = 'username' AND password = 'password';
 
 -- Create account (the zero means user not admin by default)
-INSERT INTO Users VALUES('username', SHA1('password'), 0);
+INSERT INTO users VALUES('username', SHA1('password'));
 
--- Check if account exists
-SELECT COUNT(1) AS UserExists FROM Users WHERE UPPER(Username) = UPPER('username');
+-- Check if account exists [LEGACY]
+SELECT COUNT(1) AS user_exists FROM users WHERE UPPER(username) = UPPER('username');
 
 -- Get all users whose usernames contain the keyword
-SELECT * FROM Users WHERE Username LIKE 'username%';
+SELECT * FROM users WHERE username LIKE 'username%';
 
 
 
 
--- Create Questions table
-CREATE TABLE `Questions` (
-  `Title` varchar(200) DEFAULT NULL,
-  `Description` text,
-  `Author` varchar(10) DEFAULT NULL,
-  `Id` varchar(36) NOT NULL DEFAULT '',
-  `TimePosted` datetime DEFAULT NULL,
-  `Tag` varchar(255) DEFAULT NULL,
-  `IsPinned` int(11) DEFAULT '-1',
-  `SolvedAnswerId` varchar(36) DEFAULT NULL,
-  PRIMARY KEY (`Id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+-- Create questions table
+CREATE TABLE `questions` (
+  `title` varchar(200) NOT NULL,
+  `description` text DEFAULT '',
+  `author` varchar(10) NOT NULL,
+  `id` varchar(36) NOT NULL DEFAULT UUID(),
+  `date_created` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `tag` varchar(255) DEFAULT NULL,
+  `is_pinned` int(11) DEFAULT '-1',
+  `solved_answer_id` varchar(36) DEFAULT NULL,
+  PRIMARY KEY (`id`)
+  CONSTRAINT fk_author FOREIGN KEY (author) 
+    REFERENCES users(username)
+  CONSTRAINT fk_solved_answer_id FOREIGN KEY (solved_answer_id) 
+    REFERENCES answers(id)
+);
 
 -- Create a question
-INSERT INTO Questions VALUES('title', 'desc', 'author', 'id', 'tag_name');
+INSERT INTO questions VALUES('title', 'desc', 'author', 'id', 'tag_name');
 
 -- Refresh a question object to get new description/tag
-SELECT * FROM Questions WHERE Id = 'id';
+SELECT * FROM questions WHERE id = 'id';
 
 -- Get all questions
-SELECT * FROM Questions ORDER BY IsPinned DESC, TimePosted DESC;
+SELECT * FROM questions ORDER BY is_pinned DESC, date_created DESC;
 
 -- Get filtered questions
-SELECT * FROM Questions WHERE (Title LIKE '%title%' OR Description LIKE '%description%') ORDER BY Title DESC;
+SELECT * FROM questions WHERE (title LIKE '%title%' OR description LIKE '%description%') ORDER BY title DESC;
 
 -- Toggle a question's pinned state
-UPDATE Questions SET IsPinned = IsPinned * -1 WHERE Id = 'id';
+UPDATE questions SET is_pinned = is_pinned * -1 WHERE id = 'id';
 
 -- Edit question
-UPDATE Questions SET Description = 'description', Tag = 'tag_name' WHERE Id = 'id';
+UPDATE questions SET description = 'description', tag = 'tag_name' WHERE id = 'id';
 
 -- Delete question
-DELETE FROM Questions WHERE Id = 'id';
+DELETE FROM questions WHERE id = 'id';
 
 -- Mark a question as solved with an answer
-UPDATE Questions SET SolvedAnswerId = 'answerId' WHERE Id = 'id';
+UPDATE questions SET solved_answer_id = 'answerid' WHERE id = 'id';
 
 -- Remove an question's marked-as-solved answer
-UPDATE Questions SET SolvedAnswerId = NULL WHERE Id = 'id';
+UPDATE questions SET solved_answer_id = NULL WHERE id = 'id';
 
 
 
 
--- Create Answers table
-CREATE TABLE `Answers` (
-  `Answer` text,
-  `Answerer` varchar(10) DEFAULT NULL,
-  `Id` varchar(36) NOT NULL DEFAULT '',
-  `QuestionId` varchar(36) DEFAULT NULL,
-  `TimePosted` datetime DEFAULT NULL,
-  PRIMARY KEY (`Id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+-- Create answers table
+CREATE TABLE `answers` (
+  `answer` text NOT NULL,
+  `answerer` varchar(10) NOT NULL,
+  `id` varchar(36) NOT NULL DEFAULT UUID(),
+  `question_id` varchar(36) NOT NULL,
+  `date_created` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`)
+  CONSTRAINT fk_question_id FOREIGN KEY (question_id) 
+    REFERENCES questions(id)
+);
 
 -- Post answer
-INSERT INTO Answers VALUES('answerText', 'author', 'id', 'questionId', CURRENT_TIMESTAMP);
+INSERT INTO answers VALUES('answerText', 'author', 'id', 'questionid', CURRENT_TIMESTAMP);
 
 -- Get all answers
-SELECT * FROM Answers WHERE QuestionId = 'questionId' ORDER BY IFNULL((SELECT SUM(Vote) FROM Votes WHERE PostId = Answers.Id), 0) DESC, TimePosted DESC;
+SELECT * FROM answers WHERE question_id = 'questionid' ORDER BY IFNULL((SELECT SUM(vote) FROM votes WHERE post_id = answers.id), 0) DESC, date_created DESC;
 
 -- Get number of answers for a question
-SELECT COUNT(QuestionId) AS AnswerCount FROM Answers WHERE QuestionId = 'questionId';
+SELECT COUNT(question_id) AS answerCount FROM answers WHERE question_id = 'questionid';
 
 -- Edit answer
-UPDATE Answers SET Answer = 'description' WHERE Id = 'id';
+UPDATE answers SET answer = 'description' WHERE id = 'id';
 
 -- Delete all answers to a question
-DELETE FROM Answers WHERE QuestionId = 'questionId';
+DELETE FROM answers WHERE question_id = 'questionid';
 
 -- Delete an answer
-DELETE FROM Answers Where Id = 'id';
+DELETE FROM answers Where id = 'id';
 
 
 
 
--- Create Votes table
-CREATE TABLE `Votes` (
-  `Vote` int(11) DEFAULT NULL,
-  `PostId` varchar(36) NOT NULL DEFAULT '',
-  `Voter` varchar(10) NOT NULL DEFAULT '',
-  PRIMARY KEY (`PostId`,`Voter`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+-- Create votes table
+CREATE TABLE `votes` (
+  `vote` int NOT NULL,
+  `post_id` varchar(36) NOT NULL,
+  `voter` varchar(10) NOT NULL,
+  PRIMARY KEY (`post_id`,`voter`)
+);
 
 -- Get the vote count on a post
-SELECT SUM(Vote) AS Votes FROM Votes WHERE PostId = 'postId';
+SELECT SUM(vote) AS votes FROM votes WHERE post_id = 'postid';
 
 -- Get the current user's vote on a post
-SELECT Vote FROM Votes WHERE PostId = 'postId' AND Voter = 'username';
+SELECT vote FROM votes WHERE post_id = 'postid' AND voter = 'username';
 
 -- Delete a vote on a post
-DELETE FROM Votes Where PostID = 'postId' AND Voter = 'username';
+DELETE FROM votes Where PostID = 'postid' AND voter = 'username';
 
 -- Add/change a vote on a post
-INSERT INTO Votes VALUES(voteValue, 'postId', 'username') ON DUPLICATE KEY UPDATE Vote = voteValue;
+INSERT INTO votes VALUES(voteValue, 'postid', 'username') ON DUPLICATE KEY UPDATE vote = voteValue;
 
 
 
 
--- Create Reports table
-CREATE TABLE `Reports` (
-  `ReportType` varchar(200) DEFAULT NULL,
-  `ReportDesc` text,
-  `TimeReported` datetime DEFAULT NULL,
-  `Reporter` varchar(10) DEFAULT NULL,
-  `PostId` varchar(36) DEFAULT NULL,
-  `ReportId` varchar(36) NOT NULL DEFAULT '',
-  PRIMARY KEY (`ReportId`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+-- Create reports table
+CREATE TABLE `reports` (
+  `report_type` varchar(200) NOT NULL,
+  `report_desc` text NOT NULL,
+  `date_created` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `reporter` varchar(10) NOT NULL,
+  `post_id` varchar(36) NOT NULL,
+  `report_id` varchar(36) NOT NULL,
+  PRIMARY KEY (`report_id`)
+  CONSTRAINT fk_question_id FOREIGN KEY (post_id) 
+    REFERENCES questions(id)
+  CONSTRAINT fk_answer_id FOREIGN KEY (post_id) 
+    REFERENCES answers(id)
+  CONSTRAINT fk_reporter FOREIGN KEY (reporter) 
+    REFERENCES users(username)
+);
 
 -- Create a report
-INSERT INTO Reports VALUES('reportType', 'description', CURRENT_TIMESTAMP, 'reporter_username', 'postId', 'id');
+INSERT INTO reports VALUES('reportType', 'description', CURRENT_TIMESTAMP, 'reporter_username', 'postid', 'id');
 
 
 
 
--- Create Messages table
-CREATE TABLE `Messages` (
-  `Sender` varchar(10) DEFAULT NULL,
-  `Receiver` varchar(10) DEFAULT NULL,
-  `Body` text,
-  `TimePosted` datetime DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+-- Create messages table
+CREATE TABLE `messages` (
+  `sender` varchar(10) NOT NULL,
+  `receiver` varchar(10) NOT NULL,
+  `body` text NOT NULL,
+  `date_created` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP
+  CONSTRAINT fk_sender FOREIGN KEY (sender) 
+    REFERENCES users(username)
+  CONSTRAINT fk_receiver FOREIGN KEY (receiver) 
+    REFERENCES users(username)
+);
 
 -- Create a message
-INSERT INTO Messages VALUES('sender', 'recipient', 'text', CURRENT_TIMESTAMP);
+INSERT INTO messages VALUES('sender', 'recipient', 'text', CURRENT_TIMESTAMP);
 
 -- Get all messages between two people
-SELECT * FROM Messages WHERE ((Receiver = 'username1' AND Sender = 'username2') OR (Receiver = 'username2' AND Sender = 'username1'));
+SELECT * FROM messages WHERE ((receiver = 'username1' AND sender = 'username2') OR (receiver = 'username2' AND sender = 'username1'));

@@ -15,7 +15,7 @@ import javafx.stage.Stage;
 public class MainUI extends Application {
 	
 	/**The URL of the application's icon. Used in every popup window.*/
-	final static String ICON_URL = "/com/qrequest/resources/images/icon.png";
+	final static String ICON_URL = "/images/icon.png";
 	
 	
 	

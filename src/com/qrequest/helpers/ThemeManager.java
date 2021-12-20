@@ -10,8 +10,8 @@ public final class ThemeManager {
 	
 	/**Relative URL for the theme within the project.
 	*/
-	private final static String lightThemeFileURL = "/com/qrequest/resources/css/light-theme.css",
-							    darkThemeFileURL  = "/com/qrequest/resources/css/dark-theme.css";
+	private final static String lightThemeFileURL = "/css/light-theme.css",
+							    darkThemeFileURL  = "/css/dark-theme.css";
 	
 	
 	/**The preference key code for the dark mode setting. Used to retrieve the value.

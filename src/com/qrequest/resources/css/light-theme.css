@@ -85,19 +85,19 @@ list-cell:even,
 }
 
 #editButton {
-	-fx-graphic: url("/com/qrequest/resources/images/edit_light.png");
+	-fx-graphic: url("/images/edit_light.png");
 }
 
 #deleteButton {
-	-fx-graphic: url("/com/qrequest/resources/images/delete_light.png");
+	-fx-graphic: url("/images/delete_light.png");
 }
 
 #pinButton {
-	-fx-graphic: url("/com/qrequest/resources/images/pin_light.png");
+	-fx-graphic: url("/images/pin_light.png");
 }
 
 #markSolvedButton:selected {
-	-fx-graphic: url("/com/qrequest/resources/images/marksolved_dark.png");
+	-fx-graphic: url("/images/marksolved_dark.png");
 }
 
 #markSolvedButton:selected,
@@ -106,11 +106,11 @@ list-cell:even,
 }
 
 #reportButton {
-	-fx-graphic: url("/com/qrequest/resources/images/report_light.png");
+	-fx-graphic: url("/images/report_light.png");
 }
 
 #markSolvedButton {
-	-fx-graphic: url("/com/qrequest/resources/images/marksolved_light.png");
+	-fx-graphic: url("/images/marksolved_light.png");
 }
 
 #markedSolvedLabel {
@@ -124,7 +124,7 @@ list-cell:even,
 }
 
 #langBtn {
-	-fx-graphic: url("/com/qrequest/resources/images/lang_light.png");
+	-fx-graphic: url("/images/lang_light.png");
 }
 
 .tooltip {
