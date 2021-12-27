@@ -3,32 +3,31 @@ package com.qrequest.objects;
 import java.time.ZonedDateTime;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
-import java.util.TimeZone;
 
 import com.qrequest.helpers.LanguageManager;
 
 /**Repesents a certain point in time.<br>
  * <code>toString()</code> returns relative informal date.<br>(Example: "3 days ago")
  */
-@SuppressWarnings("serial")
 public class TeiTime extends GregorianCalendar {
 	
 	private static final int MILLI_PER_MIN = 60000;
-	
 	private static final int MINS_PER_HOUR = 60;
 	private static final int MINS_PER_DAY = 1440;
 	private static final int MINS_PER_WEEK = 10080; 
 	private static final int MINS_PER_MONTH = 43200;
 	private static final int MINS_PER_YEAR = 525600;
-	
+
+	public TeiTime(String utcDate) {
+		super();
+		this.setTimeInMillis(ZonedDateTime.parse(utcDate).toInstant().toEpochMilli());
+	}
 	
 	@Override
 	public String toString() {
-		//TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
 
 		Calendar currentTime = Calendar.getInstance();
-
-		long minutesPassed = (currentTime.getTimeInMillis() + Math.abs(currentTime.getTimeZone().getRawOffset()) - this.getTimeInMillis()) / MILLI_PER_MIN;
+		long minutesPassed = (currentTime.getTimeInMillis() - this.getTimeInMillis()) / MILLI_PER_MIN;
 
 		switch(LanguageManager.getSavedLanguage()) {
 			case ROMANIAN:
@@ -59,7 +58,7 @@ public class TeiTime extends GregorianCalendar {
 				// If less than an month has passed, print weeks
 				if(minutesPassed < MINS_PER_MONTH) {
 					long weeksPassed = minutesPassed / MINS_PER_WEEK;
-					return "acum " + (weeksPassed == 1 ? "o s\u0103pt\u0103mân\u0103" : weeksPassed + " s\u0103pt\u0103mâni");
+					return "acum " + (weeksPassed == 1 ? "o s\u0103pt\u0103mï¿½n\u0103" : weeksPassed + " s\u0103pt\u0103mï¿½ni");
 				}
 				
 				// If less than an year has passed, print months

@@ -1,5 +1,6 @@
 package com.qrequest.ui;
 
+import java.util.ArrayList;
 import java.util.NoSuchElementException;
 
 import com.qrequest.helpers.LanguageManager;
@@ -18,11 +19,13 @@ import javafx.stage.Stage;
  * This is an appropriate use of the static keyword.*/
 public class PopupUI {
 	
+	private static ArrayList<Dialog> openDialogs = new ArrayList<>();
+
 	//Not Javadocing these variables.. Pretty self-explanatory.
 	
 	static final int MIN_ANSWER_DESC_LENGTH = 1;
 	
-	static final int MAX_DESC_LENGTH = 65535;
+	static final int MAX_DESC_LENGTH = 10000;
 	
 	static final int MIN_NAME_LENGTH = 3;
 	static final int MAX_NAME_LENGTH = 10;
@@ -30,7 +33,7 @@ public class PopupUI {
 	static final int MIN_PASSWORD_LENGTH = 3;
 	static final int MAX_PASSWORD_LENGTH = 40;
 	
-	static final int MIN_QUESTION_LENGTH = 8;
+	static final int MIN_QUESTION_LENGTH = 6;
 	static final int MAX_QUESTION_LENGTH = 200;
 	
 	/**Displays a warning dialog.
@@ -94,20 +97,20 @@ public class PopupUI {
 		} catch (NoSuchElementException e) {
 			return false;
 		}
-		
 	}
 	
 	/**Shortcut method for displaying the database connection dialog. Used in every Control class.
 	 * @return <code>true</code> if the <b>OK</b> button is clicked, <code>false</code> if any other button is clicked.
 	 */
 	public static boolean displayDatabaseConnectionErrorDialog() {
-		return displayErrorDialog(LanguageManager.getLangBundle().getString("connectionErrorTitle"), LanguageManager.getLangBundle().getString("connectionError"));
+		return displayErrorDialog(LanguageManager.getString("connectionErrorTitle"), LanguageManager.getString("connectionError"));
 	}
 	
 	/**Sets the icon and the theme for the dialog window.
 	 * @param dialog The dialog window.
 	 */
 	static void setupDialogStyling(Dialog dialog) {
+		openDialogs.add(dialog);
 		//Set the icon for the popup
 		Stage stage = (Stage) dialog.getDialogPane().getScene().getWindow();
 		stage.getIcons().add(
@@ -116,5 +119,15 @@ public class PopupUI {
 		//sets the theme
 		dialog.getDialogPane().getStylesheets().add(ThemeManager.getCurrentThemeURL());
 	}
+
+	static void closeOpenDialogs() {
+		for (Dialog dialog : openDialogs) {
+			dialog.close();
+		}
+		openDialogs.clear();
+	}
 	
+	static void removeOpenDialog(Dialog dialog) {
+		openDialogs.remove(dialog);
+	}
 }

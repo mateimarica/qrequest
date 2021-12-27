@@ -2,7 +2,7 @@ package com.qrequest.ui;
 
 import java.util.ResourceBundle;
 
-import com.qrequest.control.SearchQuestionsControl;
+import com.qrequest.control.QuestionController;
 import com.qrequest.helpers.LanguageManager;
 import com.qrequest.objects.QuestionSearchFilters;
 import com.qrequest.objects.Tag;
@@ -33,7 +33,7 @@ public class SearchQuestionsUI {
 	public SearchQuestionsUI(ForumUI forumUI) {
 		this.forumUI = forumUI;
 		
-		searchQuestionsBtn = new Button("\uD83D\uDD0D " + LanguageManager.getLangBundle().getString("searchQuestionsButton"));
+		searchQuestionsBtn = new Button("\uD83D\uDD0D " + LanguageManager.getString("searchQuestionsButton"));
 		searchQuestionsBtn.setOnAction(e -> searchQuestionsBtnPress());
 	}
 	
@@ -49,7 +49,7 @@ public class SearchQuestionsUI {
 		QuestionSearchFilters filters = displaySearchQuestionsDialog();
 		if(filters != null) {
 			forumUI.bottomBarUI.repopulateBottomBar();
-			forumUI.createQuestionsList(new SearchQuestionsControl().searchQuestions(filters));
+			forumUI.createQuestionsList(QuestionController.search(filters));
 		}
 	}
 	
@@ -58,10 +58,8 @@ public class SearchQuestionsUI {
 	 */
 	private QuestionSearchFilters displaySearchQuestionsDialog() {
 		
-		ResourceBundle langBundle = LanguageManager.getLangBundle();
-		
 		Dialog dialog = new Dialog();
-		dialog.setTitle(langBundle.getString("searchQuestionsPopupTitle"));
+		dialog.setTitle(LanguageManager.getString("searchQuestionsPopupTitle"));
 
 		PopupUI.setupDialogStyling(dialog);
 
@@ -71,12 +69,12 @@ public class SearchQuestionsUI {
 		gridPane.setPadding(new Insets(20, 10, 10, 10)); // top, right, bottom, left padding
 
 		TextField titleField = new TextField();
-		titleField.setPromptText(langBundle.getString("searchQuestionsFieldPrompt"));
+		titleField.setPromptText(LanguageManager.getString("searchQuestionsFieldPrompt"));
 		titleField.setPrefWidth(300);
 		gridPane.add(titleField, 0, 0);
 		
 		ComboBox<Tag> tagTypeBox = new ComboBox<>();	
-		tagTypeBox.setPromptText(langBundle.getString("searchQuestionsTagPrompt"));
+		tagTypeBox.setPromptText(LanguageManager.getString("searchQuestionsTagPrompt"));
 		Tag[] tagTypes = Tag.values();
 		for(int i = 0; i < tagTypes.length; i++) {
 			tagTypeBox.getItems().add(tagTypes[i]);
@@ -84,20 +82,20 @@ public class SearchQuestionsUI {
 		gridPane.add(tagTypeBox, 0, 1);
 		
 		ComboBox<HasAnswerOption> hasBeenAnsweredBox = new ComboBox<>();
-		hasBeenAnsweredBox.setPromptText(langBundle.getString("searchQuestionsHasAnswerPrompt"));
+		hasBeenAnsweredBox.setPromptText(LanguageManager.getString("searchQuestionsHasAnswerPrompt"));
 		hasBeenAnsweredBox.getItems().addAll(HasAnswerOption.values());
 		gridPane.add(hasBeenAnsweredBox, 0, 2);
 
 		// Set the button types.
-		ButtonType searchBtnType = new ButtonType(langBundle.getString("searchQuestionsButton"), ButtonData.RIGHT);
+		ButtonType searchBtnType = new ButtonType(LanguageManager.getString("searchQuestionsButton"), ButtonData.RIGHT);
 		dialog.getDialogPane().getButtonTypes().addAll(searchBtnType, ButtonType.CANCEL);
 
 		final Button searchBtn = (Button)dialog.getDialogPane().lookupButton(searchBtnType);
 		searchBtn.addEventFilter(ActionEvent.ACTION, e -> {
 			if(titleField.getText().length() == 0 && tagTypeBox.getSelectionModel().isEmpty() && hasBeenAnsweredBox.getSelectionModel().isEmpty()) {
 				PopupUI.displayErrorDialog(
-						langBundle.getString("searchQuestionErrorTitle"), 
-						langBundle.getString("searchQuestionUnselectedItemError")
+						LanguageManager.getString("searchQuestionErrorTitle"), 
+						LanguageManager.getString("searchQuestionUnselectedItemError")
 				);
 				e.consume(); //make it so the dialog does not close
 				return;
@@ -108,8 +106,10 @@ public class SearchQuestionsUI {
 		dialogPane.setContent(gridPane);
 
 		if(dialog.showAndWait().get().equals(searchBtnType)) {
+			PopupUI.removeOpenDialog(dialog);
 			return new QuestionSearchFilters(titleField.getText(), tagTypeBox.getValue(), hasBeenAnsweredBox.getValue());
 		}
+		PopupUI.removeOpenDialog(dialog);
 		return null;
 	}
 	

@@ -1,8 +1,7 @@
 package com.qrequest.helpers;
 
-
+import java.util.MissingResourceException;
 import java.util.ResourceBundle;
-
 import com.qrequest.objects.Language;
 
 /**Manages the changing of languages.*/
@@ -14,21 +13,33 @@ public final class LanguageManager {
 	/**The ResourceBundle of the current, real-time set language.*/
 	private static ResourceBundle langBundle;
 	
-	/**Returns the current language bundle
+	/**Returns the current language bundle. Don't use this for accessing strings.
+	 * Use {@link LanguageManager#getString(String)} instead.
 	 * @return The current language bundle.
 	 * */
 	public static ResourceBundle getLangBundle() {
 		return langBundle;
 	}
 	
-	/**Returns the value for the given key in the current language. 
-	 * If there are many strings to set in your method, it's best to use <code>LanguageManager.getLangBundle()</code>
-	 * and save an instance of the <code>ResourceBundle</code> to get the strings from. This avoids overhead and contributes to cleaner code. 
+	/**Returns the value for the given key in the current language.
 	 * @param key The key in the current properties file. Look in the ../resources/lang/labels.properties file for context.
 	 * @return Returns the value associated with the given key.
 	 */
 	public static String getString(String key) {
-		return langBundle.getString(key);
+		try {
+			return langBundle.getString(key);
+		} catch (MissingResourceException e1) {
+			Language currentLang = getSavedLanguage();
+			System.err.println("Can't find key " + key + " in " + currentLang.name());
+			if (currentLang != Language.ENGLISH) {
+				try {
+					return ResourceBundle.getBundle("lang/labels", Language.ENGLISH.getLocale()).getString(key);
+				} catch (MissingResourceException e2) {
+					System.err.println("Can't find key " + key + " in " + Language.ENGLISH.name());
+				}
+			}
+		}
+		return "MISSING";
 	}
 	
 	/**This is called when the program first opens. Gets the saved language preference and 

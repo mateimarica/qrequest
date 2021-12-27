@@ -1,31 +1,23 @@
 package com.qrequest.ui;
 
-import java.util.ArrayList;
-import java.util.ResourceBundle;
-
-import com.qrequest.control.GetAnswerControl;
-import com.qrequest.control.GetQuestionControl;
-import com.qrequest.control.LoginControl;
+import com.qrequest.control.AnswerController;
+import com.qrequest.control.QuestionController;
+import com.qrequest.control.UserController;
 import com.qrequest.helpers.LanguageManager;
 import com.qrequest.helpers.ThemeManager;
 import com.qrequest.objects.Answer;
 import com.qrequest.objects.Credentials;
-import com.qrequest.objects.Language;
 import com.qrequest.objects.Post;
 import com.qrequest.objects.Question;
 
+import javafx.application.Platform;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
-import javafx.scene.control.CheckMenuItem;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
-import javafx.scene.control.Menu;
-import javafx.scene.control.MenuBar;
-import javafx.scene.control.MenuItem;
 import javafx.scene.control.ToggleButton;
-import javafx.scene.control.ToolBar;
 import javafx.scene.control.Tooltip;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
@@ -93,20 +85,11 @@ public class ForumUI {
 			this.currentQuestion = currentQuestion;
 		}	
 		
-		
 		root = new BorderPane();
 		
 		postList = new ListView<>();
 		postList.setFocusTraversable(false);
 		root.setCenter(postList);
-		
-		root.setTop(new MenuBarUI(this).getMenuBar());
-		
-		refresh();
-		
-		
-		bottomBarUI = new BottomBarUI(this);
-		root.setBottom(bottomBarUI.getBottomBar());	
 		
 		Scene scene = new Scene(root, WINDOW_WIDTH, WINDOW_HEIGHT);
 		
@@ -117,6 +100,11 @@ public class ForumUI {
 		stage.setResizable(true);
 		stage.setMinHeight(300);
 		stage.setMinWidth(800);
+
+		root.setTop(new MenuBarUI(this).getMenuBar());
+		refresh();
+		bottomBarUI = new BottomBarUI(this);
+		root.setBottom(bottomBarUI.getBottomBar());	
 	}
 
 	/**Returns the current mode (<code>Mode.FRONT_PAGE</code> or <code>Mode.QUESTION_VIEWER</code>)
@@ -136,10 +124,11 @@ public class ForumUI {
 	/**Called when the user clicks "Log out" in the menu bar.<br>
 	 * Clears the saved credentials and user object, and starts the LoginUI scene.
 	 */
-	void logout() {
+	public void logout() {
+		PopupUI.closeOpenDialogs();
 		stage.close();
 		Credentials.removeCredentials();
-		LoginControl.resetUser();
+		UserController.resetUser();
 		new LoginUI().startScene(MainUI.setUpStage(new Stage()));
 	}
 	
@@ -148,23 +137,22 @@ public class ForumUI {
 	 */
 	void refresh() {
 		if(currentMode == Mode.FRONT_PAGE) {
-			createQuestionsList(new GetQuestionControl().getAllQuestions());
+			createQuestionsList(QuestionController.list());
 		} else if(currentMode == Mode.QUESTION_VIEWER) {
 			blowupQuestion(currentQuestion);
 		}
 	}
 	
-	
-	
 	/**Displays a list of questions in the postList.*/
-	void createQuestionsList(ArrayList<Question> questionList) {
+	void createQuestionsList(Question[] questions) {
+		if (questions == null) return;
+
 		postList.getItems().clear();
-		
-        if(questionList.size() == 0) {
+        if(questions.length == 0) {
         	postList.getItems().add(buildEmptyPane());
         } else {
-        	for(int i = 0; i < questionList.size(); i++) {
-    			postList.getItems().add(buildQuestionPane(questionList.get(i)));
+        	for(int i = 0; i < questions.length; i++) {
+    			postList.getItems().add(buildQuestionPane(questions[i]));
     		}
         }
 	}
@@ -178,9 +166,11 @@ public class ForumUI {
 		bottomBarUI.repopulateBottomBar();
 		
 		//Refreshes the question in case something changed between the question retrieval and this method call.
-		new GetQuestionControl().refreshQuestion(question); 
+		question = QuestionController.get(question.getID());
 		
-		populateQuestion(question);
+		if (question != null) {
+			populateQuestion(question);
+		}
 	}
 	
 	/**Populates the listView with the question and all of its answers.
@@ -189,11 +179,10 @@ public class ForumUI {
 	private void populateQuestion(Question question) {
 		postList.getItems().clear();
 		postList.getItems().add(buildPostPane(question));
-		
-		ArrayList<Answer> answerList = new GetAnswerControl().getAllAnswers(question);
-		
-		for(int i = 0; i < answerList.size(); i++) {
-			postList.getItems().add(buildPostPane(answerList.get(i)));
+
+		Answer[] answers = AnswerController.get(question);
+		for(int i = 0; i < answers.length; i++) {
+			postList.getItems().add(buildPostPane(answers[i]));
 		}
 	}
 	
@@ -212,12 +201,10 @@ public class ForumUI {
 	 */
 	private BorderPane buildQuestionPane(Question question) {
 		
-		ResourceBundle langBundle = LanguageManager.getLangBundle();
-		
 		BorderPane questionPane = new BorderPane();
 		questionPane.setPadding(new Insets(2, 2, 2, 2));
 		
-		if(LoginControl.getUser().isAdmin()) {
+		if(UserController.getUser().isAdmin()) {
 			ToggleButton pinButton = new PinUI(question, this).getPinButton();
 			
 			VBox pinButtonsPane = new VBox(pinButton);
@@ -227,7 +214,6 @@ public class ForumUI {
 			
 			questionPane.setRight(pinButtonsPane);
 		}
-		
 				
 		VoteUI voteUI = new VoteUI(question); 
 		
@@ -253,7 +239,7 @@ public class ForumUI {
 		innerPostPane.setCenter(innerInnerPostPane);
 		
 		Label tagLabel = new Label(question.getTag().getSymbol());
-		tagLabel.setTooltip(new Tooltip(langBundle.getString(question.getTag().name())));
+		tagLabel.setTooltip(new Tooltip(LanguageManager.getString(question.getTag().name())));
 		tagLabel.setId("tagLabel");
 		tagLabel.setMinWidth(WINDOW_WIDTH * 0.03);
 		tagLabel.setPadding(new Insets(0, 0, 0, 10));
@@ -270,13 +256,13 @@ public class ForumUI {
 			currentQuestion = question;
 			blowupQuestion(question);
 		});
-		Label authorLabel = new Label(String.format(langBundle.getString("datePosted"), question.getTimePosted(), question.getAuthor().getUsername()));
+		Label authorLabel = new Label(String.format(LanguageManager.getString("datePosted"), question.getTimePosted(), question.getAuthor().getUsername()));
 		authorLabel.setPadding(new Insets(10, 0, 10, 20));
 		authorLabel.setMaxWidth(WINDOW_WIDTH * 0.45);
 		authorLabel.setWrapText(true);
 		GridPane.setConstraints(authorLabel, 1, 1);
 		
-		Label answersCountLabel = new Label(String.format(langBundle.getString("numberOfResponses"), question.getAnswerCount()));
+		Label answersCountLabel = new Label(String.format(LanguageManager.getString("numberOfResponses"), question.getAnswerCount()));
 		answersCountLabel.setPadding(new Insets(0, 0, 0, 20));
 		answersCountLabel.setMinWidth(WINDOW_WIDTH * 0.18);
 		answersCountLabel.setMaxWidth(WINDOW_WIDTH * 0.18);
@@ -293,14 +279,11 @@ public class ForumUI {
 		return questionPane;
 	}
 	
-	
 	/**Builds a pane for a Question <i>or</i> Answer, for use in a blown-up Question. To be put on the postList.
 	 * @param question The <code>Post</code> that is to be made into a BorderPane.
 	 * @return The constructed postPane.
 	 */
 	private BorderPane buildPostPane(Post post) {
-		
-		ResourceBundle langBundle = LanguageManager.getLangBundle();
 		
 		boolean isQuestion = post.isQuestion();
 		
@@ -336,7 +319,7 @@ public class ForumUI {
 		
 		if(isQuestion) {
 			Label tagLabel = new Label(((Question)post).getTag().getSymbol());
-			tagLabel.setTooltip(new Tooltip(langBundle.getString(((Question)post).getTag().name())));
+			tagLabel.setTooltip(new Tooltip(LanguageManager.getString(((Question)post).getTag().name())));
 			tagLabel.setId("tagLabel");
 			tagLabel.setMinWidth(WINDOW_WIDTH * 0.03);
 			tagLabel.setPadding(new Insets(0, 0, 0, 10));
@@ -357,7 +340,7 @@ public class ForumUI {
 			innerInnerPostPane.getChildren().addAll(tagLabel, questionTitleLabel);
 		}
 	
-		Label authorLabel = new Label(String.format(langBundle.getString("datePosted"), post.getTimePosted(), post.getAuthor().getUsername()));
+		Label authorLabel = new Label(String.format(LanguageManager.getString("datePosted"), post.getTimePosted(), post.getAuthor().getUsername()));
 		authorLabel.setPadding(new Insets(0, 0, 0, 20));
 		authorLabel.setMinWidth(WINDOW_WIDTH * 0.45);
 		authorLabel.setMaxWidth(WINDOW_WIDTH * 0.45);
@@ -387,7 +370,7 @@ public class ForumUI {
 		VBox buttonPane = new VBox(10);
 		buttonPane.setPadding(new Insets(5, 5, 5, 5));
 		
-		if(LoginControl.getUser().getUsername().equals(post.getAuthor().getUsername())) {
+		if(UserController.getUser().getUsername().equals(post.getAuthor().getUsername())) {
 			Button editButton = new EditPostUI(post, this).getEditButton();
 			Button deleteButton = new DeletePostUI(post, this).getDeleteButton();
 			buttonPane.getChildren().addAll(editButton, deleteButton);
@@ -413,7 +396,6 @@ public class ForumUI {
 		BorderPane emptyPane = new BorderPane();
 		final int NUMBER_OF_RESULT_MSGS = 3;
 		
-
 		Label label = new Label(LanguageManager.getString("noResultsMsg" + 
 				(int)(Math.random() * NUMBER_OF_RESULT_MSGS)));
 		label.setId("noResultsLabel");
@@ -425,5 +407,4 @@ public class ForumUI {
 		
 		return emptyPane;
 	}
-	
 }

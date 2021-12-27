@@ -2,8 +2,8 @@ package com.qrequest.ui;
 
 import java.util.ResourceBundle;
 
-import com.qrequest.control.LoginControl;
-import com.qrequest.control.ReportControl;
+import com.qrequest.control.ReportController;
+import com.qrequest.control.UserController;
 import com.qrequest.helpers.LanguageManager;
 import com.qrequest.objects.Post;
 import com.qrequest.objects.Report;
@@ -12,13 +12,13 @@ import com.qrequest.objects.Report.ReportType;
 import javafx.event.ActionEvent;
 import javafx.geometry.Insets;
 import javafx.scene.control.Button;
+import javafx.scene.control.ButtonBar.ButtonData;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Dialog;
 import javafx.scene.control.DialogPane;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.Tooltip;
-import javafx.scene.control.ButtonBar.ButtonData;
 import javafx.scene.layout.GridPane;
 
 /**The UI for reporting a post.*/
@@ -40,17 +40,15 @@ public class ReportUI {
 		reportButton = new Button();
 		reportButton.setPrefSize(30, 30);
 		reportButton.setId("reportButton");
-		reportButton.setTooltip(new Tooltip(LanguageManager.getLangBundle().getString("reportButtonTooltip")));
+		reportButton.setTooltip(new Tooltip(LanguageManager.getString("reportButtonTooltip")));
 		reportButton.setOnAction(e -> reportButtonPress());
 	}
 	
 	/**Triggered when the report button is pressed.*/
 	private void reportButtonPress() {
 		Report report = displayReportPostDialog();
-		if(report != null) {
-			new ReportControl().reportPost(report);
-			ResourceBundle langBundle = LanguageManager.getLangBundle();
-			PopupUI.displayInfoDialog(langBundle.getString("reportSentTitle"), langBundle.getString("reportSent"));
+		if(report != null && ReportController.create(report)) {
+			PopupUI.displayInfoDialog(LanguageManager.getString("reportSentTitle"), LanguageManager.getString("reportSent"));
 		}
 	}
 	
@@ -67,13 +65,11 @@ public class ReportUI {
 	 */
 	private Report displayReportPostDialog() {
 
-		Report report = new Report(LoginControl.getUser(), post);
-		
-		ResourceBundle langBundle = LanguageManager.getLangBundle();
+		Report report = new Report(UserController.getUser(), post);
 		
 		// Create the custom dialog.
 		Dialog dialog = new Dialog();
-		dialog.setTitle(langBundle.getString("reportPopupTitle"));
+		dialog.setTitle(LanguageManager.getString("reportPopupTitle"));
 
 		PopupUI.setupDialogStyling(dialog);
 		
@@ -84,7 +80,7 @@ public class ReportUI {
 		gridPane.setPadding(new Insets(20, 10, 10, 10));
 		
 		ComboBox<ReportType> reportTypeBox = new ComboBox<>();	
-		reportTypeBox.setPromptText(langBundle.getString("reportTypeMenuPrompt"));
+		reportTypeBox.setPromptText(LanguageManager.getString("reportTypeMenuPrompt"));
 		GridPane.setConstraints(reportTypeBox, 0, 0);
 		ReportType[] reportTypes = ReportType.values();
 		for(int i = 0; i < reportTypes.length; i++) {
@@ -92,7 +88,7 @@ public class ReportUI {
 		}
 		
 		TextArea reportField = new TextArea();
-		reportField.setPromptText(langBundle.getString("reportDescPrompt"));
+		reportField.setPromptText(LanguageManager.getString("reportDescPrompt"));
 		reportField.setMaxSize(300, 200);
 		reportField.setWrapText(true);
 		GridPane.setConstraints(reportField, 0, 1);
@@ -100,20 +96,20 @@ public class ReportUI {
 		gridPane.getChildren().addAll(reportTypeBox, reportField);
 
 		// Set the button types.
-		ButtonType confirmBtnType = new ButtonType(langBundle.getString("sendReportButton"), ButtonData.RIGHT);
+		ButtonType confirmBtnType = new ButtonType(LanguageManager.getString("sendReportButton"), ButtonData.RIGHT);
 		dialog.getDialogPane().getButtonTypes().addAll(confirmBtnType, ButtonType.CANCEL);
 
 		final Button confirmBtn = (Button)dialog.getDialogPane().lookupButton(confirmBtnType);
 		confirmBtn.addEventFilter(ActionEvent.ACTION, event -> {
 
 			if (reportField.getText().length() > 1000) {
-			   PopupUI.displayWarningDialog(langBundle.getString("errorReportingPostTitle"), langBundle.getString("reportTooLongError"));
+			   PopupUI.displayWarningDialog(LanguageManager.getString("errorReportingPostTitle"), LanguageManager.getString("reportTooLongError"));
 			   event.consume(); //make it so the dialog does not close
 			   return;
 			}
 			
 			if(reportTypeBox.getSelectionModel().isEmpty()) {
-				PopupUI.displayWarningDialog(langBundle.getString("errorReportingPostTitle"), langBundle.getString("reportTypeUnselectedError"));
+				PopupUI.displayWarningDialog(LanguageManager.getString("errorReportingPostTitle"), LanguageManager.getString("reportTypeUnselectedError"));
 				event.consume(); //make it so the dialog does not close
 				return;
 			}
@@ -123,10 +119,12 @@ public class ReportUI {
 		dialogPane.setContent(gridPane);
 		
 		if(dialog.showAndWait().get().equals(confirmBtnType)) {
+			PopupUI.removeOpenDialog(dialog);
 			report.setReportType(reportTypeBox.getValue());
 			report.setDesc(reportField.getText());
 			return report;
 		}
+		PopupUI.removeOpenDialog(dialog);
 		return null;
 	}
 }

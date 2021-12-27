@@ -1,7 +1,6 @@
 package com.qrequest.ui;
 
 import com.qrequest.helpers.LanguageManager;
-import com.qrequest.objects.Question;
 import com.qrequest.ui.ForumUI.Mode;
 
 import javafx.scene.control.Button;

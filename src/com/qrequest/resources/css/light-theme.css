@@ -30,13 +30,10 @@ list-cell:even,
     -fx-control-inner-background: derive(-fx-base, 60%);
 }
 
-
 .list-view {
 	-fx-selection-bar: #ffffff;
 	-fx-selection-bar-non-focused: derive(-fx-base, 50%);
-
 }
-
 
 #upvoteButton:selected {
     -fx-background-color: #538D00;

@@ -1,7 +1,5 @@
 package com.qrequest.objects;
 
-import com.qrequest.control.LoginControl;
-import com.qrequest.exceptions.DatabaseConnectionException;
 import com.qrequest.helpers.PreferenceManager;
 
 /**Represents a username and password pair.*/
@@ -12,21 +10,6 @@ public class Credentials {
 	
 	/**The password.*/
 	private String password;
-	
-	/**<code>true</code> if the password is SHA-1 hashed, <code>false</code> if not.*/
-	private boolean isPasswordHashed;
-	
-	/**Create a <code>Credentials</code> object with the option to specify whether it's hashed or not.
-	 * @param username The username.
-	 * @param password The password.
-	 * @param isPasswordHashed <code>true</code> if the password is SHA-1 hashed, <code>false</code> if not.
-	 */
-	public Credentials(String username, String password, boolean isPasswordHashed) {
-		this.username = username;
-		this.password = password;
-		this.isPasswordHashed = isPasswordHashed;
-	}
-	
 	/**Create a <code>Credentials</code> object.
 	 * @param username The username.
 	 * @param password The password.
@@ -34,7 +17,6 @@ public class Credentials {
 	public Credentials(String username, String password) {
 		this.username = username;
 		this.password = password;
-		this.isPasswordHashed = false;
 	}
 	
 	/**Returns the username.
@@ -49,20 +31,6 @@ public class Credentials {
 	 */
 	public String getPassword() {
 		return password;
-	}
-	
-	/**Hashes the password with SHA-1.
-	 * @throws DatabaseConnectionException If the database cannot be connected to.
-	 */
-	public void hashPassword() throws DatabaseConnectionException {
-		password = new LoginControl().hashPassword(password);
-	}
-
-	/**Returns whether or not the password is hashed.
-	 * @return <code>true</code> if the password is SHA-1 hashed, <code>false</code> if not.
-	 */
-	public boolean isPasswordHashed() {
-		return isPasswordHashed;
 	}
 	
 	/* ---------------------------------------------------------------------------
@@ -87,9 +55,8 @@ public class Credentials {
 		username = PreferenceManager.getPreference(SAVED_USERNAME_PREF);
 		if(username != null) {
 			password = PreferenceManager.getPreference(SAVED_PASSWORD_PREF);
-			
 			if(password != null) {
-				return (new Credentials(username, password, true));
+				return (new Credentials(username, password));
 			}
 		}
 		

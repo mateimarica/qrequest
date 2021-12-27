@@ -2,8 +2,8 @@ package com.qrequest.ui;
 
 import java.util.ResourceBundle;
 
-import com.qrequest.control.AskQuestionControl;
-import com.qrequest.control.LoginControl;
+import com.qrequest.control.QuestionController;
+import com.qrequest.control.UserController;
 import com.qrequest.helpers.LanguageManager;
 import com.qrequest.objects.Question;
 import com.qrequest.objects.Tag;
@@ -11,13 +11,13 @@ import com.qrequest.objects.Tag;
 import javafx.event.ActionEvent;
 import javafx.geometry.Insets;
 import javafx.scene.control.Button;
+import javafx.scene.control.ButtonBar.ButtonData;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Dialog;
 import javafx.scene.control.DialogPane;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
-import javafx.scene.control.ButtonBar.ButtonData;
 import javafx.scene.layout.GridPane;
 
 /**The UI for asking a question.*/
@@ -53,7 +53,7 @@ public class AskQuestionUI {
 	private void askQuestionButtonPress() {
 		Question newQuestion = displayAskQuestionDialog();
 		if(newQuestion != null) {
-			new AskQuestionControl().processPostQuestion(newQuestion);
+			QuestionController.create(newQuestion);
 			forumUI.refresh();
 		}
 	}
@@ -64,11 +64,9 @@ public class AskQuestionUI {
 	 */
 	public Question displayAskQuestionDialog() {
 		
-		ResourceBundle langBundle = LanguageManager.getLangBundle();
-		
 		// Create the custom dialog.
 		Dialog dialog = new Dialog();
-		dialog.setTitle(langBundle.getString("askQuestionPopupTitle"));
+		dialog.setTitle(LanguageManager.getString("askQuestionPopupTitle"));
 		
 		PopupUI.setupDialogStyling(dialog);		
 
@@ -79,19 +77,19 @@ public class AskQuestionUI {
 		gridPane.setPadding(new Insets(20, 10, 10, 10));
 		
 		TextField titleField = new TextField();
-		titleField.setPromptText(langBundle.getString("questionFieldPrompt"));
+		titleField.setPromptText(LanguageManager.getString("questionFieldPrompt"));
 		titleField.setMinWidth(300);
 		titleField.setMaxWidth(300);
 		gridPane.add(titleField, 0, 0);
 
 		TextArea descField = new TextArea();
-		descField.setPromptText(langBundle.getString("descFieldPrompt"));
+		descField.setPromptText(LanguageManager.getString("descFieldPrompt"));
 		descField.setMaxSize(300, 200);
 		descField.setWrapText(true);
 		gridPane.add(descField, 0, 1);
 		
 		ComboBox<Tag> tagTypeBox = new ComboBox<>();	
-		tagTypeBox.setPromptText(langBundle.getString("tagMenuPrompt"));
+		tagTypeBox.setPromptText(LanguageManager.getString("tagMenuPrompt"));
 		Tag[] tagTypes = Tag.values();
 		for(int i = 0; i < tagTypes.length; i++) {
 			tagTypeBox.getItems().add(tagTypes[i]);
@@ -99,7 +97,7 @@ public class AskQuestionUI {
 		gridPane.add(tagTypeBox, 0, 2);
 		
 		// Set the button types.
-		ButtonType postQuestionBtnType = new ButtonType(langBundle.getString("confirmQuestionPostButton"), ButtonData.RIGHT);
+		ButtonType postQuestionBtnType = new ButtonType(LanguageManager.getString("confirmQuestionPostButton"), ButtonData.RIGHT);
 		dialog.getDialogPane().getButtonTypes().addAll(postQuestionBtnType, ButtonType.CANCEL);
 		
 		final Button postQuestionBtn = (Button)dialog.getDialogPane().lookupButton(postQuestionBtnType);
@@ -107,12 +105,12 @@ public class AskQuestionUI {
 			
 			int titleFieldLength = titleField.getText().length();
 			
-			if (titleFieldLength < 8 || titleFieldLength > 250) {
+			if (titleFieldLength < PopupUI.MIN_QUESTION_LENGTH || titleFieldLength > PopupUI.MAX_QUESTION_LENGTH) {
 					
 				PopupUI.displayWarningDialog(
-						langBundle.getString("errorPostingQuestionTitle"), 
+						LanguageManager.getString("errorPostingQuestionTitle"), 
 						String.format(
-							langBundle.getString("badTitleLength"), PopupUI.MIN_QUESTION_LENGTH, PopupUI.MAX_QUESTION_LENGTH
+							LanguageManager.getString("badTitleLength"), PopupUI.MIN_QUESTION_LENGTH, PopupUI.MAX_QUESTION_LENGTH
 						)
 				);
 				
@@ -123,9 +121,9 @@ public class AskQuestionUI {
 			if (descField.getText().length() > PopupUI.MAX_DESC_LENGTH) {
 
 				PopupUI.displayWarningDialog(
-						langBundle.getString("errorPostingQuestionTitle"), 
+						LanguageManager.getString("errorPostingQuestionTitle"), 
 						String.format(
-							langBundle.getString("badDescLength"), PopupUI.MAX_DESC_LENGTH
+							LanguageManager.getString("badDescLength"), PopupUI.MAX_DESC_LENGTH
 						)
 				);
 				
@@ -136,8 +134,8 @@ public class AskQuestionUI {
 			if(tagTypeBox.getSelectionModel().isEmpty()) {
 				
 				PopupUI.displayWarningDialog(
-						langBundle.getString("errorPostingQuestionTitle"), 
-						langBundle.getString("mustSelectTag")
+						LanguageManager.getString("errorPostingQuestionTitle"), 
+						LanguageManager.getString("mustSelectTag")
 				);
 				
 				event.consume(); //make it so the dialog does not close
@@ -149,8 +147,10 @@ public class AskQuestionUI {
 		dialogPane.setContent(gridPane);
 		
 		if(dialog.showAndWait().get().equals(postQuestionBtnType)) {
-			return new Question(titleField.getText(), descField.getText(), LoginControl.getUser(), tagTypeBox.getValue());
+			PopupUI.removeOpenDialog(dialog);
+			return new Question(titleField.getText(), descField.getText(), UserController.getUser(), tagTypeBox.getValue());
 		}
+		PopupUI.removeOpenDialog(dialog);
 		return null;
 	}
 }

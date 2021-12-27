@@ -1,11 +1,9 @@
 package com.qrequest.ui;
 
-import java.util.ArrayList;
 import java.util.ResourceBundle;
 
-import com.qrequest.control.SearchUsersControl;
+import com.qrequest.control.UserController;
 import com.qrequest.helpers.LanguageManager;
-import com.qrequest.objects.User;
 
 import javafx.geometry.HPos;
 import javafx.geometry.Insets;
@@ -25,7 +23,7 @@ public class SearchUsersUI {
 	
 	/**Create a SearchUsersUI. This creates a searchUsersBtn.*/
 	public SearchUsersUI() {
-		searchUsersBtn = new Button("\uD83D\uDC64 " + LanguageManager.getLangBundle().getString("searchUsersToolbarButton"));
+		searchUsersBtn = new Button("\uD83D\uDC64 " + LanguageManager.getString("searchUsersToolbarButton"));
 		searchUsersBtn.setOnAction(e -> searchUsersBtnPress());
 	}
 	
@@ -45,13 +43,10 @@ public class SearchUsersUI {
 	 * Example: <i><b>a</b></i> will display <i><b>Almond, matei, fedora</b></i><br>
 	 * Example: <i><b>ate</b></i> will display <i><b>mAtEi</b></i>
 	 */
-	private void displaySearchUsersDialog() {
-		
-		ResourceBundle langBundle = LanguageManager.getLangBundle();
-		
+	private void displaySearchUsersDialog() {		
 		// Create the custom dialog.
 		Dialog dialog = new Dialog();
-		dialog.setTitle(langBundle.getString("searchUsersPopupTitle"));
+		dialog.setTitle(LanguageManager.getString("searchUsersPopupTitle"));
 		
 		PopupUI.setupDialogStyling(dialog);		
 
@@ -65,14 +60,15 @@ public class SearchUsersUI {
 		
 		TextField searchField = new TextField();
 		searchField.setOnAction(e->searchButtonPress(usersView, searchField));
-		searchField.setPromptText(langBundle.getString("searchUsersFieldPrompt"));
+		searchField.setPromptText(LanguageManager.getString("searchUsersFieldPrompt"));
 		searchField.setMinWidth(190);
 		searchField.setMaxWidth(190);
 		
-		Button searchUsersBtn = new Button(langBundle.getString("searchUsersButton"));
+		Button searchUsersBtn = new Button(LanguageManager.getString("searchUsersButton"));
 		searchUsersBtn.setOnAction(e->searchButtonPress(usersView, searchField));
 		usersView.setOnMouseClicked(event -> {
-		    	if(event.getClickCount() == 2){
+		    	if (event.getClickCount() == 2) {
+					// TODO - Do something when double clicking on user
 		    		System.out.println(usersView.getSelectionModel());
 		    	}
 		    });
@@ -82,15 +78,14 @@ public class SearchUsersUI {
 		gridPane.add(searchField, 0, 0);
 		gridPane.add(usersView, 0,1);
 		
-		
 		dialog.getDialogPane().getButtonTypes().addAll(ButtonType.CLOSE);
 		
 		DialogPane dialogPane = dialog.getDialogPane();
 		dialogPane.setContent(gridPane);
 		dialog.showAndWait();
+		PopupUI.removeOpenDialog(dialog);
 	}
 	
-
 	/**Fills up the ListView with the all the users whose usernames match a query.<br>
 	 * Triggered by the <b>ENTER</b> key in the search field or the search button.
 	 * @param usersView The <b>ListView&ltString&gt</b> that is to be filled up with usernames.
@@ -98,11 +93,11 @@ public class SearchUsersUI {
 	 */
 	private void searchButtonPress(ListView<String> usersView, TextField searchField) {
 		usersView.getItems().clear();
-		ArrayList<User> list = new SearchUsersControl().getUsers(searchField.getText());
-		for(int i =0; i<list.size(); i++) {
-			usersView.getItems().add(list.get(i).getUsername());
+		String[] usernameList = UserController.search(searchField.getText());
+		if (usernameList != null) {
+			for(int i = 0; i< usernameList.length; i++) {
+				usersView.getItems().add(usernameList[i]);
+			}
 		}
 	}
-	
-	
 }

@@ -1,6 +1,6 @@
 package com.qrequest.ui;
 
-import com.qrequest.control.PinControl;
+import com.qrequest.control.QuestionController;
 import com.qrequest.helpers.LanguageManager;
 import com.qrequest.objects.Question;
 
@@ -31,7 +31,7 @@ public class PinUI {
 		pinButton.setPrefSize(30, 30);
 		pinButton.setSelected(question.isPinned());
 		pinButton.setId("pinButton");
-		pinButton.setTooltip(new Tooltip(LanguageManager.getLangBundle().getString("pinQuestionButton")));
+		pinButton.setTooltip(new Tooltip(LanguageManager.getString("pinQuestionButton")));
 		pinButton.setOnAction(e -> pinButtonPress());
 	}
 	
@@ -44,7 +44,7 @@ public class PinUI {
 	
 	/**Triggered when the pin button is clicked. Pins the question and refreshes the forum.*/
 	private void pinButtonPress() {
-		new PinControl().pinQuestion(question);
+		QuestionController.togglePin(question);
 		forumUI.refresh();
 	}
 }

@@ -1,7 +1,6 @@
 package com.qrequest.objects;
 
-/**Represents a vote on a <code>Post</code>.
- */
+/**Represents a vote on a <code>Post</code>.*/
 public class Vote {
 	
 	/**Represents a vote's value.

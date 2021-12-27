@@ -1,22 +1,21 @@
 package com.qrequest.ui;
 
-import com.qrequest.control.PostAnswerControl;
-import com.qrequest.helpers.LanguageManager;
-
 import java.util.ResourceBundle;
 
-import com.qrequest.control.LoginControl;
+import com.qrequest.control.AnswerController;
+import com.qrequest.control.UserController;
+import com.qrequest.helpers.LanguageManager;
 import com.qrequest.objects.Answer;
 import com.qrequest.objects.Question;
 
 import javafx.event.ActionEvent;
 import javafx.geometry.Insets;
 import javafx.scene.control.Button;
+import javafx.scene.control.ButtonBar.ButtonData;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.Dialog;
 import javafx.scene.control.DialogPane;
 import javafx.scene.control.TextArea;
-import javafx.scene.control.ButtonBar.ButtonData;
 import javafx.scene.layout.GridPane;
 
 /**The UI for posting a answer to a question.*/
@@ -39,7 +38,7 @@ public class PostAnswerUI {
 		this.question = question;
 		this.forumUI = forumUI;
 		
-		postAnswerBtn = new Button("\u2795 " + LanguageManager.getLangBundle().getString("answerQuestionButton"));
+		postAnswerBtn = new Button("\u2795 " + LanguageManager.getString("answerQuestionButton"));
 		postAnswerBtn.setOnAction(e -> processPostAnswerButtonPress());
 	}
 	
@@ -57,7 +56,7 @@ public class PostAnswerUI {
 	private void processPostAnswerButtonPress() {
 		Answer newAnswer = displayPostAnswerDialog();
 		if(newAnswer != null) {
-			new PostAnswerControl().processPostAnswer(newAnswer);
+			AnswerController.create(newAnswer);
 			forumUI.refresh();
 		}
 	}
@@ -67,11 +66,9 @@ public class PostAnswerUI {
 	 * @return The created <code>Answer</code> object, or <code>null</code> if the user canceled.
 	 */
 	private Answer displayPostAnswerDialog() {
-
-		ResourceBundle langBundle = LanguageManager.getLangBundle();
 	
 		Dialog dialog = new Dialog();
-		dialog.setTitle(langBundle.getString("postAnswerTitle"));
+		dialog.setTitle(LanguageManager.getString("postAnswerTitle"));
 		
 		PopupUI.setupDialogStyling(dialog);
 
@@ -82,13 +79,13 @@ public class PostAnswerUI {
 		gridPane.setPadding(new Insets(20, 10, 10, 10));
 		
 		TextArea answerField = new TextArea();
-		answerField.setPromptText(langBundle.getString("answerPrompt"));
+		answerField.setPromptText(LanguageManager.getString("answerPrompt"));
 		answerField.setMaxSize(400, 400);
 		answerField.setWrapText(true);
 		gridPane.add(answerField, 0, 0);
 		
 		// Set the button types.
-		ButtonType postAnswerBtnType = new ButtonType(langBundle.getString("confirmPostAnswerButton"), ButtonData.RIGHT);
+		ButtonType postAnswerBtnType = new ButtonType(LanguageManager.getString("confirmPostAnswerButton"), ButtonData.RIGHT);
 		dialog.getDialogPane().getButtonTypes().addAll(postAnswerBtnType, ButtonType.CANCEL);
 		
 		final Button postAnswerBtn = (Button)dialog.getDialogPane().lookupButton(postAnswerBtnType);
@@ -98,9 +95,9 @@ public class PostAnswerUI {
 			if (answerFieldLength < 1 || answerFieldLength > PopupUI.MAX_DESC_LENGTH) {
 				  
 				PopupUI.displayWarningDialog(
-							langBundle.getString("badAnswerLengthErrorTitle"), 
+							LanguageManager.getString("badAnswerLengthErrorTitle"), 
 							String.format(
-									langBundle.getString("badAnswerLengthError"), PopupUI.MIN_ANSWER_DESC_LENGTH, PopupUI.MAX_DESC_LENGTH
+									LanguageManager.getString("badAnswerLengthError"), PopupUI.MIN_ANSWER_DESC_LENGTH, PopupUI.MAX_DESC_LENGTH
 							)
 				);
 				
@@ -113,8 +110,10 @@ public class PostAnswerUI {
 		dialogPane.setContent(gridPane);
 
 		if(dialog.showAndWait().get().equals(postAnswerBtnType)) {
-			return new Answer(answerField.getText(), LoginControl.getUser(), question);
+			PopupUI.removeOpenDialog(dialog);
+			return new Answer(answerField.getText(), UserController.getUser(), question);
 		}
+		PopupUI.removeOpenDialog(dialog);
 		return null;
 	}
 }

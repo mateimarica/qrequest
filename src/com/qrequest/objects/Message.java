@@ -1,6 +1,6 @@
 package com.qrequest.objects;
 
-import java.util.Date;
+import org.json.JSONObject;
 
 /**Represents a message.*/
 public class Message {
@@ -16,6 +16,8 @@ public class Message {
 	
 	/**The time that this message was sent.*/
 	private TeiTime timeSent;
+
+	private String id;
 	
 	/**Create a message object.
 	 * @param sender The sender's username.
@@ -23,12 +25,19 @@ public class Message {
 	 * @param body The body/text of the message.
 	 * @param timeSent The time that this message was sent.
 	 */
-	public Message (String sender, String receiver, String body, Date timeSent) {
+	public Message (String sender, String receiver, String body, TeiTime timeSent) {
 		this.sender = sender;
 		this.receiver = receiver;
 		this.body = body;
-		this.timeSent = new TeiTime();
-		this.timeSent.setTimeInMillis(timeSent.getTime());
+		this.timeSent = timeSent;
+	}
+
+	public Message (String sender, String receiver, String body, TeiTime timeSent, String id) {
+		this.sender = sender;
+		this.receiver = receiver;
+		this.body = body;
+		this.timeSent = timeSent;
+		this.id = id;
 	}
 	
 	/**Create a message without a timestamp.
@@ -40,6 +49,16 @@ public class Message {
 		this.sender = sender;
 		this.receiver = receiver;
 		this.body = body;
+	}
+
+	public static Message fromJson(JSONObject json) {
+		return new Message(
+			(String) json.get("sender"),
+			(String) json.get("recipient"), 
+			(String) json.get("message"),
+			new TeiTime((String) json.get("dateCreated")),
+			(String) json.get("id")
+		);
 	}
 	
 	/**Returns the sender's username.

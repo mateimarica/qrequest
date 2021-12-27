@@ -6,7 +6,6 @@ import com.qrequest.helpers.LanguageManager;
 
 public enum Tag {
 	
-	
 	SCIENCE("\u269B"),
 	COMPUTER_SCIENCE("\uD83D\uDCBB"),
 	LITERATURE("\uD83D\uDD6E"),
@@ -16,8 +15,8 @@ public enum Tag {
 	ANATOMY("\u267F"),
 	FOOD("\uD83C\uDF4C"),
 	VIDEO_GAMES("\uD83C\uDFAE"),
+	EIGHTEEN_PLUS("\uD83C\uDF46"),
 	NO_TAG("");
-	
 	
 	/**The tag's symbol.*/
 	private String symbol;
@@ -28,7 +27,6 @@ public enum Tag {
 	 */
 	private Tag(String symbol) {
 		this.symbol = symbol;
-		
 	}
 	
 	/**Returns the tag's symbol.
@@ -41,7 +39,7 @@ public enum Tag {
 	@Override
 	public String toString() {	
 
-		return symbol + " " + LanguageManager.getLangBundle().getString(name());
+		return symbol + " " + LanguageManager.getString(name());
 	}
 	
 	/**Returns the Tag corresponding to the input string.

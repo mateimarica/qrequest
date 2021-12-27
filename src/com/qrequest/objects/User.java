@@ -1,6 +1,5 @@
 package com.qrequest.objects;
 
-
 /**Represents a user.*/
 public class User {
 	
@@ -9,10 +8,14 @@ public class User {
 	
 	/**The unique 3 to 10 character username. This is the primary key.*/
 	private String username;
-	
+
 	/**Creates a User object with its username.
 	 * @param username The username.
 	 */
+	public User(String username) {
+		this.username = username;
+	}
+
 	public User(String username, boolean isAdmin) {
 		this.username = username;
 		this.isAdmin = isAdmin;

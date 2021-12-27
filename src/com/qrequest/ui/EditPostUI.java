@@ -2,8 +2,10 @@ package com.qrequest.ui;
 
 import java.util.ResourceBundle;
 
-import com.qrequest.control.EditPostControl;
+import com.qrequest.control.AnswerController;
+import com.qrequest.control.QuestionController;
 import com.qrequest.helpers.LanguageManager;
+import com.qrequest.objects.Answer;
 import com.qrequest.objects.Post;
 import com.qrequest.objects.Question;
 import com.qrequest.objects.Tag;
@@ -47,7 +49,6 @@ public class EditPostUI {
 			editButton.setTooltip(new Tooltip(LanguageManager.getString("editQuestionButton")));
 		} else {
 			editButton.setTooltip(new Tooltip(LanguageManager.getString("editAnswerButton")));
-
 		}
 		
 		editButton.setOnAction(e -> editButtonPress());
@@ -56,7 +57,11 @@ public class EditPostUI {
 	/**Triggered when the edit button is pressed.*/
 	private void editButtonPress() {
 		if(displayEditPostDialog()) {
-			new EditPostControl().processEditPost(post);
+			if(post.isQuestion())
+				QuestionController.update((Question) post);
+			else
+				AnswerController.update((Answer) post);
+
 			forumUI.refresh();
 		}
 	}
@@ -72,16 +77,14 @@ public class EditPostUI {
 	private boolean displayEditPostDialog() {
 
 		boolean isQuestion = post.isQuestion();
-		ResourceBundle langBundle = LanguageManager.getLangBundle();
-		
 		
 		// Create the custom dialog.
 		Dialog dialog = new Dialog();
 		
 		if(isQuestion) {
-			dialog.setTitle(langBundle.getString("editQuestionButton"));
+			dialog.setTitle(LanguageManager.getString("editQuestionButton"));
 		} else {
-			dialog.setTitle(langBundle.getString("editAnswerButton"));
+			dialog.setTitle(LanguageManager.getString("editAnswerButton"));
 		}
 		
 		PopupUI.setupDialogStyling(dialog);
@@ -109,7 +112,6 @@ public class EditPostUI {
 			gridPane.add(tagTypeBox, 0, 1);
 		}
 
-
 		// Set the button types.
 		ButtonType confirmBtnType = new ButtonType(LanguageManager.getString("confirm"), ButtonData.RIGHT);
 		dialog.getDialogPane().getButtonTypes().addAll(confirmBtnType, ButtonType.CANCEL);
@@ -118,9 +120,7 @@ public class EditPostUI {
 		confirmBtn.addEventFilter(ActionEvent.ACTION, event -> {
 
 			if (descField.getText().length() > PopupUI.MAX_DESC_LENGTH) {
-			   
-				PopupUI.displayWarningDialog(langBundle.getString("editQuestionErrorTitle"), langBundle.getString("descTooLongError"));
-					
+				PopupUI.displayWarningDialog(LanguageManager.getString("editQuestionErrorTitle"), LanguageManager.getString("descTooLongError"));
 				event.consume(); //make it so the dialog does not close
 				return;
 		   }
@@ -135,9 +135,10 @@ public class EditPostUI {
 			if(isQuestion) {
 				((Question)post).setTag(tagTypeBox.getValue());
 			}
-			
+			PopupUI.removeOpenDialog(dialog);
 			return true;
 		}
+		PopupUI.removeOpenDialog(dialog);
 		return false;
 	}
 	

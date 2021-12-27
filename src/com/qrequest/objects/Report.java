@@ -1,7 +1,5 @@
 package com.qrequest.objects;
 
-import java.util.UUID;
-
 import com.qrequest.helpers.LanguageManager;
 
 /**Represents a user's report of a qusetion or answer.
@@ -44,7 +42,7 @@ public class Report {
 	private ReportType reportType;
 	
 	/**The report's id.*/
-	private UUID id;
+	private String id;
 	
 	/**The time of the report being sent. Currently usused.*/
 	//private TeiTime timeReported;
@@ -56,14 +54,14 @@ public class Report {
 	public Report(User reporter, Post reportedPost) {
 		this.reporter = reporter;
 		this.reportedPost = reportedPost;
-		this.id = UUID.randomUUID();
 	}
 	
-	/**Set the report's description.
+	/**Set the report's description. 
+	 * If <code>null</code> description is given, it will be set to an empty string.
 	 * @param reportDesc The report's new description.
 	 */
 	public void setDesc(String reportDesc) {
-		this.reportDesc = reportDesc;
+		this.reportDesc = (reportDesc != null ? reportDesc : ""); 
 	}
 	
 	/**Return. the report's description.

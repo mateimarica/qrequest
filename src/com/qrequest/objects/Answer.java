@@ -1,7 +1,6 @@
 package com.qrequest.objects;
 
-import java.util.Date;
-import java.util.UUID;
+import org.json.JSONObject;
 
 /**Represents an Answer object*/
 public class Answer extends Post{
@@ -12,7 +11,7 @@ public class Answer extends Post{
 	/**Create a question with only an ID.
 	 * @param id The unique UUID.
 	 */
-	public Answer(UUID id) {
+	public Answer(String id) {
 		super(id);
 	}
 	
@@ -22,8 +21,8 @@ public class Answer extends Post{
 	 * @param question The <code>Question</code> that this <code>Answer</code> belongs to.
 	 * @param id The <code>UUID</code> unique identifier.
 	 */
-	public Answer(String answer, User answerer, Question question) {
-		super(answer, answerer);
+	public Answer(String answer, User author, Question question) {
+		super(answer, author);
 		this.question = question;
 	}
 	
@@ -36,9 +35,21 @@ public class Answer extends Post{
 	 * @param votes The number of votes this Answer has.
 	 * @param currentUserVote The current user's vote on this <code>Answer</code>, can be -1, 0, +1
 	 */
-	public Answer(String answer, User answerer, Question question, UUID id, Date timePosted, int votes, int currentUserVote) {
-		super(answer, answerer, id, timePosted, votes, currentUserVote);
+	public Answer(String answer, User author, Question question, String id, TeiTime timePosted, int votes, int currentUserVote) {
+		super(answer, author, id, timePosted, votes, currentUserVote);
 		this.question = question;
+	}
+
+	public static Answer fromJson(JSONObject json, Question question) {
+		return new Answer(
+			(String) json.get("answer"),
+			new User((String) json.get("author")), 
+			question,
+			(String) json.get("id"),
+			new TeiTime((String) json.get("dateCreated")), 
+			(int) json.get("votes"), 
+			(int) json.get("currentUserVote")
+		);
 	}
 	
 	/**Returns the <code>question</code> that this is the answer to.

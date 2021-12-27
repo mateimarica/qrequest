@@ -3,9 +3,7 @@ package com.qrequest.ui;
 import java.io.IOException;
 import java.util.ResourceBundle;
 
-import com.qrequest.control.CreateAccountControl;
-import com.qrequest.control.LoginControl;
-import com.qrequest.exceptions.DatabaseConnectionException;
+import com.qrequest.control.UserController;
 import com.qrequest.helpers.LanguageManager;
 import com.qrequest.helpers.ThemeManager;
 import com.qrequest.objects.Credentials;
@@ -19,7 +17,6 @@ import javafx.scene.control.CheckBox;
 import javafx.scene.control.CheckMenuItem;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.Label;
-import javafx.scene.control.MenuItem;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
 import javafx.scene.input.KeyEvent;
@@ -69,7 +66,6 @@ public class LoginUI {
 	/**The login menu is created and shown by this method. Called by the MainUI class.
 	 * @param stage Where all the controls are created, put into the grid layout pane, put in the scene, then the stage, then shown.
 	 */
-	@SuppressWarnings("static-access")
 	public void startScene(Stage stage) {	
 		try {
 			stage.setResizable(false);
@@ -101,48 +97,24 @@ public class LoginUI {
 		
 		String username = usernameField.getText();
 		String password = passwordField.getText();
-		
+		Credentials creds = new Credentials(username, password);
 		if (currentMode == Mode.LOGIN) {
-			boolean loginSuccessful = false; 
-			
-			try {
-				Credentials creds = new Credentials(username, password, false);
-				loginSuccessful = new LoginControl().processLogin(creds);
-				if (loginSuccessful) {
-					if(saveCredentialsCheckBox.isSelected()) {
-						creds.hashPassword(); //The password should only be saved locally if hashed.
-						Credentials.saveCredentials(creds);
-					} else {
-						Credentials.removeCredentials();
-					}
-					
-					new ForumUI().startScene(LoginUI.stage);
-				} else {
-					PopupUI.displayErrorDialog(LanguageManager.getLangBundle().getString("loginFailedTitle"), LanguageManager.getLangBundle().getString("loginFailed"));
-				}
-			} catch (DatabaseConnectionException e) {
-				PopupUI.displayDatabaseConnectionErrorDialog();
-			}
-
-			
+			if(!UserController.login(creds))
+				return;
 		} else {
-			if (!areCredentialsValid()) {
+			if(!areCredentialsValid(creds) || !UserController.register(creds))
 				return;
-			}
-			
-			try {
-					if(!new CreateAccountControl().processCreateAccount(new Credentials(username, password))) {
-						PopupUI.displayErrorDialog(LanguageManager.getLangBundle().getString("accountAlreadyExistsTitle"), LanguageManager.getLangBundle().getString("accountAlreadyExists"));
-						return;
-					}				
-			} catch (DatabaseConnectionException e) {
-				PopupUI.displayDatabaseConnectionErrorDialog();
-				return;
-			}			
-			
-			currentMode = Mode.LOGIN;
-			processLoginButtonPress();
 		}
+
+		if(saveCredentialsCheckBox.isSelected()) {
+			Credentials.saveCredentials(creds);
+		} else {
+			Credentials.removeCredentials();
+		}
+		
+		ForumUI forumUI = new ForumUI();
+		UserController.saveForumUI(forumUI);
+		forumUI.startScene(LoginUI.stage);
 	}
 	
 	/**Checks if the username & password in the fields are valid. 
@@ -151,11 +123,9 @@ public class LoginUI {
 	 * 		<dd><li>Password must be 3 to 40 characters.</dd>
 	 * @return True/false depending if the credentials are valid.
 	 */
-	private boolean areCredentialsValid() {
-		String username = usernameField.getText();
-		
-		
-		
+	private boolean areCredentialsValid(Credentials creds) {
+		String username = creds.getUsername();
+
 		if (username.length() < 3 || username.length() > 10) {
 			PopupUI.displayWarningDialog(
 					LanguageManager.getString("invalidUsernameTitle"), 
@@ -173,7 +143,7 @@ public class LoginUI {
 			return false;
 		}
 		
-		String password = passwordField.getText();
+		String password = creds.getPassword();
 		
 		if(password.length() < 3 || password.length() > 40) {
 
@@ -203,19 +173,17 @@ public class LoginUI {
 	@FXML
 	private void changeModeButtonPress() {
 		
-		ResourceBundle langBundle = LanguageManager.getLangBundle();
-		
 		if (currentMode == Mode.LOGIN) {
 			currentMode = Mode.CREATE_ACCOUNT;
 			
-			loginButton.setText(langBundle.getString("createAccButton"));
-			newAccountLabel.setText(langBundle.getString("switchToLoginText"));
-			changeModeButton.setText(langBundle.getString("switchToLoginButton"));
+			loginButton.setText(LanguageManager.getString("createAccButton"));
+			newAccountLabel.setText(LanguageManager.getString("switchToLoginText"));
+			changeModeButton.setText(LanguageManager.getString("switchToLoginButton"));
 		} else {
 			currentMode = Mode.LOGIN;
-			loginButton.setText(langBundle.getString("loginButton"));
-			newAccountLabel.setText(langBundle.getString("switchToCreateAccText"));
-			changeModeButton.setText(langBundle.getString("switchToCreateAccButton"));
+			loginButton.setText(LanguageManager.getString("loginButton"));
+			newAccountLabel.setText(LanguageManager.getString("switchToCreateAccText"));
+			changeModeButton.setText(LanguageManager.getString("switchToCreateAccButton"));
 
 		}
 

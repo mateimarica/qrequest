@@ -1,7 +1,6 @@
 package com.qrequest.objects;
 
-import java.util.Date;
-import java.util.UUID;
+import org.json.JSONObject;
 
 /**Represents a question.*/
 public class Question extends Post {
@@ -45,7 +44,7 @@ public class Question extends Post {
 	 * @param currentUserVote The current user's vote on this <code>Answer</code>, can be -1, 0, +1.
 	 * @param answerCount The number of answers this question has.
 	 */
-	public Question(String title, String description, User author, UUID id, Date timePosted, int votes, int currentUserVote, int answerCount, boolean isPinned, String tagName, Answer solvedAnswer) {
+	public Question(String title, String description, User author, String id, TeiTime timePosted, int votes, int currentUserVote, int answerCount, boolean isPinned, String tagName, Answer solvedAnswer) {
 		super(description, author, id, timePosted, votes, currentUserVote);
 		this.title = title;
 		this.answerCount = answerCount;
@@ -53,11 +52,28 @@ public class Question extends Post {
 		this.tag = Tag.getEnum(tagName);
 		this.solvedAnswer = solvedAnswer;
 	}
+
+	public static Question fromJson(JSONObject json) {
+		return new Question(
+			(String) json.get("title"), 
+			(String) json.get("description"), 
+			new User((String) json.get("author")), 
+			(String) json.get("id"), 
+			new TeiTime((String) json.get("dateCreated")), 
+			(int) json.get("votes"), 
+			(int) json.get("currentUserVote"),
+			(int) json.get("answerCount"),
+			(boolean) json.get("isPinned"), 
+			(String) json.get("tag"), 
+			(json.isNull("solvedAnswerId") ? null : new Answer((String) json.get("solvedAnswerId")))
+		);
+	}
 	
 	/**Builds a question with just an ID
 	 * @param id The UUID unique identifier.
 	 */
-	public Question(UUID id) {
+	@Deprecated
+	public Question(String id) {
 		super(id);
 	}
 	

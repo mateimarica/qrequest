@@ -2,9 +2,12 @@ package com.qrequest.ui;
 
 import java.util.ResourceBundle;
 
-import com.qrequest.control.DeletePostControl;
+import com.qrequest.control.AnswerController;
+import com.qrequest.control.QuestionController;
 import com.qrequest.helpers.LanguageManager;
+import com.qrequest.objects.Answer;
 import com.qrequest.objects.Post;
+import com.qrequest.objects.Question;
 
 import javafx.scene.control.Button;
 import javafx.scene.control.Tooltip;
@@ -51,18 +54,18 @@ public class DeletePostUI {
 	 * The post is only deleted if the user clicks "OK".
 	 */
 	private void deleteButtonPress() {
-		ResourceBundle langBundle = LanguageManager.getLangBundle();
 		if(PopupUI.displayConfirmationDialog(
-				langBundle.getString("confirmDeleteTitle"), 
+			LanguageManager.getString("confirmDeleteTitle"), 
 				String.format(
-					(post.isQuestion() ? langBundle.getString("confirmDeleteQuestion") : langBundle.getString("confirmDeleteAnswer")), 
+					(post.isQuestion() ? LanguageManager.getString("confirmDeleteQuestion") : LanguageManager.getString("confirmDeleteAnswer")), 
 					post.getPostType()
 				)
 		)) {
-			new DeletePostControl().processDeletePost(post);
 			if(post.isQuestion()) {
+				QuestionController.delete((Question) post);
 				forumUI.backButtonPress();
 			} else {
+				AnswerController.delete((Answer) post);
 				forumUI.refresh();
 			}
 		}

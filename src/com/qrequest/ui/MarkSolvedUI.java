@@ -1,7 +1,7 @@
 package com.qrequest.ui;
 
-import com.qrequest.control.LoginControl;
-import com.qrequest.control.MarkSolvedControl;
+import com.qrequest.control.QuestionController;
+import com.qrequest.control.UserController;
 import com.qrequest.helpers.LanguageManager;
 import com.qrequest.objects.Answer;
 import com.qrequest.objects.Post;
@@ -33,7 +33,7 @@ public class MarkSolvedUI {
 	public MarkSolvedUI() {
 		markedSolvedOnQuestionLabel = new Label("\u2714");
 		markedSolvedOnQuestionLabel.setId("markedSolvedLabel");
-		markedSolvedOnQuestionLabel.setTooltip(new Tooltip(LanguageManager.getLangBundle().getString("questionPaneMarkedSolvedTooltip")));
+		markedSolvedOnQuestionLabel.setTooltip(new Tooltip(LanguageManager.getString("questionPaneMarkedSolvedTooltip")));
 		markedSolvedOnQuestionLabel.setPadding(new Insets(0, 0, 0, 10));
 		markedSolvedOnQuestionLabel.setMaxHeight(1);
 	}
@@ -63,13 +63,12 @@ public class MarkSolvedUI {
 				markedSolvedOnAnswerLabel = new Label();
 				markedSolvedOnAnswerLabel.setText("\u2714");
 				markedSolvedOnAnswerLabel.setId("markedSolvedLabel");
-				markedSolvedOnAnswerLabel.setTooltip(new Tooltip(LanguageManager.getLangBundle().getString("answerPaneMarkedSolvedTooltip")));
+				markedSolvedOnAnswerLabel.setTooltip(new Tooltip(LanguageManager.getString("answerPaneMarkedSolvedTooltip")));
 				markedSolvedOnAnswerLabel.setWrapText(true);
 			}
 		
-		
-			if ((answer.getQuestion().getAuthor().getUsername().equals(LoginControl.getUser().getUsername()) //AND the answer's question is yours
-				&& !answer.getAuthor().getUsername().equals(LoginControl.getUser().getUsername()))) { //and the answer isn't yours
+			if ((answer.getQuestion().getAuthor().getUsername().equals(UserController.getUser().getUsername()) //AND the answer's question is yours
+				&& !answer.getAuthor().getUsername().equals(UserController.getUser().getUsername()))) { //and the answer isn't yours
 							
 				markSolvedButton = new ToggleButton();
 				solvedAnswer = answer.getQuestion().getSolvedAnswer();
@@ -78,7 +77,7 @@ public class MarkSolvedUI {
 				}
 				markSolvedButton.setPrefSize(30, 30);
 				markSolvedButton.setId("markSolvedButton");
-				markSolvedButton.setTooltip(new Tooltip(LanguageManager.getLangBundle().getString("markAsSolvedTooltip")));
+				markSolvedButton.setTooltip(new Tooltip(LanguageManager.getString("markAsSolvedTooltip")));
 				markSolvedButton.setOnAction(e -> markSolvedButtonPress());
 			}	
 		}
@@ -87,11 +86,11 @@ public class MarkSolvedUI {
 	/**Triggered when the mark-solved button is clicked.*/
 	private void markSolvedButtonPress() {
 		if(markSolvedButton.isSelected()) {
-			new MarkSolvedControl().markSolved(answer.getQuestion(), answer);
-			forumUI.refresh();
+			if (QuestionController.markSolved(answer.getQuestion(), answer.getID()))
+				forumUI.refresh();
 		} else {
-			new MarkSolvedControl().markSolved(answer.getQuestion(), null);
-			markedSolvedOnAnswerLabel.setVisible(false);
+			if (QuestionController.markSolved(answer.getQuestion(), null))
+				markedSolvedOnAnswerLabel.setVisible(false);
 		}
 	}
 	

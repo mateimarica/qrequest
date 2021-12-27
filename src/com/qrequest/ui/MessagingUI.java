@@ -3,14 +3,12 @@ package com.qrequest.ui;
 import java.util.ArrayList;
 import java.util.ResourceBundle;
 
-import com.qrequest.control.LoginControl;
-import com.qrequest.control.MessagingControl;
-import com.qrequest.control.SearchUsersControl;
+import com.qrequest.control.MessageController;
+import com.qrequest.control.UserController;
 import com.qrequest.helpers.LanguageManager;
 import com.qrequest.objects.Message;
 import com.qrequest.objects.User;
 
-import javafx.event.ActionEvent;
 import javafx.geometry.Insets;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
@@ -40,7 +38,7 @@ public class MessagingUI {
 	
 	/**Create a MessagingUI. Creates a messagingBtn.*/
 	public MessagingUI() {
-		messagingBtn = new Button("\u2709 " + LanguageManager.getLangBundle().getString("messagingButton"));
+		messagingBtn = new Button("\u2709 " + LanguageManager.getString("messagingButton"));
 		messagingBtn.setOnAction(e -> messagingBtnPress());
 	}
 	
@@ -58,10 +56,9 @@ public class MessagingUI {
 	
 	/**The dialog for sending/receiving message.*/
 	private void displayMessageDialog() {
-		ResourceBundle langBundle = LanguageManager.getLangBundle();
 		
 		Dialog dialog = new Dialog();
-		dialog.setTitle(langBundle.getString("messagingTitle"));
+		dialog.setTitle(LanguageManager.getString("messagingTitle"));
 		
 		PopupUI.setupDialogStyling(dialog);
 		
@@ -80,32 +77,30 @@ public class MessagingUI {
 			String key = e.getCode().toString();
 			
 			if(searchField.getLength() != 0 && !key.equals("BACK_SPACE") && !key.equals("DELETE")) {
-				ArrayList<User> userList = new SearchUsersControl().getUsers(searchField.getText());
-				
-				if(userList.size() != 0) {
+				String[] usernames = UserController.search(searchField.getText(), 1);
+				System.out.println("In messaging");
+				if(usernames != null &&usernames.length != 0) {
 					int caretPosition = searchField.getCaretPosition();
-					searchField.setText(userList.get(0).getUsername());
+					searchField.setText(usernames[0]);
 					e.consume();
 					searchField.selectPositionCaret(caretPosition);
 					searchField.selectRange(searchField.getLength(), caretPosition);
 				}
 			}
-			
-			
 		});
 		searchField.setOnAction(e -> refreshMessaging());		
-		searchField.setPromptText(langBundle.getString("searchUsersPrompt"));
+		searchField.setPromptText(LanguageManager.getString("searchUsersPrompt"));
 		searchField.setMinWidth(190);
 		searchField.setMaxWidth(190);BorderPane composeBox = new BorderPane();
 		
 		composeField = new TextField();
 		composeField.setOnAction(e -> sendMessage());
-		composeField.setPromptText(langBundle.getString("composeMessagePrompt"));
+		composeField.setPromptText(LanguageManager.getString("composeMessagePrompt"));
 		composeField.setMinWidth(150);
 		
 		composeBox.setLeft(composeField);
 		
-		Button sendMessageBtn = new Button(langBundle.getString("sendMessageButton"));
+		Button sendMessageBtn = new Button(LanguageManager.getString("sendMessageButton"));
 		sendMessageBtn.setOnAction(e -> sendMessage());
 		composeBox.setRight(sendMessageBtn);
 		
@@ -113,16 +108,17 @@ public class MessagingUI {
 		gridPane.add(allMessages, 0, 1);
 		gridPane.add(composeBox, 0, 2);
 		
-		Button refreshbtn = new Button("\uD83D\uDDD8 " + langBundle.getString("refreshButton"));
+		Button refreshbtn = new Button("\uD83D\uDDD8 " + LanguageManager.getString("refreshButton"));
 		refreshbtn.setOnAction(e -> refreshMessaging());
 		gridPane.add(refreshbtn, 0, 3);
 		
 		dialog.getDialogPane().getButtonTypes().addAll(ButtonType.CLOSE);
-		
+		PopupUI.removeOpenDialog(dialog);
 		DialogPane dialogPane = dialog.getDialogPane();
 		dialogPane.setContent(gridPane);
 		
 		dialog.showAndWait();
+		PopupUI.removeOpenDialog(dialog);
 	}
 	
 	/**Triggered when the refresh button is clicked.
@@ -131,15 +127,15 @@ public class MessagingUI {
 	 */
 	private void refreshMessaging() {
 		allMessages.getItems().clear();
-		ArrayList<Message> messageList = new MessagingControl().processAllFilteredMessages(searchField.getText());
+		Message[] messages = MessageController.get(searchField.getText());
 		
-		 	for (int i = 0; i < messageList.size(); i++) {
+		 	for (int i = 0; i < messages.length; i++) {
 		 		
-		 		Label messageLabel = new Label(messageList.get(i).getText());
-		 		messageLabel.setTooltip(new Tooltip(messageList.get(i).getTimeSent().toString()));
+		 		Label messageLabel = new Label(messages[i].getText());
+		 		messageLabel.setTooltip(new Tooltip(messages[i].getTimeSent().toString()));
 		 		BorderPane box = new BorderPane();
 		 		
-		 		if((LoginControl.getUser().getUsername().equals(messageList.get(i).getSender()))) {
+		 		if((UserController.getUser().getUsername().equals(messages[i].getSender()))) {
 		 			box.setRight(messageLabel);
 		 		} else {
 		 			box.setLeft(messageLabel);
@@ -152,15 +148,16 @@ public class MessagingUI {
 	/**Triggered when the Enter key is pressed when in the compose field, or the <i>Send</i> button is clicked.*/
 	private void sendMessage() {
 		if(!composeField.getText().isEmpty()) {
-			Message message = new Message(LoginControl.getUser().getUsername(), searchField.getText(), composeField.getText());
-			new MessagingControl().processSendMessage(message);
-			Label newLabel = new Label(message.getText());
-			BorderPane box = new BorderPane();
-			box.setRight(newLabel);
-			
-			allMessages.getItems().add(box);
-			
-			composeField.setText("");
+			Message message = new Message(UserController.getUser().getUsername(), searchField.getText(), composeField.getText());
+			if (MessageController.create(message)) {
+				Label newLabel = new Label(message.getText());
+				BorderPane box = new BorderPane();
+				box.setRight(newLabel);
+				
+				allMessages.getItems().add(box);
+				
+				composeField.setText("");
+			}
 		}
 	}
 	

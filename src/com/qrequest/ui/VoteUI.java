@@ -1,7 +1,7 @@
 package com.qrequest.ui;
 
-import com.qrequest.control.LoginControl;
-import com.qrequest.control.VoteControl;
+import com.qrequest.control.UserController;
+import com.qrequest.control.VoteController;
 import com.qrequest.objects.Post;
 import com.qrequest.objects.Vote;
 import com.qrequest.objects.Vote.VoteType;
@@ -89,13 +89,12 @@ public class VoteUI {
 				formatVotesLabel(votesLabel, +1);
 			}
 			
-			
-			new VoteControl().addVote(new Vote(post, LoginControl.getUser(), VoteType.UPVOTE));
+			VoteController.createOrUpdate(new Vote(post, UserController.getUser(), VoteType.UPVOTE));
 			post.setCurrentUserVote(VoteType.UPVOTE);
 		} else {
 			
 			formatVotesLabel(votesLabel, -1);
-			new VoteControl().addVote(new Vote(post, LoginControl.getUser(), VoteType.RESET_VOTE));
+			VoteController.createOrUpdate(new Vote(post, UserController.getUser(), VoteType.RESET_VOTE));
 			post.setCurrentUserVote(VoteType.RESET_VOTE);
 		}
 		
@@ -112,13 +111,12 @@ public class VoteUI {
 				formatVotesLabel(votesLabel, -1);
 			}
 			
-			
-			new VoteControl().addVote(new Vote(post, LoginControl.getUser(), VoteType.DOWNVOTE));
+			VoteController.createOrUpdate(new Vote(post, UserController.getUser(), VoteType.DOWNVOTE));
 			post.setCurrentUserVote(VoteType.DOWNVOTE);
 		} else {
 			
 			formatVotesLabel(votesLabel, +1);
-			new VoteControl().addVote(new Vote(post, LoginControl.getUser(), VoteType.RESET_VOTE));
+			VoteController.createOrUpdate(new Vote(post, UserController.getUser(), VoteType.RESET_VOTE));
 			post.setCurrentUserVote(VoteType.RESET_VOTE);
 		}
 		
@@ -153,6 +151,4 @@ public class VoteUI {
 	private int getVoteCount(Label label) {
 		return Integer.parseInt(label.getText().trim());
 	}
-	
-	
 }

@@ -2,7 +2,7 @@ package com.qrequest.ui;
 
 import java.util.ResourceBundle;
 
-import com.qrequest.control.LoginControl;
+import com.qrequest.control.UserController;
 import com.qrequest.helpers.LanguageManager;
 import com.qrequest.helpers.ThemeManager;
 import com.qrequest.objects.Language;
@@ -11,7 +11,6 @@ import javafx.scene.control.CheckMenuItem;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuBar;
 import javafx.scene.control.MenuItem;
-import javafx.scene.control.ToolBar;
 
 /**The UI for the menu bar (bar at the top with Settings, etc).*/
 public class MenuBarUI {
@@ -28,25 +27,23 @@ public class MenuBarUI {
 	public MenuBarUI(ForumUI forumUI) {
 		this.forumUI = forumUI;
 		
-		ResourceBundle langBundle = LanguageManager.getLangBundle();
-		
 		menubar = new MenuBar();
 		
 		//ACCOUNT MENU
-		Menu accountMenu = new Menu(String.format(langBundle.getString("loggedInAsButton"), LoginControl.getUser().getUsername()));
-		MenuItem logoutItem = new MenuItem(langBundle.getString("logoutButton"));
+		Menu accountMenu = new Menu(String.format(LanguageManager.getString("loggedInAsButton"), UserController.getUser().getUsername()));
+		MenuItem logoutItem = new MenuItem(LanguageManager.getString("logoutButton"));
 		logoutItem.setOnAction(e -> logoutButtonPress());
 		accountMenu.getItems().add(logoutItem);
 		
 		//OPTIONS MENU
-		Menu optionsMenu = new Menu(langBundle.getString("optionsButton"));
-		CheckMenuItem darkModeItem = new CheckMenuItem(langBundle.getString("darkModeButton"));
+		Menu optionsMenu = new Menu(LanguageManager.getString("optionsButton"));
+		CheckMenuItem darkModeItem = new CheckMenuItem(LanguageManager.getString("darkModeButton"));
 		darkModeItem.setOnAction(e -> themeButtonPress(darkModeItem.isSelected()));
 		darkModeItem.setSelected(ThemeManager.isDarkModeEnabled());
 		optionsMenu.getItems().addAll(darkModeItem);
 		
 		//LANGUAGE MENU
-		Menu languageMenu = new Menu(langBundle.getString("languageButton"));
+		Menu languageMenu = new Menu(LanguageManager.getString("languageButton"));
 		Language currentLang = LanguageManager.getSavedLanguage();
 		for(Language lang : Language.values()) { //Automatically lists all Languages.
 			CheckMenuItem langItem = new CheckMenuItem(lang.getName());

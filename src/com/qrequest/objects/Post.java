@@ -1,15 +1,12 @@
 package com.qrequest.objects;
 
-import java.util.Date;
-import java.util.UUID;
-
 import com.qrequest.objects.Vote.VoteType;
 
 /**Generic class for a post, could be a question or answer*/
 public abstract class Post {
 	
 	/**Unique ID, invisible to user*/
-	private UUID id; 
+	private String id; 
 	
 	/**The time at which the question was posted.*/
 	private TeiTime timePosted;
@@ -27,7 +24,7 @@ public abstract class Post {
 	private int currentUserVote;
 	
 	/**Create a post with only an ID.*/
-	protected Post(UUID id) {
+	protected Post(String id) {
 		this.id = id;
 	}
 	
@@ -40,12 +37,11 @@ public abstract class Post {
 	 * @param currentUserVote The current user's vote on this <code>Post</code>, can be -1, 0, +1.
 	 * @param answerCount The number of answers this post has.
 	 */
-	protected Post(String description, User author, UUID id, Date timePosted, int votes, int currentUserVote) {
+	protected Post(String description, User author, String id, TeiTime timePosted, int votes, int currentUserVote) {
 		this.description = description;
 		this.author = author;
 		this.id = id;
-		this.timePosted = new TeiTime();
-		this.timePosted.setTimeInMillis(timePosted.getTime());
+		this.timePosted = timePosted;
 		this.votes = votes;
 		this.currentUserVote = currentUserVote;
 	}
@@ -58,7 +54,6 @@ public abstract class Post {
 	protected Post(String description, User author) {
 		this.description = description;
 		this.author = author;
-		this.id = UUID.randomUUID();
 	}
 	
 	/**Returns time when the answer was posted.
@@ -79,7 +74,7 @@ public abstract class Post {
 	 * @return the answer's unique ID.
 	 */
 	public String getID() {
-		return id.toString();
+		return id;
 	}
 	
 	/**Returns the answer text.
@@ -138,6 +133,4 @@ public abstract class Post {
 	public String getPostType() {
 		return getClass().getSimpleName();
 	}
-	
-	
 }

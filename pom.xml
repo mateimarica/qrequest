@@ -59,8 +59,26 @@
 			<groupId>org.openjfx</groupId>
 			<artifactId>javafx-fxml</artifactId>
 			<version>18-ea+8</version>
+			<exclusions>
+				<exclusion>
+					<artifactId>javafx-controls</artifactId>
+					<groupId>org.openjfx</groupId>
+				</exclusion>
+			</exclusions>
 		</dependency>
+		<dependency> <!-- https://mvnrepository.com/artifact/org.json/json -->
+			<groupId>org.json</groupId>
+			<artifactId>json</artifactId>
+			<version>20211205</version>
+		</dependency>
+		<dependency> <!-- https://mvnrepository.com/artifact/org.eclipse.jetty/jetty-client -->
+			<groupId>org.eclipse.jetty</groupId>
+			<artifactId>jetty-client</artifactId>
+			<version>9.1.0.M0</version>
+		</dependency>
+
 	</dependencies>
+
 	<properties>
 		<maven.compiler.source>1.8</maven.compiler.source>
 		<maven.compiler.target>1.8</maven.compiler.target>
