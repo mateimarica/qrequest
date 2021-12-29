@@ -1,11 +1,15 @@
 package com.qrequest.ui;
 
+import java.nio.file.Paths;
+
+import com.qrequest.control.UpdateController;
 import com.qrequest.control.UserController;
 import com.qrequest.helpers.LanguageManager;
 import com.qrequest.helpers.ThemeManager;
 import com.qrequest.objects.Credentials;
 
 import javafx.application.Application;
+import javafx.application.Platform;
 import javafx.scene.image.Image;
 import javafx.stage.Stage;
 
@@ -37,7 +41,11 @@ public class MainUI extends Application {
 	public void start(Stage stage) throws Exception {
 		//Sets icon, application title, etc
 		setUpStage(stage);
-		
+
+		new Thread(() -> {
+			UpdateController.checkForUpdates();
+		}).start();
+
 		LanguageManager.loadSavedLanguage();
 		
 		//Checks the saved credentials (if there are any)
@@ -80,11 +88,12 @@ public class MainUI extends Application {
 		return stage;
 	}
 	
-	/**Called when the close is closed.*/
+	/**Called when the stage is closed.*/
 	private static void closeProgram(Stage stage) {
 		//This method is called when the user tries to close the program.
 		//This could have some kind of saving functionality if needed.
 		stage.close();
+		Platform.exit();
 		System.exit(0);
 	}	
 }

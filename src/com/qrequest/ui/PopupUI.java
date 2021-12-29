@@ -6,12 +6,24 @@ import java.util.NoSuchElementException;
 import com.qrequest.helpers.LanguageManager;
 import com.qrequest.helpers.ThemeManager;
 
+import javafx.application.Platform;
+import javafx.geometry.HPos;
+import javafx.geometry.Insets;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
+import javafx.scene.control.Button;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.Dialog;
+import javafx.scene.control.DialogPane;
+import javafx.scene.control.ListView;
+import javafx.scene.control.ProgressBar;
+import javafx.scene.control.ProgressIndicator;
+import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
+import javafx.scene.layout.GridPane;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
 /**Class for reducing the amount of boilerplate code when displaying pop-ups.
@@ -82,7 +94,7 @@ public class PopupUI {
 		dialog.setHeaderText(null);
 		dialog.setTitle(title);
 		dialog.setContentText(text);
-		
+
 		//set dark theme for pop-up
 		Scene scene = dialog.getDialogPane().getScene();
 		scene.getStylesheets().add(ThemeManager.getCurrentThemeURL());			
@@ -129,5 +141,50 @@ public class PopupUI {
 	
 	static void removeOpenDialog(Dialog dialog) {
 		openDialogs.remove(dialog);
+	}
+
+	public static class ProgressDialog {
+		private Dialog dialog;
+		private ProgressBar progressBar;
+
+		public ProgressDialog() {
+			Platform.runLater(() -> {
+				progressBar = new ProgressBar(0);
+				progressBar = new ProgressBar(0);
+				progressBar.setPrefWidth(300);
+
+				VBox vbox = new VBox();
+				vbox.setPrefWidth(300);
+				vbox.getChildren().add(progressBar);
+				
+				dialog = new Dialog();
+				PopupUI.setupDialogStyling(dialog);	
+				dialog.setTitle("Downloading...");
+				dialog.getDialogPane().getButtonTypes().addAll(ButtonType.CANCEL);
+				
+				DialogPane dialogPane = dialog.getDialogPane();
+				dialogPane.setContent(vbox);
+			});
+		}
+
+		public void close() {
+			Platform.runLater(() -> {
+				dialog.close();
+			});
+			PopupUI.removeOpenDialog(dialog);
+		}
+
+		public ProgressDialog show() {
+			Platform.runLater(() -> {
+				dialog.show();
+			});
+			return this;
+		}
+
+		public void updateProgess(double percent) {
+			Platform.runLater(() -> {
+				progressBar.setProgress(percent);
+			});
+		}
 	}
 }

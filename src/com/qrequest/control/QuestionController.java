@@ -20,7 +20,7 @@ public class QuestionController {
 				.put("tag", question.getTag().name())
 			);
 
-		ContentResponse res = Connector.send(Method.POST, "/questions", body);
+		ContentResponse res = Connector.sendQRequest(Method.POST, "/questions", body);
 		if (res == null) return false;
 		switch (res.getStatus()) {
 			case 201:
@@ -40,7 +40,7 @@ public class QuestionController {
 				.put("id", id)
 			);
 
-		ContentResponse res = Connector.send(Method.GET, "/questions", body);
+		ContentResponse res = Connector.sendQRequest(Method.GET, "/questions", body);
 		if (res == null) return null;
 		switch (res.getStatus()) {
 			case 200:
@@ -57,7 +57,7 @@ public class QuestionController {
 	public static Question[] list() {
 		JSONObject body = new JSONObject();
 
-		ContentResponse res = Connector.send(Method.GET, "/questions/list", body);
+		ContentResponse res = Connector.sendQRequest(Method.GET, "/questions/list", body);
 		if (res == null) return null;
 		switch (res.getStatus()) {
 			case 200:
@@ -86,7 +86,7 @@ public class QuestionController {
 		JSONObject body = new JSONObject()
 			.put("params", params);
 
-		ContentResponse res = Connector.send(Method.GET, "/questions/search", body);
+		ContentResponse res = Connector.sendQRequest(Method.GET, "/questions/search", body);
 		if (res == null) return null;
 		switch (res.getStatus()) {
 			case 200:
@@ -108,7 +108,7 @@ public class QuestionController {
 				.put("id", question.getID())
 			);
 
-		ContentResponse res = Connector.send(Method.PATCH, "/questions/toggle-pin", body);
+		ContentResponse res = Connector.sendQRequest(Method.PATCH, "/questions/toggle-pin", body);
 		if (res == null) return false;
 		switch (res.getStatus()) {
 			case 204:
@@ -126,7 +126,7 @@ public class QuestionController {
 				.put("description", question.getDescription())
 				.put("tag", question.getTag().name()));
 
-		ContentResponse res = Connector.send(Method.PATCH, "/questions", body);
+		ContentResponse res = Connector.sendQRequest(Method.PATCH, "/questions", body);
 		if (res == null) return false;
 		switch (res.getStatus()) {
 			case 204:
@@ -142,7 +142,7 @@ public class QuestionController {
 			.put("params", new JSONObject()
 				.put("id", question.getID()));
 
-		ContentResponse res = Connector.send(Method.DELETE, "/questions", body);
+		ContentResponse res = Connector.sendQRequest(Method.DELETE, "/questions", body);
 		if (res == null) return false;
 		switch (res.getStatus()) {
 			case 204:
@@ -159,7 +159,7 @@ public class QuestionController {
 				.put("id", question.getID())
 				.put("solvedAnswerId", (answerId == null ? JSONObject.NULL : answerId)));
 
-		ContentResponse res = Connector.send(Method.PATCH, "/questions/mark-solved", body);
+		ContentResponse res = Connector.sendQRequest(Method.PATCH, "/questions/mark-solved", body);
 		if (res == null) return false;
 		switch (res.getStatus()) {
 			case 204:

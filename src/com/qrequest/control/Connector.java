@@ -11,6 +11,7 @@ import com.qrequest.ui.MainUI.Environment;
 
 import org.eclipse.jetty.client.HttpClient;
 import org.eclipse.jetty.client.api.ContentResponse;
+import org.eclipse.jetty.client.api.Request;
 import org.eclipse.jetty.client.util.StringContentProvider;
 import org.eclipse.jetty.http.HttpHeader;
 import org.eclipse.jetty.util.ssl.SslContextFactory;
@@ -19,7 +20,7 @@ import org.json.JSONObject;
 /** Connection wrapper */
 public class Connector {
 
-	private static final String API_URL = (MainUI.getEnv() == Environment.PROD ? 
+	private static final String QR_API_URL = (MainUI.getEnv() != Environment.PROD ? 
 	                                      "https://qr.mateimarica.dev/api" : 
 	                                      "https://qr.mateimarica.local:5000/api");
 	
@@ -45,16 +46,27 @@ public class Connector {
 		}
 	}
 
-	
-	public static ContentResponse send(Connector.Method method, String endpoint, JSONObject body) {
-		body.put("session", UserController.getSession());
+	static ContentResponse sendQRequest(Method method, String endpoint, JSONObject body) {
+		return send(method, QR_API_URL + endpoint, body, "application/json", "application/json", false);
+	}
 
-		org.eclipse.jetty.client.api.Request request = httpClient.newRequest(API_URL + endpoint)
+	 static ContentResponse send(Method method, String endpoint, JSONObject body, String acceptHeader, String contentTypeHeader, boolean silentlyFail) {
+		if (body != null && UserController.getSession() != null)
+			body.put("session", UserController.getSession());
+
+		Request request = httpClient.newRequest(endpoint)
             .method(method.name())
-            .header(HttpHeader.ACCEPT, "application/json")
-        	.header(HttpHeader.CONTENT_TYPE, "application/json")
-			.content(new StringContentProvider(body.toString()), "application/json")
 			.timeout(5, TimeUnit.SECONDS);
+
+		if (acceptHeader != null)
+			request.header(HttpHeader.ACCEPT, acceptHeader);
+
+		if (body != null && contentTypeHeader != null) {
+			request.content(new StringContentProvider(body.toString()), acceptHeader)
+			       .header(HttpHeader.CONTENT_TYPE, "application/json");
+		} else if (body == null ^ contentTypeHeader == null) {
+			throw new NullPointerException("Both or neither the body and contentTypeHeader must be provided");
+		}
 
 		try {
 			ContentResponse res = request.send();
@@ -62,7 +74,7 @@ public class Connector {
 				case 401:
 					Credentials creds = Credentials.getSavedCredentials();
 					if (creds != null && UserController.login(creds)) {
-						return send(method, endpoint, body);
+						return send(method, endpoint, body, acceptHeader, contentTypeHeader, silentlyFail);
 					}
 					UserController.forceLogout();
 					PopupUI.displayErrorDialog(
@@ -74,10 +86,12 @@ public class Connector {
 					return res;
 			}
 		} catch (InterruptedException | ExecutionException e) {
-			PopupUI.displayErrorDialog("Error", "The request could not be completed. Message: " + e.getMessage());
+			if (!silentlyFail)
+				PopupUI.displayErrorDialog("Error", "The request could not be completed. Message: " + e.getMessage());
 			return null;
 		} catch (TimeoutException e) {
-			PopupUI.displayErrorDialog("Error", "The request timed out. Message: " + e.getMessage());
+			if (!silentlyFail)
+				PopupUI.displayErrorDialog("Error", "The request timed out. Message: " + e.getMessage());
 			return null;
 		} 
 	}

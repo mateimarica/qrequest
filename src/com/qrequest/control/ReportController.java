@@ -23,7 +23,7 @@ public class ReportController {
 		JSONObject body = new JSONObject()
 			.put("params", params) ;
 
-		ContentResponse res = Connector.send(Method.POST, "/reports", body);
+		ContentResponse res = Connector.sendQRequest(Method.POST, "/reports", body);
 		if (res == null) return false;
 		switch (res.getStatus()) {
 			case 201:

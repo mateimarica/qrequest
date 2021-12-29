@@ -18,7 +18,7 @@ public class MessageController {
 				.put("message", message.getText())
 			);
 
-		ContentResponse res = Connector.send(Method.POST, "/messages", body);
+		ContentResponse res = Connector.sendQRequest(Method.POST, "/messages", body);
 		if (res == null) return false;
 		switch (res.getStatus()) {
 			case 201:
@@ -38,7 +38,7 @@ public class MessageController {
 				.put("recipient", recipient)
 			);
 
-		ContentResponse res = Connector.send(Method.GET, "/messages", body);
+		ContentResponse res = Connector.sendQRequest(Method.GET, "/messages", body);
 		if (res == null) return null;
 		switch (res.getStatus()) {
 			case 200:

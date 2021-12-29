@@ -125,8 +125,8 @@ public class ForumUI {
 	 * Clears the saved credentials and user object, and starts the LoginUI scene.
 	 */
 	public void logout() {
-		PopupUI.closeOpenDialogs();
 		stage.close();
+		PopupUI.closeOpenDialogs();
 		Credentials.removeCredentials();
 		UserController.resetUser();
 		new LoginUI().startScene(MainUI.setUpStage(new Stage()));

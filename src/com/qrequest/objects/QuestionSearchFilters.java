@@ -7,7 +7,7 @@ public class QuestionSearchFilters {
 	
 	/**The keywords of the search. <code>null</code> if no keywords entered.*/
 	private String keywords;
-	
+
 	/**The tag selected by the user. <code>null</code> if no tag selected.*/
 	private Tag tag;
 	

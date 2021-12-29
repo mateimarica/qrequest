@@ -78,7 +78,6 @@ public class MessagingUI {
 			
 			if(searchField.getLength() != 0 && !key.equals("BACK_SPACE") && !key.equals("DELETE")) {
 				String[] usernames = UserController.search(searchField.getText(), 1);
-				System.out.println("In messaging");
 				if(usernames != null &&usernames.length != 0) {
 					int caretPosition = searchField.getCaretPosition();
 					searchField.setText(usernames[0]);

@@ -3,6 +3,7 @@ package com.qrequest.ui;
 import java.io.IOException;
 import java.util.ResourceBundle;
 
+import com.qrequest.control.UpdateController;
 import com.qrequest.control.UserController;
 import com.qrequest.helpers.LanguageManager;
 import com.qrequest.helpers.ThemeManager;
@@ -111,7 +112,7 @@ public class LoginUI {
 		} else {
 			Credentials.removeCredentials();
 		}
-		
+	
 		ForumUI forumUI = new ForumUI();
 		UserController.saveForumUI(forumUI);
 		forumUI.startScene(LoginUI.stage);

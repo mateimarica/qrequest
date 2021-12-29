@@ -19,7 +19,7 @@ public class AnswerController {
 				.put("questionId", answer.getQuestion().getID())
 			);
 
-		ContentResponse res = Connector.send(Method.POST, "/answers", body);
+		ContentResponse res = Connector.sendQRequest(Method.POST, "/answers", body);
 		if (res == null) return false;
 		switch (res.getStatus()) {
 			case 201:
@@ -39,7 +39,7 @@ public class AnswerController {
 				.put("questionId", question.getID())
 			);
 
-		ContentResponse res = Connector.send(Method.GET, "/answers", body);
+		ContentResponse res = Connector.sendQRequest(Method.GET, "/answers", body);
 		if (res == null) return null;
 		switch (res.getStatus()) {
 			case 200:
@@ -64,7 +64,7 @@ public class AnswerController {
 				.put("id", answer.getID())
 				.put("answer", answer.getDescription()));
 
-		ContentResponse res = Connector.send(Method.PATCH, "/answers", body);
+		ContentResponse res = Connector.sendQRequest(Method.PATCH, "/answers", body);
 		if (res == null) return false;
 		switch (res.getStatus()) {
 			case 204:
@@ -80,7 +80,7 @@ public class AnswerController {
 			.put("params", new JSONObject()
 				.put("id", answer.getID()));
 
-		ContentResponse res = Connector.send(Method.DELETE, "/answers", body);
+		ContentResponse res = Connector.sendQRequest(Method.DELETE, "/answers", body);
 		if (res == null) return false;
 		switch (res.getStatus()) {
 			case 204:

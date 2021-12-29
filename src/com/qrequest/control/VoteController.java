@@ -22,7 +22,7 @@ public class VoteController {
 		JSONObject body = new JSONObject()
 			.put("params", params);
 
-		ContentResponse res = Connector.send(Method.POST, "/votes", body);
+		ContentResponse res = Connector.sendQRequest(Method.POST, "/votes", body);
 		if (res == null) return false;
 		switch (res.getStatus()) {
 			case 201:
@@ -47,7 +47,7 @@ public class VoteController {
 		JSONObject body = new JSONObject()
 			.put("params", params);
 
-		ContentResponse res = Connector.send(Method.DELETE, "/votes", body);
+		ContentResponse res = Connector.sendQRequest(Method.DELETE, "/votes", body);
 		if (res == null) return false;
 		switch (res.getStatus()) {
 			case 201:

@@ -32,7 +32,7 @@ public class UserController {
 				.put("password", creds.getPassword())
 			);
 
-		ContentResponse res = Connector.send(Method.POST, "/users/register", body);
+		ContentResponse res = Connector.sendQRequest(Method.POST, "/users/register", body);
 		if (res == null) return false;
 		switch (res.getStatus()) {
 			case 201:
@@ -59,7 +59,7 @@ public class UserController {
 				.put("password", creds.getPassword())
 			);
 
-		ContentResponse res = Connector.send(Method.POST, "/users/login", body);
+		ContentResponse res = Connector.sendQRequest(Method.POST, "/users/login", body);
 		if (res == null) return false;
 		switch (res.getStatus()) {
 			case 200:
@@ -90,7 +90,7 @@ public class UserController {
 				.put("maxResultCount", maxResultCount))
 			.put("session", getSession());
 
-		ContentResponse res = Connector.send(Method.GET, "/users/search", body);
+		ContentResponse res = Connector.sendQRequest(Method.GET, "/users/search", body);
 		if (res == null) return null;
 		switch (res.getStatus()) {
 			case 200:
@@ -126,10 +126,11 @@ public class UserController {
 		user = new User(username, isAdmin);
 	}
 
-	/**Sets the logged-in user to null. For use when logging out.
+	/**Sets the logged-in user and their session to null. For use when logging out.
 	 */
 	public static void resetUser() {
 		user = null;
+		session = null;
 	}
 
 	/** Gives the UserController a reference to the forumUI so that it has the ability to force a login. */

@@ -2,9 +2,10 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.qrequest</groupId>
 	<artifactId>qrequest</artifactId>
-	<version>1.0</version>
+	<version>v1.1</version>
 	<name>QRequest</name>
 	<description>A JavaFX forum platform.</description>
+	<url>https://qr.mateimarica.dev</url>
 	<build>
 		<sourceDirectory>src</sourceDirectory>
 		<plugins>
@@ -34,6 +35,7 @@
 							<addClasspath>true</addClasspath>
 							<classpathPrefix>lib/</classpathPrefix>
 							<mainClass>com.qrequest.ui.UIStarter</mainClass>
+							<addDefaultImplementationEntries>true</addDefaultImplementationEntries>
 						</manifest>
 					</archive>
 					 <excludes>
@@ -41,6 +43,7 @@
 					</excludes>
 				</configuration>
 			</plugin>
+			
 		</plugins>
 		<resources>
 			<resource>
