@@ -1,9 +1,7 @@
 package com.qrequest.ui;
 
 import java.io.IOException;
-import java.util.ResourceBundle;
 
-import com.qrequest.control.UpdateController;
 import com.qrequest.control.UserController;
 import com.qrequest.managers.LanguageManager;
 import com.qrequest.managers.ThemeManager;

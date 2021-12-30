@@ -50,6 +50,10 @@ public class Connector {
 		return send(method, QR_API_URL + endpoint, body, "application/json", "application/json", false);
 	}
 
+	static ContentResponse sendQRequest(Method method, String endpoint) {
+		return send(method, QR_API_URL + endpoint, null, "application/json", null, false);
+	}
+
 	 static ContentResponse send(Method method, String endpoint, JSONObject body, String acceptHeader, String contentTypeHeader, boolean silentlyFail) {
 		if (body != null && UserController.getSession() != null)
 			body.put("session", UserController.getSession());
@@ -96,4 +100,3 @@ public class Connector {
 		} 
 	}
 }
-

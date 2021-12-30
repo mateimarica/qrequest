@@ -9,15 +9,12 @@ import java.nio.file.StandardCopyOption;
 import java.util.function.Consumer;
 
 import com.qrequest.control.Connector.Method;
-import com.qrequest.ui.MainUI;
 import com.qrequest.ui.PopupUI;
-import com.qrequest.ui.MainUI.Environment;
 import com.qrequest.ui.PopupUI.ProgressDialog;
 import com.qrequest.util.OSUtil;
 import com.qrequest.util.OSUtil.OS;
 
 import org.eclipse.jetty.client.api.ContentResponse;
-import org.json.JSONArray;
 import org.json.JSONObject;
 
 import javafx.application.Platform;
@@ -25,31 +22,26 @@ import javafx.application.Platform;
 public class UpdateController {
 	private UpdateController() {}
 
-	private static final String RELEASES_ENDPOINT = "https://api.github.com/repos/mateimarica/qrequest/releases?per_page=1",
-	                            DOWNLOAD_INFO_ENDPOINT = (MainUI.getEnv() == Environment.PROD ? 
-	                                                     "https://qr.mateimarica.dev/api/downloads" :
-								                         "https://qr.mateimarica.local:5000/api/downloads");
-
 	public static void checkForUpdates() {
 		String currentVersion = UpdateController.class.getPackage().getImplementationVersion();
 		if (currentVersion == null) return;
 
-		ContentResponse res = Connector.send(Method.GET, RELEASES_ENDPOINT, null, "application/vnd.github.v3+json", null, false);
+		ContentResponse res = Connector.sendQRequest(Method.GET, "/downloads");
 		if (res == null) return;
 
 		switch (res.getStatus()) {
 			case 200:
-				JSONObject latestReleaseJson = (JSONObject) new JSONArray(res.getContentAsString()).get(0);
-				String latestVersion = (String) latestReleaseJson.get("tag_name");
+				JSONObject downloadInfoJson = new JSONObject(res.getContentAsString());
+				String latestVersion = downloadInfoJson.getString("version");
 
-				if (!currentVersion.equals(latestVersion)) {
+				if (currentVersion.equals(latestVersion)) {
 					Platform.runLater(() -> {
 						if(PopupUI.displayConfirmationDialog(
 							"Update available", 
 							"There is a new version of QRequest available: " + latestVersion + "\nWould you like to download it?"
 						)) {
 							new Thread(() -> {
-								determineDownload(latestReleaseJson);
+								determineDownload(downloadInfoJson);
 							}).start();
 						}
 					});
@@ -59,47 +51,25 @@ public class UpdateController {
 		}
 	}
 
-	private static void determineDownload(JSONObject latestReleaseJson) {
-		JSONArray assets = (JSONArray) latestReleaseJson.get("assets");
+	private static void determineDownload(JSONObject downloadInfoJson) {
+		JSONObject osDownloadJson = downloadInfoJson.getJSONObject("downloads").getJSONObject(OSUtil.getOS().toString());
+		String downloadFilename = osDownloadJson.optString("name", null);
+		int downloadSize = osDownloadJson.getInt("size");
+		String downloadURL = osDownloadJson.optString("browser_download_url", null);
 
-		ContentResponse res = Connector.send(Method.GET, DOWNLOAD_INFO_ENDPOINT, null, "application/json", null, true);
-		JSONObject extsJson = new JSONObject(res.getContentAsString()).getJSONObject("exts");
-
-		String soughtExtension;
-		switch (OSUtil.getOS()) {
-			case WINDOWS:
-				soughtExtension = extsJson.getString("windows");
-				break;
-			case LINUX:
-				soughtExtension = extsJson.getString("linux");
-				break;
-			case MACOS:
-				soughtExtension = extsJson.getString("macos");
-				break;
-			default:
-				soughtExtension = "jar";
+		if (downloadFilename == null || downloadSize == 0 || downloadURL == null) {
+			Platform.runLater(() -> {
+				PopupUI.displayErrorDialog(
+					"Download failed", 
+					"Couldn't find the correct distribution for your operating system."
+				);
+			});
+		} else {
+			downloadUpdate(downloadFilename, downloadSize, downloadURL);
 		}
-
-		for (int i = 0; i < assets.length(); i++) {
-			JSONObject asset = assets.getJSONObject(0);
-			if(asset.getString("name").endsWith(soughtExtension)) {
-				int downloadSize = asset.getInt("size"); // bytes
-				String downloadFilename = asset.getString("name");
-				String downloadURL = asset.getString("browser_download_url");
-				downloadUpdate(downloadSize, downloadFilename, downloadURL);
-				return;
-			}
-		}
-
-		Platform.runLater(() -> {
-			PopupUI.displayErrorDialog(
-				"Download failed", 
-				"Couldn't find the correct distribution for your operating system."
-			);
-		});
 	}
 
-	private static void downloadUpdate(int downloadSize, String downloadFilename, String downloadURL) {
+	private static void downloadUpdate(String downloadFilename, int downloadSize, String downloadURL) {
 		String currentJarPath = Paths.get(
 			new java.io.File(UpdateController.class.getProtectionDomain().getCodeSource().getLocation().getPath()).toString()
 		).toString();

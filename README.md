@@ -15,15 +15,8 @@ QRequest is an application that allows you to interact with others, build your k
 <br/>  
 
 ## Requirements
-* Java 8 or higher
+* [Oracle JRE 8](https://java.com/download/) or higher
 
-<br>
+	or
 
-## Dependencies
-* [JavaFX 11.0.2](https://openjfx.io/)
-* [JDBC Driver for MySQL (Connector/J) 5.1.49](https://dev.mysql.com/downloads/connector/j/5.1.html)
-
-<br>
-
-## About
-* QRequest is a database-centric application.
+* OpenJDK 11 or higher
