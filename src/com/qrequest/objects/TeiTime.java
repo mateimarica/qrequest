@@ -4,7 +4,7 @@ import java.time.ZonedDateTime;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 
-import com.qrequest.helpers.LanguageManager;
+import com.qrequest.managers.LanguageManager;
 
 /**Repesents a certain point in time.<br>
  * <code>toString()</code> returns relative informal date.<br>(Example: "3 days ago")

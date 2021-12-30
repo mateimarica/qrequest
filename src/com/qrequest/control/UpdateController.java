@@ -1,7 +1,6 @@
 package com.qrequest.control;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -10,8 +9,12 @@ import java.nio.file.StandardCopyOption;
 import java.util.function.Consumer;
 
 import com.qrequest.control.Connector.Method;
+import com.qrequest.ui.MainUI;
 import com.qrequest.ui.PopupUI;
+import com.qrequest.ui.MainUI.Environment;
 import com.qrequest.ui.PopupUI.ProgressDialog;
+import com.qrequest.util.OSUtil;
+import com.qrequest.util.OSUtil.OS;
 
 import org.eclipse.jetty.client.api.ContentResponse;
 import org.json.JSONArray;
@@ -22,7 +25,10 @@ import javafx.application.Platform;
 public class UpdateController {
 	private UpdateController() {}
 
-	private static final String RELEASES_ENDPOINT = "https://api.github.com/repos/mateimarica/qrequest/releases?per_page=1";
+	private static final String RELEASES_ENDPOINT = "https://api.github.com/repos/mateimarica/qrequest/releases?per_page=1",
+	                            DOWNLOAD_INFO_ENDPOINT = (MainUI.getEnv() == Environment.PROD ? 
+	                                                     "https://qr.mateimarica.dev/api/downloads" :
+								                         "https://qr.mateimarica.local:5000/api/downloads");
 
 	public static void checkForUpdates() {
 		String currentVersion = UpdateController.class.getPackage().getImplementationVersion();
@@ -43,7 +49,7 @@ public class UpdateController {
 							"There is a new version of QRequest available: " + latestVersion + "\nWould you like to download it?"
 						)) {
 							new Thread(() -> {
-								downloadUpdate(latestReleaseJson);
+								determineDownload(latestReleaseJson);
 							}).start();
 						}
 					});
@@ -53,13 +59,47 @@ public class UpdateController {
 		}
 	}
 
-	private static void downloadUpdate(JSONObject latestReleaseJson) {
-		JSONObject assetJson = ((JSONObject) ((JSONArray) latestReleaseJson.get("assets")).get(0)); // Change the 0 if there will be multiple
-		
-		int downloadSize = assetJson.getInt("size"); // bytes
-		String downloadFilename = assetJson.getString("name");
-		String downloadURL = assetJson.getString("browser_download_url");
+	private static void determineDownload(JSONObject latestReleaseJson) {
+		JSONArray assets = (JSONArray) latestReleaseJson.get("assets");
 
+		ContentResponse res = Connector.send(Method.GET, DOWNLOAD_INFO_ENDPOINT, null, "application/json", null, true);
+		JSONObject extsJson = new JSONObject(res.getContentAsString()).getJSONObject("exts");
+
+		String soughtExtension;
+		switch (OSUtil.getOS()) {
+			case WINDOWS:
+				soughtExtension = extsJson.getString("windows");
+				break;
+			case LINUX:
+				soughtExtension = extsJson.getString("linux");
+				break;
+			case MACOS:
+				soughtExtension = extsJson.getString("macos");
+				break;
+			default:
+				soughtExtension = "jar";
+		}
+
+		for (int i = 0; i < assets.length(); i++) {
+			JSONObject asset = assets.getJSONObject(0);
+			if(asset.getString("name").endsWith(soughtExtension)) {
+				int downloadSize = asset.getInt("size"); // bytes
+				String downloadFilename = asset.getString("name");
+				String downloadURL = asset.getString("browser_download_url");
+				downloadUpdate(downloadSize, downloadFilename, downloadURL);
+				return;
+			}
+		}
+
+		Platform.runLater(() -> {
+			PopupUI.displayErrorDialog(
+				"Download failed", 
+				"Couldn't find the correct distribution for your operating system."
+			);
+		});
+	}
+
+	private static void downloadUpdate(int downloadSize, String downloadFilename, String downloadURL) {
 		String currentJarPath = Paths.get(
 			new java.io.File(UpdateController.class.getProtectionDomain().getCodeSource().getLocation().getPath()).toString()
 		).toString();
@@ -87,16 +127,23 @@ public class UpdateController {
 
 	private static void restartClient(String currentJarPath, String destinationPath) {
 		try {
-			String cmd = "cmd /c ping localhost -n 2 > nul && del /f \"" + currentJarPath + "\" && start \"\" \"" + destinationPath + "\"";
-			Runtime.getRuntime().exec(cmd);
+			if (OSUtil.getOS() == OS.WINDOWS) {
+				Runtime.getRuntime().exec(
+					"cmd /c ping localhost -n 2 > nul && del /f \"" + currentJarPath + "\" && start \"\" \"" + destinationPath + "\""
+				);
+			} else {
+				Runtime.getRuntime().exec(
+					new String[] {"bash", "-c", "sleep 2; rm -rf \"" + currentJarPath +"\"; java -jar \"" + destinationPath + "\""}
+				);
+			}
 			Platform.exit();
 			System.exit(0);
 		} catch (IOException e) {
 			Platform.runLater(() -> {
 				PopupUI.displayErrorDialog(
 					"Cleanup failed", 
-					"This version of QRequest could not be cleaned up. Error: " + e.getMessage() 
-					+ "\nHowever, the new version of QRequest should now exist in the directory from which the executable was started."
+					"This old version of QRequest could not be cleaned up. However, the new version should now exist the same directory." +
+					"\nError: " + e.getMessage()
 				);
 			});
 		}

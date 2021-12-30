@@ -4,8 +4,8 @@ import java.nio.file.Paths;
 
 import com.qrequest.control.UpdateController;
 import com.qrequest.control.UserController;
-import com.qrequest.helpers.LanguageManager;
-import com.qrequest.helpers.ThemeManager;
+import com.qrequest.managers.LanguageManager;
+import com.qrequest.managers.ThemeManager;
 import com.qrequest.objects.Credentials;
 
 import javafx.application.Application;

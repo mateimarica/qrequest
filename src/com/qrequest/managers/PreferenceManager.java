@@ -1,4 +1,4 @@
-package com.qrequest.helpers;
+package com.qrequest.managers;
 
 import java.util.prefs.BackingStoreException;
 import java.util.prefs.Preferences;
@@ -14,7 +14,7 @@ public final class PreferenceManager {
 	
 	/**Preferences instance.
 	*/
-	private final static Preferences PREFS = Preferences.userNodeForPackage(com.qrequest.helpers.PreferenceManager.class);
+	private final static Preferences PREFS = Preferences.userNodeForPackage(com.qrequest.managers.PreferenceManager.class);
 	
 	/**Returns the value associated with the given preference key.
 	 * @param key The preference's key

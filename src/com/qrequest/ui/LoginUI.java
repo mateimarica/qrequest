@@ -5,8 +5,8 @@ import java.util.ResourceBundle;
 
 import com.qrequest.control.UpdateController;
 import com.qrequest.control.UserController;
-import com.qrequest.helpers.LanguageManager;
-import com.qrequest.helpers.ThemeManager;
+import com.qrequest.managers.LanguageManager;
+import com.qrequest.managers.ThemeManager;
 import com.qrequest.objects.Credentials;
 import com.qrequest.objects.Language;
 
@@ -62,6 +62,7 @@ public class LoginUI {
 	/**If this checkbox is ticked when the Login action is triggered, the user's credentials will be saved.*/
 	@FXML private CheckBox saveCredentialsCheckBox;	
 
+	@FXML private Label versionLabel;	
 	
 	private static Stage stage;
 	/**The login menu is created and shown by this method. Called by the MainUI class.
@@ -78,9 +79,13 @@ public class LoginUI {
 					
 			stage.setScene(loginScene);
 			stage.show();
-		} catch (IOException e) { e .printStackTrace(); }
+		} catch (IOException e) { e.printStackTrace(); }
 	}
 	
+	@FXML
+	public void initialize() {
+		versionLabel.setText(versionLabel.getText() + " " + getClass().getPackage().getImplementationVersion());
+	}
 	
 	/**Runs whens the "Login"/"Create Button" button is clicked. (Note: not the button at the button)
 	 * <dt>Login Case:</dt>

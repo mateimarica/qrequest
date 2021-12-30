@@ -3,8 +3,8 @@ package com.qrequest.ui;
 import java.util.ResourceBundle;
 
 import com.qrequest.control.UserController;
-import com.qrequest.helpers.LanguageManager;
-import com.qrequest.helpers.ThemeManager;
+import com.qrequest.managers.LanguageManager;
+import com.qrequest.managers.ThemeManager;
 import com.qrequest.objects.Language;
 
 import javafx.scene.control.CheckMenuItem;

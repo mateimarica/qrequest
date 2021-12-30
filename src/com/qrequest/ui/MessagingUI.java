@@ -5,7 +5,7 @@ import java.util.ResourceBundle;
 
 import com.qrequest.control.MessageController;
 import com.qrequest.control.UserController;
-import com.qrequest.helpers.LanguageManager;
+import com.qrequest.managers.LanguageManager;
 import com.qrequest.objects.Message;
 import com.qrequest.objects.User;
 

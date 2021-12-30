@@ -2,7 +2,7 @@ package com.qrequest.ui;
 
 import com.qrequest.control.QuestionController;
 import com.qrequest.control.UserController;
-import com.qrequest.helpers.LanguageManager;
+import com.qrequest.managers.LanguageManager;
 import com.qrequest.objects.Answer;
 import com.qrequest.objects.Post;
 

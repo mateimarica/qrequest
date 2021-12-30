@@ -1,12 +1,12 @@
 package com.qrequest.control;
 
-import com.qrequest.helpers.JSONParser;
 import com.qrequest.objects.Credentials;
-import com.qrequest.control.Connector;
 import com.qrequest.control.Connector.Method;
 import com.qrequest.objects.User;
 import com.qrequest.ui.ForumUI;
 import com.qrequest.ui.PopupUI;
+import com.qrequest.util.JSONUtil;
+
 import org.eclipse.jetty.client.api.ContentResponse;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -95,7 +95,7 @@ public class UserController {
 		switch (res.getStatus()) {
 			case 200:
 				JSONArray usernameJsonArray = new JSONArray(res.getContentAsString());
-				return JSONParser.toStringArray(usernameJsonArray);
+				return JSONUtil.toStringArray(usernameJsonArray);
 			case 401:
 				PopupUI.displayErrorDialog("Error", "Session has expired. Please log in again.");
 				return null;

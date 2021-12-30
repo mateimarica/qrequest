@@ -3,7 +3,7 @@ package com.qrequest.ui;
 import java.util.ResourceBundle;
 
 import com.qrequest.control.UserController;
-import com.qrequest.helpers.LanguageManager;
+import com.qrequest.managers.LanguageManager;
 
 import javafx.geometry.HPos;
 import javafx.geometry.Insets;

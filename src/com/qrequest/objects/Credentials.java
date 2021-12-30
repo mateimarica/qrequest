@@ -1,6 +1,6 @@
 package com.qrequest.objects;
 
-import com.qrequest.helpers.PreferenceManager;
+import com.qrequest.managers.PreferenceManager;
 
 /**Represents a username and password pair.*/
 public class Credentials {

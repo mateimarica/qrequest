@@ -2,7 +2,6 @@ package com.qrequest.control;
 
 import com.qrequest.objects.Question;
 import com.qrequest.objects.QuestionSearchFilters;
-import com.qrequest.control.Connector;
 import com.qrequest.control.Connector.Method;
 import com.qrequest.ui.PopupUI;
 import org.eclipse.jetty.client.api.ContentResponse;

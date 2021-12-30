@@ -20,9 +20,9 @@ import org.json.JSONObject;
 /** Connection wrapper */
 public class Connector {
 
-	private static final String QR_API_URL = (MainUI.getEnv() != Environment.PROD ? 
-	                                      "https://qr.mateimarica.dev/api" : 
-	                                      "https://qr.mateimarica.local:5000/api");
+	private static final String QR_API_URL = (MainUI.getEnv() == Environment.PROD ? 
+	                                         "https://qr.mateimarica.dev/api" : 
+	                                         "https://qr.mateimarica.local:5000/api");
 	
 	/** Request methods for the HTTP request */
 	public enum Method {

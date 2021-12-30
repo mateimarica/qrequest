@@ -1,4 +1,4 @@
-package com.qrequest.helpers;
+package com.qrequest.managers;
 
 /**This class sets and retrieves the current set theme. Also provides shortcuts to the themes.
  * Class is final because it shouldn't be extended.

@@ -3,8 +3,8 @@ package com.qrequest.ui;
 import java.util.ArrayList;
 import java.util.NoSuchElementException;
 
-import com.qrequest.helpers.LanguageManager;
-import com.qrequest.helpers.ThemeManager;
+import com.qrequest.managers.LanguageManager;
+import com.qrequest.managers.ThemeManager;
 
 import javafx.application.Platform;
 import javafx.geometry.HPos;

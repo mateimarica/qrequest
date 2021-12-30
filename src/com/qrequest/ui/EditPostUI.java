@@ -4,7 +4,7 @@ import java.util.ResourceBundle;
 
 import com.qrequest.control.AnswerController;
 import com.qrequest.control.QuestionController;
-import com.qrequest.helpers.LanguageManager;
+import com.qrequest.managers.LanguageManager;
 import com.qrequest.objects.Answer;
 import com.qrequest.objects.Post;
 import com.qrequest.objects.Question;

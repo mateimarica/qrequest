@@ -1,4 +1,4 @@
-package com.qrequest.helpers;
+package com.qrequest.managers;
 
 import java.util.MissingResourceException;
 import java.util.ResourceBundle;

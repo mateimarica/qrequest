@@ -1,6 +1,6 @@
 package com.qrequest.objects;
 
-import com.qrequest.helpers.LanguageManager;
+import com.qrequest.managers.LanguageManager;
 
 /**Represents a tag on a Question.*/
 

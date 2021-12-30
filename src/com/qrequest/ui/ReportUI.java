@@ -4,7 +4,7 @@ import java.util.ResourceBundle;
 
 import com.qrequest.control.ReportController;
 import com.qrequest.control.UserController;
-import com.qrequest.helpers.LanguageManager;
+import com.qrequest.managers.LanguageManager;
 import com.qrequest.objects.Post;
 import com.qrequest.objects.Report;
 import com.qrequest.objects.Report.ReportType;

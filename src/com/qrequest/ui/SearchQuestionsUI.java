@@ -3,7 +3,7 @@ package com.qrequest.ui;
 import java.util.ResourceBundle;
 
 import com.qrequest.control.QuestionController;
-import com.qrequest.helpers.LanguageManager;
+import com.qrequest.managers.LanguageManager;
 import com.qrequest.objects.QuestionSearchFilters;
 import com.qrequest.objects.Tag;
 

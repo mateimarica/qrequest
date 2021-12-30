@@ -1,6 +1,5 @@
 package com.qrequest.control;
 
-import com.qrequest.control.Connector;
 import com.qrequest.control.Connector.Method;
 import com.qrequest.ui.PopupUI;
 import com.qrequest.objects.Vote;
