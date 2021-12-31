@@ -8,7 +8,7 @@ public enum Language {
 	ENGLISH("en", "English"),
 	
 	/**Represents the Romanian language.*/
-	ROMANIAN("ro", "Român\u0103");
+	ROMANIAN("ro", "Rom\u00E2n\u0103");
 	
 	//Add new languages here	
 	

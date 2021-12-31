@@ -34,7 +34,7 @@ public class UpdateController {
 				JSONObject downloadInfoJson = new JSONObject(res.getContentAsString());
 				String latestVersion = downloadInfoJson.getString("version");
 
-				if (currentVersion.equals(latestVersion)) {
+				if (!currentVersion.equals(latestVersion)) {
 					Platform.runLater(() -> {
 						if(PopupUI.displayConfirmationDialog(
 							"Update available", 
@@ -99,11 +99,11 @@ public class UpdateController {
 		try {
 			if (OSUtil.getOS() == OS.WINDOWS) {
 				Runtime.getRuntime().exec(
-					"cmd /c ping localhost -n 2 > nul && del /f \"" + currentJarPath + "\" && start \"\" \"" + destinationPath + "\""
+					"cmd /c ping localhost -n 3 > nul && del /f \"" + currentJarPath + "\" && start \"\" \"" + destinationPath + "\""
 				);
 			} else {
 				Runtime.getRuntime().exec(
-					new String[] {"bash", "-c", "sleep 2; rm -rf \"" + currentJarPath +"\"; java -jar \"" + destinationPath + "\""}
+					new String[] {"bash", "-c", "sleep 3; rm -rf \"" + currentJarPath +"\"; java -jar \"" + destinationPath + "\""}
 				);
 			}
 			Platform.exit();
