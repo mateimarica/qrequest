@@ -16,6 +16,7 @@ public enum Tag {
 	FOOD("\uD83C\uDF4C"),
 	VIDEO_GAMES("\uD83C\uDFAE"),
 	EIGHTEEN_PLUS("\uD83C\uDF46"),
+	CRIME("\uD83D\uDD2B"),
 	NO_TAG("");
 	
 	/**The tag's symbol.*/
