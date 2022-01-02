@@ -2,13 +2,15 @@ package com.qrequest.control;
 
 import java.io.IOException;
 import java.net.URL;
-import java.nio.file.Files;
+import java.nio.channels.Channels;
+import java.nio.channels.FileChannel;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
+import java.nio.file.StandardOpenOption;
 import java.util.function.Consumer;
 
 import com.qrequest.control.Connector.Method;
+import com.qrequest.objects.ProgressInputStream;
 import com.qrequest.ui.PopupUI;
 import com.qrequest.ui.PopupUI.ProgressDialog;
 import com.qrequest.util.OSUtil;
@@ -70,28 +72,46 @@ public class UpdateController {
 	}
 
 	private static void downloadUpdate(String downloadFilename, int downloadSize, String downloadURL) {
-		String currentJarPath = Paths.get(
+		Path currentJarPath = Paths.get(
 			new java.io.File(UpdateController.class.getProtectionDomain().getCodeSource().getLocation().getPath()).toString()
-		).toString();
+		);
 
-		Path destinationPath = Paths.get(new java.io.File(currentJarPath).getParent(), downloadFilename);
+		Path destinationPath = Paths.get(new java.io.File(currentJarPath.toString()).getParent(), downloadFilename);
 		
-		ProgressDialog progressDialog = new ProgressDialog().show();
-		Consumer<Double> progessCallback = (percent) -> {
-			progressDialog.updateProgess(percent);
+		ProgressDialog progressDialog = new ProgressDialog("Downloading...", downloadSize).show();
+		Consumer<Integer> progessCallback = (progress) -> {
+			progressDialog.updateProgess(progress);
 		};
 
-		try (ProcessInputStream in = new ProcessInputStream(new URL(downloadURL).openStream(), 1024*16, downloadSize, progessCallback)) {
-			Files.copy(in, destinationPath, StandardCopyOption.REPLACE_EXISTING);
+		try (ProgressInputStream in = new ProgressInputStream(new URL(downloadURL).openStream(), 1024*16, progessCallback)) {
+			FileChannel channel = FileChannel.open(destinationPath, StandardOpenOption.CREATE, StandardOpenOption.WRITE, StandardOpenOption.TRUNCATE_EXISTING);
+			progressDialog.setChannel(channel);
+			channel.transferFrom(Channels.newChannel(in), 0, downloadSize);
+			if(progressDialog.wasCanceled()) {
+				boolean deleteSuccessful = destinationPath.toFile().delete();
+				Platform.runLater(() -> {
+					String deleteMessage = "";
+					if (!deleteSuccessful) 
+						deleteMessage = "\nHowever, the unfinished download file couldn't be deleted:\n" + destinationPath.toAbsolutePath();
+
+					PopupUI.displayWarningDialog(
+						"Download canceled", 
+						"The download was canceled." + deleteMessage
+					);
+				});
+				return;
+			}
 			progressDialog.close();
-			restartClient(new java.io.File(currentJarPath).toString(), destinationPath.toString());
+			restartClient(currentJarPath.toString(), destinationPath.toString());
 		} catch (IOException e) {
+			progressDialog.close();
 			Platform.runLater(() -> {
 				PopupUI.displayErrorDialog(
 					"Download failed", 
-					"The download could not be completed. Error: " + e.getMessage()
+					"The download could not be completed. Error: " + e +"\nIs QRequest in a restricted directory?"
 				);
 			});
+			e.printStackTrace();
 		}
 	}
 

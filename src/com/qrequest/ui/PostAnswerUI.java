@@ -1,7 +1,5 @@
 package com.qrequest.ui;
 
-import java.util.ResourceBundle;
-
 import com.qrequest.control.AnswerController;
 import com.qrequest.control.UserController;
 import com.qrequest.managers.LanguageManager;

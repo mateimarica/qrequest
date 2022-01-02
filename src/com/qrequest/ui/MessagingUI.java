@@ -1,13 +1,9 @@
 package com.qrequest.ui;
 
-import java.util.ArrayList;
-import java.util.ResourceBundle;
-
 import com.qrequest.control.MessageController;
 import com.qrequest.control.UserController;
 import com.qrequest.managers.LanguageManager;
 import com.qrequest.objects.Message;
-import com.qrequest.objects.User;
 
 import javafx.geometry.Insets;
 import javafx.scene.control.Button;
