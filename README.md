@@ -6,17 +6,17 @@ Do you sit awake at night, deep in thought?
 
 QRequest is an application that allows you to interact with others, build your knowledge, and share information by asking & answering questions, all inside a tightly-knit community.
 
-<br/>
+## Downloads
+Download from the [official QRequest page](https://qr.mateimarica.dev).
 
-![Preview1](https://i.imgur.com/zDIvWxI.png) 
-![Preview2](https://i.imgur.com/rjVlEIW.png) 
-![Preview3](https://i.imgur.com/SXEfaBx.png) 
+<br>
 
-<br/>  
+![Preview1](https://raw.githubusercontent.com/mateimarica/public/master/qrequest/qrequest_preview_1.png)
 
-## Requirements
-* [Oracle JRE 8](https://java.com/download/) or higher
+<br>
 
-	or
+![Preview2](https://raw.githubusercontent.com/mateimarica/public/master/qrequest/qrequest_preview_2.png) 
 
-* OpenJDK 11 or higher
+<br>
+
+![Preview3](https://raw.githubusercontent.com/mateimarica/public/master/qrequest/qrequest_preview_3.png)
