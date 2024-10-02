@@ -2,6 +2,7 @@ package com.qrequest.control;
 
 import com.qrequest.objects.Message;
 import com.qrequest.control.Connector.Method;
+import com.qrequest.control.Connector.Params;
 import com.qrequest.ui.PopupUI;
 import org.eclipse.jetty.client.api.ContentResponse;
 import org.json.JSONArray;
@@ -32,12 +33,10 @@ public class MessageController {
 	}
 
 	public static Message[] get(String recipient) {
-		JSONObject body = new JSONObject()
-			.put("params", new JSONObject()
-				.put("recipient", recipient)
-			);
+		Params params = new Params()
+			.add("recipient", recipient);
 
-		ContentResponse res = Connector.sendQRequest(Method.GET, "/messages", body);
+		ContentResponse res = Connector.sendQRequest(Method.GET, "/messages", params);
 		if (res == null) return null;
 		switch (res.getStatus()) {
 			case 200:

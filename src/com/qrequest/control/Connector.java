@@ -1,5 +1,9 @@
 package com.qrequest.control;
 
+import java.util.AbstractMap.SimpleEntry;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
@@ -20,9 +24,7 @@ import org.json.JSONObject;
 /** Connection wrapper */
 public class Connector {
 
-	private static final String QR_API_URL = (MainUI.getEnv() == Environment.PROD ? 
-	                                         "https://qr.mateimarica.dev/api" : 
-	                                         "https://qr.mateimarica.local:5000/api");
+	private static final String QR_API_URL = "https://qr.mateimarica.dev/api";
 	
 	/** Request methods for the HTTP request */
 	public enum Method {
@@ -47,20 +49,36 @@ public class Connector {
 	}
 
 	static ContentResponse sendQRequest(Method method, String endpoint, JSONObject body) {
-		return send(method, QR_API_URL + endpoint, body, "application/json", "application/json", false);
+		return send(method, QR_API_URL + endpoint, body, null, "application/json", "application/json", false);
+	}
+
+	static ContentResponse sendQRequest(Method method, String endpoint, Params params) {
+		return send(method, QR_API_URL + endpoint, null, params, "application/json", null, false);
 	}
 
 	static ContentResponse sendQRequest(Method method, String endpoint) {
-		return send(method, QR_API_URL + endpoint, null, "application/json", null, false);
+		return send(method, QR_API_URL + endpoint, null, null, "application/json", null, false);
 	}
 
-	 static ContentResponse send(Method method, String endpoint, JSONObject body, String acceptHeader, String contentTypeHeader, boolean silentlyFail) {
-		if (body != null && UserController.getSession() != null)
-			body.put("session", UserController.getSession());
+	static ContentResponse send(Method method, String endpoint, JSONObject body, Params params, String acceptHeader, String contentTypeHeader, boolean silentlyFail) {
 
 		Request request = httpClient.newRequest(endpoint)
-            .method(method.name())
+			.method(method.name())
 			.timeout(5, TimeUnit.SECONDS);
+
+		if (UserController.getSession() != null) {
+			request
+				.header("SessionId", UserController.getSession().getString("sessionId"))
+				.header("Username", UserController.getSession().getString("username"));
+		}
+
+		if (params != null) {
+			Iterator<SimpleEntry<String, String>> it = params.getIterator();
+			while (it.hasNext()) {
+				SimpleEntry<String, String> param = it.next();
+				request.param(param.getKey(), param.getValue());
+			}
+		}
 
 		if (acceptHeader != null)
 			request.header(HttpHeader.ACCEPT, acceptHeader);
@@ -78,7 +96,7 @@ public class Connector {
 				case 401:
 					Credentials creds = Credentials.getSavedCredentials();
 					if (creds != null && UserController.login(creds)) {
-						return send(method, endpoint, body, acceptHeader, contentTypeHeader, silentlyFail);
+						return send(method, endpoint, body, params, acceptHeader, contentTypeHeader, silentlyFail);
 					}
 					UserController.forceLogout();
 					PopupUI.displayErrorDialog(
@@ -98,5 +116,18 @@ public class Connector {
 				PopupUI.displayErrorDialog("Error", "The request timed out. Message: " + e.getMessage());
 			return null;
 		} 
+	}
+
+	public static class Params {
+		private List<SimpleEntry<String, String>> params = new ArrayList<>();
+
+		public Params add(String key, String value) {
+			params.add(new SimpleEntry<String,String>(key, value));
+			return this;
+		}
+
+		public Iterator<SimpleEntry<String, String>> getIterator() {
+			return params.iterator();
+		}
 	}
 }

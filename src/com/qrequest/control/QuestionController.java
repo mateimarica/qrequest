@@ -3,6 +3,7 @@ package com.qrequest.control;
 import com.qrequest.objects.Question;
 import com.qrequest.objects.QuestionSearchFilters;
 import com.qrequest.control.Connector.Method;
+import com.qrequest.control.Connector.Params;
 import com.qrequest.ui.PopupUI;
 import org.eclipse.jetty.client.api.ContentResponse;
 import org.json.JSONArray;
@@ -34,12 +35,9 @@ public class QuestionController {
 	}
 
 	public static Question get(String id) {
-		JSONObject body = new JSONObject()
-			.put("params", new JSONObject()
-				.put("id", id)
-			);
+		Params params = new Params().add("id", id);
 
-		ContentResponse res = Connector.sendQRequest(Method.GET, "/questions", body);
+		ContentResponse res = Connector.sendQRequest(Method.GET, "/questions", params);
 		if (res == null) return null;
 		switch (res.getStatus()) {
 			case 200:
@@ -54,9 +52,7 @@ public class QuestionController {
 	}
 
 	public static Question[] list() {
-		JSONObject body = new JSONObject();
-
-		ContentResponse res = Connector.sendQRequest(Method.GET, "/questions/list", body);
+		ContentResponse res = Connector.sendQRequest(Method.GET, "/questions/list");
 		if (res == null) return null;
 		switch (res.getStatus()) {
 			case 200:
@@ -73,19 +69,15 @@ public class QuestionController {
 	}
 
 	public static Question[] search(QuestionSearchFilters filters) {
-		JSONObject params = new JSONObject()
-			.put("hasSolvedAnswer", filters.hasSolvedAnswer().name());
+		Params params = new Params().add("hasSolvedAnswer", filters.hasSolvedAnswer().name());
 
 		if (filters.getKeywords() != null)
-			params.put("keywords", filters.getKeywords());
+			params.add("keywords", filters.getKeywords());
 
 		if (filters.getTag() != null)
-			params.put("tag", filters.getTag().name());
+			params.add("tag", filters.getTag().name());
 
-		JSONObject body = new JSONObject()
-			.put("params", params);
-
-		ContentResponse res = Connector.sendQRequest(Method.GET, "/questions/search", body);
+		ContentResponse res = Connector.sendQRequest(Method.GET, "/questions/search", params);
 		if (res == null) return null;
 		switch (res.getStatus()) {
 			case 200:
@@ -137,11 +129,9 @@ public class QuestionController {
 	}
 
 	public static boolean delete(Question question) {
-		JSONObject body = new JSONObject()
-			.put("params", new JSONObject()
-				.put("id", question.getID()));
+		Params params = new Params().add("id", question.getID());
 
-		ContentResponse res = Connector.sendQRequest(Method.DELETE, "/questions", body);
+		ContentResponse res = Connector.sendQRequest(Method.DELETE, "/questions", params);
 		if (res == null) return false;
 		switch (res.getStatus()) {
 			case 204:

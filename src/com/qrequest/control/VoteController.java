@@ -1,6 +1,7 @@
 package com.qrequest.control;
 
 import com.qrequest.control.Connector.Method;
+import com.qrequest.control.Connector.Params;
 import com.qrequest.ui.PopupUI;
 import com.qrequest.objects.Vote;
 import org.eclipse.jetty.client.api.ContentResponse;
@@ -36,17 +37,14 @@ public class VoteController {
 	}
 
 	public static boolean delete(Vote vote) {
-		JSONObject params = new JSONObject();
+		Params params = new Params();
 
 		if (vote.getPost().isQuestion()) 
-			params.put("questionId", vote.getPost().getID());
+			params.add("questionId", vote.getPost().getID());
 		else 
-			params.put("answerId", vote.getPost().getID());
+			params.add("answerId", vote.getPost().getID());
 
-		JSONObject body = new JSONObject()
-			.put("params", params);
-
-		ContentResponse res = Connector.sendQRequest(Method.DELETE, "/votes", body);
+		ContentResponse res = Connector.sendQRequest(Method.DELETE, "/votes", params);
 		if (res == null) return false;
 		switch (res.getStatus()) {
 			case 201:

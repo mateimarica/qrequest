@@ -3,6 +3,7 @@ package com.qrequest.control;
 import com.qrequest.objects.Answer;
 import com.qrequest.objects.Question;
 import com.qrequest.control.Connector.Method;
+import com.qrequest.control.Connector.Params;
 import com.qrequest.ui.PopupUI;
 import org.eclipse.jetty.client.api.ContentResponse;
 import org.json.JSONArray;
@@ -33,12 +34,9 @@ public class AnswerController {
 	}
 
 	public static Answer[] get(Question question) {
-		JSONObject body = new JSONObject()
-			.put("params", new JSONObject()
-				.put("questionId", question.getID())
-			);
+		Params params = new Params().add("questionId", question.getID());
 
-		ContentResponse res = Connector.sendQRequest(Method.GET, "/answers", body);
+		ContentResponse res = Connector.sendQRequest(Method.GET, "/answers", params);
 		if (res == null) return null;
 		switch (res.getStatus()) {
 			case 200:
@@ -75,11 +73,9 @@ public class AnswerController {
 	}
 
 	public static boolean delete(Answer answer) {
-		JSONObject body = new JSONObject()
-			.put("params", new JSONObject()
-				.put("id", answer.getID()));
+		Params params = new Params().add("id", answer.getID());
 
-		ContentResponse res = Connector.sendQRequest(Method.DELETE, "/answers", body);
+		ContentResponse res = Connector.sendQRequest(Method.DELETE, "/answers", params);
 		if (res == null) return false;
 		switch (res.getStatus()) {
 			case 204:

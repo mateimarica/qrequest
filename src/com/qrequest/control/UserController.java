@@ -2,6 +2,7 @@ package com.qrequest.control;
 
 import com.qrequest.objects.Credentials;
 import com.qrequest.control.Connector.Method;
+import com.qrequest.control.Connector.Params;
 import com.qrequest.objects.User;
 import com.qrequest.ui.ForumUI;
 import com.qrequest.ui.PopupUI;
@@ -84,13 +85,11 @@ public class UserController {
 	}
 	
 	public static String[] search(String keyword, int maxResultCount) {
-		JSONObject body = new JSONObject()
-			.put("params", new JSONObject()
-				.put("username", keyword)
-				.put("maxResultCount", maxResultCount))
-			.put("session", getSession());
+		Params params = new Params()
+			.add("username", keyword)
+			.add("maxResultCount", maxResultCount + "");
 
-		ContentResponse res = Connector.sendQRequest(Method.GET, "/users/search", body);
+		ContentResponse res = Connector.sendQRequest(Method.GET, "/users/search", params);
 		if (res == null) return null;
 		switch (res.getStatus()) {
 			case 200:
